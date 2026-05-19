@@ -1,0 +1,302 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #06080d;
+  --color-sidebar: #080b11;
+  --color-card: #0c1018;
+  --color-border: #1a2030;
+  --color-text: #e8edf5;
+  --color-muted: #5a6580;
+  --color-dimmed: #3a4560;
+  --color-quote: #a0afc0;
+  --color-green: #00e5b0;
+  --color-red: #ff4d6d;
+  --color-blue: #0066ff;
+  --color-purple: #b466ff;
+  --color-gold: #f0c040;
+}
+
+html {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-dm-sans), system-ui, -apple-system, Segoe UI, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #06080d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a2030;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3548;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-dm-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+button {
+  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.font-heading {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.font-mono {
+  font-family: var(--font-dm-mono), ui-monospace, monospace;
+}
+
+.font-sans {
+  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Landing page — reliable fallbacks using design-system variables */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  display: inline-flex;
+  animation: ticker 45s linear infinite;
+  will-change: transform;
+}
+
+.landing {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.landing h1,
+.landing h2,
+.landing h3,
+.landing h4 {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+  font-weight: 400;
+  color: var(--color-text);
+}
+
+.landing .font-heading {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+  color: var(--color-text);
+}
+
+.landing .te-muted {
+  color: var(--color-muted);
+}
+
+.landing .te-dimmed {
+  color: var(--color-dimmed);
+}
+
+.landing .te-quote {
+  color: var(--color-quote);
+}
+
+.landing .te-green {
+  color: var(--color-green);
+}
+
+.landing .te-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+}
+
+.landing .faq-trigger {
+  background-color: transparent;
+  color: var(--color-text);
+  width: 100%;
+  text-align: left;
+}
+
+.landing .faq-trigger:hover {
+  background-color: #10141d;
+}
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Dark-native date/time inputs in modals */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  color-scheme: dark;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.55;
+  filter: invert(0.85);
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* === Dashboard motion system === */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInSoft {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes orbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 320ms ease-out both;
+}
+
+.animate-fadeInSoft {
+  animation: fadeInSoft 220ms ease-out both;
+}
+
+.animate-pulseGlow {
+  animation: pulseGlow 2.4s ease-in-out infinite;
+}
+
+.skeleton {
+  position: relative;
+  background: #1a2030;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(42, 48, 80, 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+/* Subtle radial vignette behind auth cards */
+.auth-vignette {
+  background:
+    radial-gradient(
+      900px 600px at 50% 12%,
+      rgba(0, 229, 176, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 500px at 85% 85%,
+      rgba(180, 102, 255, 0.06),
+      transparent 70%
+    ),
+    radial-gradient(
+      700px 500px at 15% 90%,
+      rgba(0, 102, 255, 0.05),
+      transparent 70%
+    ),
+    #06080d;
+}
+
+/* Subtle grid backdrop for hero panels */
+.grid-backdrop {
+  background-image:
+    linear-gradient(rgba(26, 32, 48, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 32, 48, 0.5) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+          mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+}
+
+/* Reusable accent shadow utilities */
+.glow-teal {
+  box-shadow: 0 0 24px rgba(0, 229, 176, 0.22);
+}
+.glow-teal-strong {
+  box-shadow: 0 0 0 1px rgba(0, 229, 176, 0.7), 0 0 28px rgba(0, 229, 176, 0.28);
+}
+.glow-purple-strong {
+  box-shadow: 0 0 0 1px rgba(180, 102, 255, 0.7), 0 0 28px rgba(180, 102, 255, 0.25);
+}
+.glow-gold-strong {
+  box-shadow: 0 0 0 1px rgba(240, 192, 64, 0.7), 0 0 28px rgba(240, 192, 64, 0.22);
+}
