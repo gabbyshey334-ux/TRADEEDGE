@@ -1,11 +1,15 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import type { Plan } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
 
 /** Deduped per request — layout + pages share one auth round-trip. */
 export const getAuthUser = cache(async () => {
+  if (!getSupabaseEnv()) {
+    return { user: null, error: null };
+  }
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,6 +41,9 @@ export interface SidebarUserData {
 }
 
 export async function getSidebarUser(): Promise<SidebarUserData> {
+  if (!getSupabaseEnv()) {
+    return { name: "Trader", email: "", plan: "starter" };
+  }
   const user = await requireAuthUser();
   const profile = await getUserProfile(user.id);
 

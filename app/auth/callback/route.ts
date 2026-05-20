@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -8,6 +11,12 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
+
+  if (!getSupabaseEnv()) {
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent("Server configuration error. Contact support.")}`
+    );
+  }
 
   const supabase = await createClient();
 
