@@ -23,7 +23,7 @@ export function TradeTable({
 
   if (!trades.length) {
     return (
-      <div className="rounded-xl border border-[#1a2030] bg-[#0c1018] p-8 sm:p-12 text-center text-sm text-[#8892a4] font-mono">
+      <div className="rounded-sm border border-[#1a2030] bg-[#0c1018] p-10 sm:p-14 text-center font-mono uppercase text-[11px] tracking-[0.24em] text-[#5a6580]">
         {emptyMessage}
       </div>
     );
@@ -41,64 +41,80 @@ export function TradeTable({
   }
 
   return (
-    <div className="rounded-xl border border-[#1a2030] bg-[#0c1018] overflow-hidden">
+    <div className="rounded-sm border border-[#1a2030] bg-[#0c1018] overflow-hidden">
       {/* Mobile card list */}
-      <div className="md:hidden divide-y divide-[#1a2030]">
-        {trades.map((t) => {
+      <div className="md:hidden divide-y divide-[#1a2030]/60">
+        {trades.map((t, i) => {
           const pnl = Number(t.pnl);
           const pnlColor = pnl >= 0 ? "#00e5b0" : "#ff4d6d";
           return (
             <div
               key={t.id}
               className={cn(
-                "p-4 space-y-3",
+                "group px-4 py-4 transition-colors duration-150",
+                i % 2 === 0 ? "bg-transparent" : "bg-[#0c1018]",
                 onEdit && "cursor-pointer active:bg-[#0f1420]"
               )}
               onClick={() => onEdit?.(t)}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="font-mono text-[15px] font-bold text-[#e8edf5] truncate">
+                  <div className="font-mono text-[17px] font-bold text-[#e8edf5] truncate tracking-[0.02em]">
                     {t.symbol}
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
                     <MarketBadge market={t.market} />
                     <DirectionBadge direction={t.direction} />
-                    <span className="text-[11px] font-mono text-[#8892a4]">
-                      {formatDate(t.date)}
-                    </span>
                   </div>
                 </div>
                 <div
-                  className="shrink-0 font-mono text-[15px] font-bold"
-                  style={{ color: pnlColor }}
+                  className="shrink-0 data-value text-right"
+                  style={{ color: pnlColor, fontSize: "18px" }}
                 >
                   {formatCurrency(pnl)}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-[#8892a4]">
+              <div
+                className="mt-3 grid grid-cols-3 gap-2 font-mono uppercase text-[9px] tracking-[0.22em] text-[#5a6580]"
+              >
                 <span>
-                  Entry <span className="text-[#e8edf5]">{Number(t.entry).toFixed(5)}</span>
+                  <span className="block text-[#3a4560]">Date</span>
+                  <span className="mt-0.5 block text-[#8892a4]">
+                    {formatDate(t.date)}
+                  </span>
                 </span>
                 <span>
-                  R:R <span className="text-[#e8edf5]">{t.rr != null ? Number(t.rr).toFixed(2) : "—"}</span>
+                  <span className="block text-[#3a4560]">Entry</span>
+                  <span className="mt-0.5 block text-[#e8edf5]">
+                    {Number(t.entry).toFixed(5)}
+                  </span>
+                </span>
+                <span>
+                  <span className="block text-[#3a4560]">R:R</span>
+                  <span className="mt-0.5 block text-[#e8edf5]">
+                    {t.rr != null ? Number(t.rr).toFixed(2) : "—"}
+                  </span>
                 </span>
                 {!compact && t.setup && (
-                  <span className="col-span-2">
-                    Setup <span className="text-[#e8edf5]">{t.setup}</span>
+                  <span className="col-span-3 pt-1">
+                    <span className="block text-[#3a4560]">Setup</span>
+                    <span className="mt-0.5 block text-[#8892a4]">
+                      {t.setup}
+                    </span>
                   </span>
                 )}
               </div>
               {(onEdit || onDelete) && (
                 <div
-                  className="flex gap-4 pt-1"
+                  className="mt-3 flex gap-4"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {onEdit && (
                     <button
                       type="button"
                       onClick={() => onEdit(t)}
-                      className="text-[10px] uppercase tracking-[0.22em] text-[#8892a4] hover:text-[#00e5b0]"
+                      className="font-mono uppercase text-[#8892a4] hover:text-[#00e5b0] active:scale-[0.98] transition-colors"
+                      style={{ fontSize: "10px", letterSpacing: "0.24em" }}
                     >
                       Edit
                     </button>
@@ -108,7 +124,8 @@ export function TradeTable({
                       type="button"
                       disabled={deletingId === t.id}
                       onClick={() => handleDelete(t)}
-                      className="text-[10px] uppercase tracking-[0.22em] text-[#8892a4] hover:text-[#ff4d6d] disabled:opacity-50"
+                      className="font-mono uppercase text-[#8892a4] hover:text-[#ff4d6d] active:scale-[0.98] disabled:opacity-50 transition-colors"
+                      style={{ fontSize: "10px", letterSpacing: "0.24em" }}
                     >
                       {deletingId === t.id ? "…" : "Delete"}
                     </button>
@@ -122,9 +139,9 @@ export function TradeTable({
 
       {/* Desktop table */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-sm min-w-[640px]">
+        <table className="w-full min-w-[640px] border-collapse">
           <thead>
-            <tr className="bg-[#080b11] border-b border-[#1a2030] text-[10px] uppercase tracking-[0.22em] text-[#5a6580] font-mono">
+            <tr className="bg-[#080b11] border-b border-[#1a2030]">
               <Th>Date</Th>
               <Th>Symbol</Th>
               <Th>Market</Th>
@@ -137,24 +154,29 @@ export function TradeTable({
               <Th align="right">R:R</Th>
               <Th align="right">P&amp;L</Th>
               {!compact && <Th>Emotion</Th>}
-              {(onEdit || onDelete) && <Th align="right">Actions</Th>}
+              {(onEdit || onDelete) && <Th align="right">{""}</Th>}
             </tr>
           </thead>
           <tbody>
-            {trades.map((t) => {
+            {trades.map((t, i) => {
               const pnl = Number(t.pnl);
               const pnlColor = pnl >= 0 ? "#00e5b0" : "#ff4d6d";
+              const zebra = i % 2 === 1;
               return (
                 <tr
                   key={t.id}
                   className={cn(
-                    "border-b border-[#1a2030] last:border-b-0 font-mono text-[13px] transition-colors duration-150",
+                    "group border-b border-[#1a2030]/60 last:border-b-0",
+                    "transition-colors duration-150",
+                    zebra ? "bg-[#0c1018]" : "bg-transparent",
                     onEdit && "cursor-pointer hover:bg-[#0f1420]"
                   )}
                   onClick={() => onEdit?.(t)}
                 >
-                  <Td className="text-[#8892a4]">{formatDate(t.date)}</Td>
-                  <Td className="text-[#e8edf5] font-semibold">{t.symbol}</Td>
+                  <Td className="text-[#5a6580]">{formatDate(t.date)}</Td>
+                  <Td className="text-[#e8edf5] font-semibold tracking-[0.02em]">
+                    {t.symbol}
+                  </Td>
                   <Td>
                     <MarketBadge market={t.market} />
                   </Td>
@@ -163,24 +185,24 @@ export function TradeTable({
                   </Td>
                   {!compact && <Td className="text-[#8892a4]">{t.setup ?? "—"}</Td>}
                   {!compact && <Td className="text-[#8892a4]">{t.session ?? "—"}</Td>}
-                  <Td align="right" className="text-[#e8edf5]">
+                  <Td align="right" className="text-[#e8edf5] tabular">
                     {Number(t.entry).toFixed(5)}
                   </Td>
-                  <Td align="right" className="text-[#8892a4]">
+                  <Td align="right" className="text-[#8892a4] tabular">
                     {t.exit_price != null ? Number(t.exit_price).toFixed(5) : "—"}
                   </Td>
                   {!compact && (
-                    <Td align="right" className="text-[#8892a4]">
+                    <Td align="right" className="text-[#8892a4] tabular">
                       {t.size != null ? Number(t.size).toFixed(2) : "—"}
                     </Td>
                   )}
-                  <Td align="right" className="text-[#8892a4]">
+                  <Td align="right" className="text-[#8892a4] tabular">
                     {t.rr != null ? Number(t.rr).toFixed(2) : "—"}
                   </Td>
                   <Td
                     align="right"
                     style={{ color: pnlColor }}
-                    className="font-bold"
+                    className="data-value tabular"
                   >
                     {formatCurrency(pnl)}
                   </Td>
@@ -189,7 +211,12 @@ export function TradeTable({
                   )}
                   {(onEdit || onDelete) && (
                     <Td align="right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-3">
+                      <div
+                        className={cn(
+                          "flex items-center justify-end gap-3",
+                          "opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                        )}
+                      >
                         {onEdit && (
                           <button
                             type="button"
@@ -197,7 +224,11 @@ export function TradeTable({
                               e.stopPropagation();
                               onEdit(t);
                             }}
-                            className="text-[10px] uppercase tracking-[0.22em] text-[#8892a4] hover:text-[#00e5b0] transition-colors"
+                            className="font-mono uppercase text-[#8892a4] hover:text-[#00e5b0] active:scale-[0.98] transition-colors"
+                            style={{
+                              fontSize: "10px",
+                              letterSpacing: "0.24em",
+                            }}
                           >
                             Edit
                           </button>
@@ -210,7 +241,11 @@ export function TradeTable({
                               e.stopPropagation();
                               handleDelete(t);
                             }}
-                            className="text-[10px] uppercase tracking-[0.22em] text-[#8892a4] hover:text-[#ff4d6d] disabled:opacity-50 transition-colors"
+                            className="font-mono uppercase text-[#8892a4] hover:text-[#ff4d6d] active:scale-[0.98] disabled:opacity-50 transition-colors"
+                            style={{
+                              fontSize: "10px",
+                              letterSpacing: "0.24em",
+                            }}
                           >
                             {deletingId === t.id ? "…" : "Delete"}
                           </button>
@@ -232,13 +267,17 @@ function DirectionBadge({ direction }: { direction: "Long" | "Short" }) {
   const isLong = direction === "Long";
   return (
     <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5",
-        "text-[9px] uppercase tracking-[0.22em] font-mono font-bold",
-        isLong
-          ? "bg-[#00e5b0]/10 text-[#00e5b0] border border-[#00e5b0]/30"
-          : "bg-[#ff4d6d]/10 text-[#ff4d6d] border border-[#ff4d6d]/30"
-      )}
+      className="inline-flex items-center font-mono font-bold uppercase"
+      style={{
+        fontSize: "9px",
+        letterSpacing: "0.22em",
+        padding: "3px 8px",
+        borderRadius: "3px",
+        backgroundColor: isLong
+          ? "rgba(0, 229, 176, 0.1)"
+          : "rgba(255, 77, 109, 0.1)",
+        color: isLong ? "#00e5b0" : "#ff4d6d",
+      }}
     >
       {direction}
     </span>
@@ -249,13 +288,17 @@ function MarketBadge({ market }: { market: "Forex" | "Futures" }) {
   const isForex = market === "Forex";
   return (
     <span
-      className={cn(
-        "inline-flex items-center rounded-md px-2 py-0.5",
-        "text-[9px] uppercase tracking-[0.22em] font-mono font-bold",
-        isForex
-          ? "bg-[#0066ff]/10 text-[#0066ff] border border-[#0066ff]/30"
-          : "bg-[#b466ff]/10 text-[#b466ff] border border-[#b466ff]/30"
-      )}
+      className="inline-flex items-center font-mono font-bold uppercase"
+      style={{
+        fontSize: "9px",
+        letterSpacing: "0.22em",
+        padding: "3px 8px",
+        borderRadius: "3px",
+        backgroundColor: isForex
+          ? "rgba(0, 229, 176, 0.12)"
+          : "rgba(0, 102, 255, 0.12)",
+        color: isForex ? "#00e5b0" : "#0066ff",
+      }}
     >
       {market}
     </span>
@@ -271,8 +314,13 @@ function Th({
 }) {
   return (
     <th
-      className="px-3 lg:px-4 py-3.5 font-medium first:pl-4 lg:first:pl-6 last:pr-4 lg:last:pr-6"
-      style={{ textAlign: align }}
+      className="font-mono uppercase font-medium px-3 lg:px-4 py-3.5 first:pl-5 lg:first:pl-6 last:pr-5 lg:last:pr-6"
+      style={{
+        textAlign: align,
+        fontSize: "9px",
+        letterSpacing: "0.32em",
+        color: "#5a6580",
+      }}
     >
       {children}
     </th>
@@ -295,7 +343,8 @@ function Td({
   return (
     <td
       className={cn(
-        "px-3 lg:px-4 py-3.5 first:pl-4 lg:first:pl-6 last:pr-4 lg:last:pr-6",
+        "px-3 lg:px-4 py-3.5 first:pl-5 lg:first:pl-6 last:pr-5 lg:last:pr-6",
+        "font-mono text-[13px]",
         className
       )}
       style={{ textAlign: align, ...style }}

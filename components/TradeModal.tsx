@@ -172,7 +172,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
       />
 
       <div
-        className="relative z-10 flex w-full max-w-[720px] max-h-[min(85vh,820px)] flex-col rounded-2xl border border-[#2a3050] bg-[#0c1018] shadow-[0_32px_64px_rgba(0,0,0,0.55)] animate-fadeInSoft overflow-hidden"
+        className="relative z-10 flex w-full max-w-[720px] max-h-[min(85vh,820px)] flex-col rounded-lg border border-[#2a3050] bg-[#0c1018] shadow-[0_32px_64px_rgba(0,0,0,0.55)] animate-fadeInSoft overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div
@@ -181,18 +181,26 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
         />
 
         {/* Header */}
-        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#1a2030] px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#1a2030] bg-[#080b11]/50 px-5 py-5 sm:px-7 sm:py-6">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.32em] text-[#00e5b0] font-mono mb-2">
+            <p
+              className="font-mono uppercase mb-2"
+              style={{
+                fontSize: "10px",
+                letterSpacing: "0.32em",
+                color: "#00e5b0",
+              }}
+            >
               {trade ? "Edit entry" : "New entry"}
             </p>
             <h2
               id="trade-modal-title"
-              className="font-heading text-3xl tracking-wide text-[#e8edf5] leading-none"
+              className="font-heading text-[#e8edf5] leading-none"
+              style={{ fontSize: "32px", letterSpacing: "0.06em" }}
             >
               {trade ? "Edit Trade" : "Log Trade"}
             </h2>
-            <p className="mt-2 text-sm text-[#8892a4] font-sans">
+            <p className="mt-2 text-[13px] text-[#a0afc0] font-sans leading-relaxed">
               {trade
                 ? "Update the details for this journal entry."
                 : "Capture execution, context, and outcome in one place."}
@@ -201,7 +209,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 flex h-10 w-10 items-center justify-center rounded-lg border border-[#1a2030] bg-[#080b11] text-[#8892a4] hover:text-[#e8edf5] hover:border-[#2a3050] transition-all duration-150"
+            className="shrink-0 flex h-10 w-10 items-center justify-center rounded-sm border border-[#1a2030] bg-[#080b11] text-[#8892a4] hover:text-[#e8edf5] hover:border-[#2a3050] active:scale-[0.96] transition-all duration-150"
             aria-label="Close"
           >
             <CloseIcon />
@@ -232,23 +240,25 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   onClick={() => update("direction", "Short")}
                 />
               </div>
-              <div className="inline-flex w-full rounded-lg border border-[#1a2030] bg-[#080b11] p-1">
+              <div className="inline-flex w-full rounded-sm border border-[#1a2030] bg-[#080b11] p-1">
                 {(["Forex", "Futures"] as const).map((m) => {
                   const active = form.market === m;
                   const isForex = m === "Forex";
+                  // FOREX → green tone; FUTURES → blue tone (matches table)
                   return (
                     <button
                       key={m}
                       type="button"
                       onClick={() => update("market", m)}
                       className={cn(
-                        "flex-1 h-10 rounded-md text-[10px] font-mono font-bold uppercase tracking-[0.22em] transition-all duration-150",
+                        "flex-1 h-10 rounded-sm font-mono font-bold uppercase transition-all duration-150 active:scale-[0.98]",
                         active
                           ? isForex
-                            ? "bg-[#0066ff]/20 text-[#0066ff] border border-[#0066ff]/40 shadow-[0_0_12px_rgba(0,102,255,0.15)]"
-                            : "bg-[#b466ff]/20 text-[#b466ff] border border-[#b466ff]/40 shadow-[0_0_12px_rgba(180,102,255,0.15)]"
+                            ? "bg-[#00e5b0]/15 text-[#00e5b0] border border-[#00e5b0]/40 shadow-[0_0_14px_rgba(0,229,176,0.18)]"
+                            : "bg-[#0066ff]/15 text-[#0066ff] border border-[#0066ff]/40 shadow-[0_0_14px_rgba(0,102,255,0.18)]"
                           : "text-[#5a6580] hover:text-[#8892a4] border border-transparent"
                       )}
+                      style={{ fontSize: "10px", letterSpacing: "0.24em" }}
                     >
                       {m}
                     </button>
@@ -328,13 +338,21 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
 
               <div
                 className={cn(
-                  "rounded-xl border p-4 transition-colors duration-150",
+                  "rounded-sm border-l-2 border p-4 transition-colors duration-150",
                   pnlTone === "win" &&
                     "border-[#00e5b0]/40 bg-[#00e5b0]/[0.04]",
                   pnlTone === "loss" &&
                     "border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.04]",
                   pnlTone === "neutral" && "border-[#1a2030] bg-[#080b11]"
                 )}
+                style={{
+                  borderLeftColor:
+                    pnlTone === "win"
+                      ? "#00e5b0"
+                      : pnlTone === "loss"
+                        ? "#ff4d6d"
+                        : "#1a2030",
+                }}
               >
                 <Input
                   label="Profit & Loss"
@@ -424,7 +442,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
           </div>
 
           {/* Footer */}
-          <div className="shrink-0 flex flex-col-reverse sm:flex-row items-stretch gap-3 border-t border-[#1a2030] bg-[#080b11]/80 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+          <div className="shrink-0 flex flex-col-reverse sm:flex-row items-stretch gap-3 border-t border-[#1a2030] bg-[#080b11] px-5 py-4 sm:px-7 sm:py-5">
             <Button
               type="button"
               variant="secondary"
@@ -495,12 +513,12 @@ function DirectionToggle({
       type="button"
       onClick={onClick}
       className={cn(
-        "group relative flex h-[72px] flex-col items-center justify-center gap-1 rounded-xl border transition-all duration-150",
+        "group relative flex h-[76px] flex-col items-center justify-center gap-1 rounded-sm border transition-all duration-150",
         "active:scale-[0.98]",
         active
           ? isLong
-            ? "border-[#00e5b0] bg-[#00e5b0]/10 shadow-[0_0_24px_rgba(0,229,176,0.2)]"
-            : "border-[#ff4d6d] bg-[#ff4d6d]/10 shadow-[0_0_24px_rgba(255,77,109,0.2)]"
+            ? "border-[#00e5b0] bg-[#00e5b0]/10 shadow-[0_0_24px_rgba(0,229,176,0.22)]"
+            : "border-[#ff4d6d] bg-[#ff4d6d]/10 shadow-[0_0_24px_rgba(255,77,109,0.22)]"
           : "border-[#1a2030] bg-[#080b11] hover:border-[#2a3050] hover:bg-[#0f1420]"
       )}
     >

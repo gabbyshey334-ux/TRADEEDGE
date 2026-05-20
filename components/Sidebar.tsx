@@ -39,18 +39,16 @@ const PLAN_PILL: Record<
 > = {
   starter: {
     label: "Starter",
-    className:
-      "bg-[#1a2030] text-[#8892a4] border border-[#1a2030]",
+    className: "bg-[#0c1018] text-[#8892a4] border border-[#1a2030]",
   },
   pro: {
     label: "Pro",
     className:
-      "bg-[#00e5b0]/10 text-[#00e5b0] border border-[#00e5b0]/30",
+      "bg-[#00e5b0]/12 text-[#00e5b0] border border-[#00e5b0]/40",
   },
   elite: {
     label: "Elite",
-    className:
-      "text-[#06080d] border border-transparent font-bold",
+    className: "text-[#06080d] border border-transparent font-bold",
     style: {
       background: "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
     },
@@ -108,26 +106,49 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-50 flex h-screen w-[220px] max-w-[85vw] flex-col",
+        "fixed top-0 left-0 z-50 flex h-screen w-[232px] max-w-[85vw] flex-col",
         "border-r border-[#1a2030] bg-[#080b11]",
         "transition-transform duration-200 ease-out",
         "lg:translate-x-0",
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
-      <div className="px-5 pt-7 pb-5 border-b border-[#1a2030]">
-        <Link href="/dashboard" className="block group">
-          <div className="font-heading text-2xl tracking-[0.14em] leading-none">
+      {/* Logo block with subtle radial halo */}
+      <div className="relative px-6 pt-8 pb-6 border-b border-[#1a2030]">
+        <div className="sidebar-logo-halo absolute inset-0 pointer-events-none" />
+        <Link href="/dashboard" className="relative block group">
+          <div className="font-heading text-[24px] tracking-[0.14em] leading-none">
             <span className="text-[#e8edf5]">TRADE</span>
             <span className="text-[#00e5b0]">EDGE</span>
           </div>
-          <div className="mt-2 text-[9px] uppercase tracking-[0.4em] text-[#5a6580] font-mono">
+          <div
+            className="mt-2.5 font-mono uppercase"
+            style={{
+              fontSize: "9px",
+              letterSpacing: "0.42em",
+              color: "#5a6580",
+            }}
+          >
             AI · Journal Suite
           </div>
         </Link>
       </div>
 
-      <nav className="flex-1 px-3 py-5 flex flex-col gap-1 overflow-y-auto">
+      {/* Section label */}
+      <div className="px-6 pt-5 pb-2">
+        <div
+          className="font-mono uppercase"
+          style={{
+            fontSize: "9px",
+            letterSpacing: "0.32em",
+            color: "#3a4560",
+          }}
+        >
+          Workspace
+        </div>
+      </div>
+
+      <nav className="flex-1 px-3 pb-5 flex flex-col gap-0.5 overflow-y-auto">
         {NAV.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/dashboard"
@@ -139,48 +160,59 @@ export function Sidebar({
               href={href}
               onClick={onNavigate}
               className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-mono tracking-wide",
-                "transition-all duration-150",
+                "group relative flex items-center gap-3 rounded-sm px-3.5 py-2.5",
+                "font-sans text-[13px] tracking-wide",
+                "transition-colors duration-150",
                 active
-                  ? "bg-[#0c1018] text-[#00e5b0]"
+                  ? "bg-[#0c1018] text-[#e8edf5]"
                   : "text-[#5a6580] hover:text-[#e8edf5] hover:bg-[#0c1018]"
               )}
+              style={
+                active
+                  ? {
+                      boxShadow:
+                        "inset 2px 0 0 #00e5b0, 0 0 24px -8px rgba(0, 229, 176, 0.45)",
+                    }
+                  : undefined
+              }
             >
-              {active && (
-                <span
-                  aria-hidden
-                  className="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-r-sm bg-[#00e5b0] shadow-[0_0_10px_rgba(0,229,176,0.6)]"
-                />
-              )}
               <Icon active={active} />
-              <span>{label}</span>
+              <span className={active ? "font-semibold" : undefined}>
+                {label}
+              </span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-[#1a2030] p-4">
-        <div className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-[#0c1018]">
+      {/* User section */}
+      <div className="border-t border-[#1a2030] bg-[#06080d]/40 px-4 py-5">
+        <div className="flex items-center gap-3 px-1">
           <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-mono font-bold text-[#06080d]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-[12px] font-mono font-bold text-[#06080d]"
             style={{
               background:
                 "linear-gradient(135deg, #00e5b0 0%, #0066ff 100%)",
+              boxShadow: "0 0 16px -4px rgba(0,229,176,0.4)",
             }}
           >
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-semibold text-[#e8edf5]">
+            <div className="truncate text-[13px] font-semibold text-[#e8edf5] font-sans">
               {user.name}
             </div>
-            <div className="mt-0.5 inline-flex items-center gap-1.5">
+            <div className="mt-1.5">
               <span
                 className={cn(
-                  "inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] uppercase tracking-[0.22em] font-mono font-bold",
+                  "inline-flex items-center rounded-sm px-2 py-[3px] font-mono font-bold uppercase",
                   pill.className
                 )}
-                style={pill.style}
+                style={{
+                  fontSize: "9px",
+                  letterSpacing: "0.28em",
+                  ...(pill.style ?? {}),
+                }}
               >
                 {pill.label}
               </span>
@@ -194,13 +226,14 @@ export function Sidebar({
             onClick={handleUpgrade}
             disabled={billingPending !== null}
             className={cn(
-              "mt-3 w-full h-9 rounded-lg",
-              "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#06080d]",
+              "mt-4 w-full h-10 rounded-sm",
+              "font-mono font-bold uppercase text-[#06080d]",
               "transition-all duration-150",
               "bg-[#00e5b0] hover:bg-[#00f5be]",
-              "shadow-[0_0_18px_rgba(0,229,176,0.35)]",
+              "shadow-[0_0_20px_rgba(0,229,176,0.35)]",
               "active:scale-[0.98] disabled:opacity-60"
             )}
+            style={{ fontSize: "10px", letterSpacing: "0.22em" }}
           >
             {billingPending === "checkout" ? "Loading…" : "Upgrade to Pro →"}
           </button>
@@ -212,19 +245,23 @@ export function Sidebar({
             onClick={handleBilling}
             disabled={billingPending !== null}
             className={cn(
-              "mt-3 w-full h-9 rounded-lg border border-[#1a2030]",
-              "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8892a4]",
+              "mt-4 w-full h-10 rounded-sm border border-[#1a2030]",
+              "font-mono font-bold uppercase text-[#8892a4]",
               "transition-all duration-150",
               "hover:text-[#00e5b0] hover:border-[#00e5b0]/40 hover:bg-[#00e5b0]/[0.04]",
               "active:scale-[0.98] disabled:opacity-60"
             )}
+            style={{ fontSize: "10px", letterSpacing: "0.22em" }}
           >
             {billingPending === "portal" ? "Loading…" : "Billing"}
           </button>
         )}
 
         {billingError && (
-          <div className="mt-2 text-[9px] font-mono uppercase tracking-[0.22em] text-[#ff4d6d]">
+          <div
+            className="mt-2 font-mono uppercase text-[#ff4d6d]"
+            style={{ fontSize: "9px", letterSpacing: "0.22em" }}
+          >
             {billingError}
           </div>
         )}
@@ -239,12 +276,13 @@ export function Sidebar({
             })
           }
           className={cn(
-            "mt-2 w-full h-9 rounded-lg border border-[#1a2030]",
-            "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8892a4]",
+            "mt-2 w-full h-10 rounded-sm border border-transparent",
+            "font-mono font-bold uppercase text-[#5a6580]",
             "transition-all duration-150",
-            "hover:text-[#ff4d6d] hover:border-[#ff4d6d]/40 hover:bg-[#ff4d6d]/[0.04]",
+            "hover:text-[#ff4d6d] hover:border-[#ff4d6d]/30 hover:bg-[#ff4d6d]/[0.04]",
             "active:scale-[0.98] disabled:opacity-50"
           )}
+          style={{ fontSize: "10px", letterSpacing: "0.22em" }}
         >
           {pending ? "Signing out…" : "Sign Out"}
         </button>

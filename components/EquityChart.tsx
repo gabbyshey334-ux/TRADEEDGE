@@ -1,3 +1,6 @@
+"use client";
+
+import { useId, useMemo, useRef, useState } from "react";
 import type { Trade } from "@/lib/types";
 import { cumulativeEquity, formatCurrency } from "@/lib/utils";
 
@@ -6,34 +9,89 @@ interface EquityChartProps {
   height?: number;
 }
 
-export function EquityChart({ trades, height = 260 }: EquityChartProps) {
-  const series = cumulativeEquity(trades);
+export function EquityChart({ trades, height = 280 }: EquityChartProps) {
+  const series = useMemo(() => cumulativeEquity(trades), [trades]);
+  const fillIdBase = useId();
 
   if (series.length < 2) {
     return (
       <div
-        className="relative flex flex-col items-center justify-center gap-2 rounded-xl border border-[#1a2030] bg-[#0c1018] overflow-hidden"
+        className="relative flex flex-col items-center justify-center gap-3 rounded-lg border border-[#1a2030] bg-[#0c1018] overflow-hidden"
         style={{ height }}
       >
-        <div
-          aria-hidden
-          className="absolute top-0 left-0 right-0 h-[2px]"
-          style={{
-            background: "linear-gradient(to right, #00e5b0, transparent)",
-          }}
-        />
-        <div className="text-[10px] uppercase tracking-[0.32em] text-[#5a6580] font-mono">
-          Equity Curve
-        </div>
-        <div className="text-sm text-[#8892a4] font-mono">
-          Add at least two trades to see your equity curve.
+        <div className="section-label">Equity Curve</div>
+        <div className="text-sm text-[#8892a4] font-sans">
+          Log at least two trades to see your equity curve.
         </div>
       </div>
     );
   }
 
+  const last = series[series.length - 1].equity;
+  const positive = last >= 0;
+  const stroke = positive ? "#00e5b0" : "#ff4d6d";
+
+  return (
+    <div className="relative rounded-lg border border-[#1a2030] bg-[#0c1018] overflow-hidden transition-colors duration-150 hover:border-[#2a3050]">
+      {/* Card header (padded) */}
+      <div className="flex flex-col gap-3 px-5 sm:px-7 pt-5 sm:pt-6 pb-4 sm:flex-row sm:items-end sm:justify-between border-b border-[#1a2030]/60">
+        <div className="min-w-0">
+          <div className="section-label">Equity Curve</div>
+          <div
+            className="data-value mt-3 leading-none break-words"
+            style={{
+              color: stroke,
+              fontSize: "clamp(28px, 4vw, 38px)",
+            }}
+          >
+            {formatCurrency(last)}
+          </div>
+          <div
+            className="mt-2 font-mono uppercase"
+            style={{
+              fontSize: "10px",
+              letterSpacing: "0.24em",
+              color: "#3a4560",
+            }}
+          >
+            Cumulative P&L · {series.length} trades
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-sm border border-[#1a2030] bg-[#080b11] px-2.5 py-1 text-[9px] uppercase tracking-[0.28em] text-[#8892a4] font-mono">
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: stroke }}
+            />
+            Live
+          </span>
+        </div>
+      </div>
+
+      {/* Chart body — bleeds edge-to-edge */}
+      <EquityCanvas series={series} height={height} stroke={stroke} fillIdBase={fillIdBase} />
+    </div>
+  );
+}
+
+function EquityCanvas({
+  series,
+  height,
+  stroke,
+  fillIdBase,
+}: {
+  series: Array<{ date: string; equity: number }>;
+  height: number;
+  stroke: string;
+  fillIdBase: string;
+}) {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [hover, setHover] = useState<{ i: number; x: number; y: number } | null>(
+    null
+  );
+
   const width = 1000;
-  const padding = { top: 24, right: 16, bottom: 28, left: 16 };
+  const padding = { top: 16, right: 64, bottom: 24, left: 0 };
   const innerW = width - padding.left - padding.right;
   const innerH = height - padding.top - padding.bottom;
 
@@ -48,93 +106,136 @@ export function EquityChart({ trades, height = 260 }: EquityChartProps) {
     padding.top + innerH - ((v - min) / range) * innerH;
 
   const last = series[series.length - 1].equity;
-  const positive = last >= 0;
-  const stroke = positive ? "#00e5b0" : "#ff4d6d";
-  const fillId = positive ? "areaGreen" : "areaRed";
-
+  const areaId = `area-${fillIdBase}`;
   const areaPath = `M ${x(0)},${y(0)} L ${series
     .map((p, i) => `${x(i)},${y(p.equity)}`)
     .join(" L ")} L ${x(series.length - 1)},${y(0)} Z`;
-
   const linePath = `M ${series
     .map((p, i) => `${x(i)},${y(p.equity)}`)
     .join(" L ")}`;
-
   const zeroY = y(0);
 
-  const gridLines = 4;
-  const gridYs = Array.from({ length: gridLines + 1 }, (_, idx) =>
-    padding.top + (idx / gridLines) * innerH
-  );
+  // Build clean horizontal grid values using a "nice" step.
+  const gridValues = niceTicks(min, max, 4);
+
+  function handleMove(e: React.MouseEvent<SVGSVGElement>) {
+    const target = e.currentTarget;
+    const rect = target.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const scaleX = width / rect.width;
+    const xCoord = relX * scaleX;
+    // Nearest index
+    const fract = (xCoord - padding.left) / innerW;
+    const idx = Math.min(
+      series.length - 1,
+      Math.max(0, Math.round(fract * (series.length - 1)))
+    );
+    setHover({ i: idx, x: x(idx), y: y(series[idx].equity) });
+  }
+
+  const tooltip =
+    hover &&
+    (() => {
+      const point = series[hover.i];
+      const cx = (hover.x / width) * 100;
+      const cy = (hover.y / height) * 100;
+      const showOnRight = cx < 60;
+      return (
+        <div
+          ref={wrapRef}
+          className="pointer-events-none absolute z-10 -translate-y-full"
+          style={{
+            left: `${cx}%`,
+            top: `${cy}%`,
+            transform: `translate(${showOnRight ? "12px" : "calc(-100% - 12px)"}, -100%)`,
+          }}
+        >
+          <div className="rounded-sm border border-[#2a3050] bg-[#080b11] px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.55)]">
+            <div
+              className="font-mono uppercase"
+              style={{
+                fontSize: "9px",
+                letterSpacing: "0.28em",
+                color: "#5a6580",
+              }}
+            >
+              {new Date(point.date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+              })}
+            </div>
+            <div
+              className="data-value mt-1.5"
+              style={{
+                color: point.equity >= 0 ? "#00e5b0" : "#ff4d6d",
+                fontSize: "15px",
+              }}
+            >
+              {formatCurrency(point.equity)}
+            </div>
+            <div
+              className="mt-1 font-mono uppercase"
+              style={{
+                fontSize: "9px",
+                letterSpacing: "0.24em",
+                color: "#3a4560",
+              }}
+            >
+              Trade {hover.i + 1}
+            </div>
+          </div>
+        </div>
+      );
+    })();
 
   return (
-    <div className="relative rounded-xl border border-[#1a2030] bg-[#0c1018] p-4 sm:p-6 overflow-hidden transition-colors duration-150 hover:border-[#2a3050]">
-      <div
-        aria-hidden
-        className="absolute top-0 left-0 right-0 h-[2px]"
-        style={{
-          background: `linear-gradient(to right, ${stroke}, ${stroke}00)`,
-        }}
-      />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-5">
-        <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.32em] text-[#5a6580] font-mono">
-            Equity Curve
-          </div>
-          <div
-            className="mt-2 font-heading text-2xl sm:text-3xl lg:text-4xl leading-none tracking-wide break-words"
-            style={{ color: stroke }}
-          >
-            {formatCurrency(last)}
-          </div>
-          <div className="mt-2 text-[11px] text-[#5a6580] font-mono">
-            Cumulative P&L · all trades
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#1a2030] bg-[#080b11] px-2.5 py-1 text-[9px] uppercase tracking-[0.24em] text-[#8892a4] font-mono">
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: stroke }}
-            />
-            Live
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.24em] text-[#5a6580] font-mono">
-            {series.length} trades
-          </span>
-        </div>
-      </div>
-
+    <div className="relative w-full">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
-        className="w-full"
+        className="block w-full"
         style={{ height }}
+        onMouseMove={handleMove}
+        onMouseLeave={() => setHover(null)}
       >
         <defs>
-          <linearGradient id="areaGreen" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#00e5b0" stopOpacity="0.32" />
-            <stop offset="100%" stopColor="#00e5b0" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="areaRed" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ff4d6d" stopOpacity="0.32" />
-            <stop offset="100%" stopColor="#ff4d6d" stopOpacity="0" />
+          <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={stroke} stopOpacity="0.4" />
+            <stop offset="100%" stopColor={stroke} stopOpacity="0" />
           </linearGradient>
         </defs>
 
-        {gridYs.map((gy, i) => (
-          <line
-            key={i}
-            x1={padding.left}
-            x2={width - padding.right}
-            y1={gy}
-            y2={gy}
-            stroke="#1a2030"
-            strokeWidth="1"
-            strokeDasharray={i === gridLines / 2 ? "0" : "2 6"}
-            opacity={i === gridLines / 2 ? 0.8 : 0.5}
-          />
-        ))}
+        {/* Grid lines */}
+        {gridValues.map((v, i) => {
+          const gy = y(v);
+          const isZero = v === 0;
+          return (
+            <g key={i}>
+              <line
+                x1={padding.left}
+                x2={width - padding.right}
+                y1={gy}
+                y2={gy}
+                stroke={isZero ? "#2a3050" : "#1a2030"}
+                strokeWidth="1"
+                strokeDasharray={isZero ? "0" : "2 6"}
+                opacity={isZero ? 0.9 : 0.55}
+              />
+              <text
+                x={width - padding.right + 8}
+                y={gy + 4}
+                fill="#5a6580"
+                fontFamily="var(--font-dm-mono), ui-monospace, monospace"
+                fontSize="10"
+                fontWeight="500"
+                style={{ letterSpacing: "0.04em" }}
+              >
+                {compactCurrency(v)}
+              </text>
+            </g>
+          );
+        })}
 
         <line
           x1={padding.left}
@@ -145,7 +246,7 @@ export function EquityChart({ trades, height = 260 }: EquityChartProps) {
           strokeDasharray="3 4"
         />
 
-        <path d={areaPath} fill={`url(#${fillId})`} />
+        <path d={areaPath} fill={`url(#${areaId})`} />
         <path
           d={linePath}
           fill="none"
@@ -154,12 +255,8 @@ export function EquityChart({ trades, height = 260 }: EquityChartProps) {
           strokeLinejoin="round"
           strokeLinecap="round"
         />
-        <circle
-          cx={x(series.length - 1)}
-          cy={y(last)}
-          r="4"
-          fill={stroke}
-        />
+
+        {/* Last point pulse */}
         <circle
           cx={x(series.length - 1)}
           cy={y(last)}
@@ -167,7 +264,63 @@ export function EquityChart({ trades, height = 260 }: EquityChartProps) {
           fill={stroke}
           opacity="0.18"
         />
+        <circle
+          cx={x(series.length - 1)}
+          cy={y(last)}
+          r="3.5"
+          fill={stroke}
+        />
+
+        {/* Hover crosshair */}
+        {hover && (
+          <g pointerEvents="none">
+            <line
+              x1={hover.x}
+              x2={hover.x}
+              y1={padding.top}
+              y2={height - padding.bottom}
+              stroke="#2a3050"
+              strokeDasharray="3 4"
+            />
+            <circle
+              cx={hover.x}
+              cy={hover.y}
+              r="4.5"
+              fill={stroke}
+              stroke="#06080d"
+              strokeWidth="2"
+            />
+          </g>
+        )}
       </svg>
+
+      {tooltip}
     </div>
   );
+}
+
+function niceTicks(min: number, max: number, count = 4): number[] {
+  const range = max - min;
+  if (range === 0) return [min];
+  const rawStep = range / count;
+  const exp = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const candidates = [1, 2, 2.5, 5, 10].map((m) => m * exp);
+  const step = candidates.find((c) => c >= rawStep) ?? rawStep;
+  const niceMin = Math.floor(min / step) * step;
+  const niceMax = Math.ceil(max / step) * step;
+  const out: number[] = [];
+  for (let v = niceMin; v <= niceMax + 1e-9; v += step) {
+    out.push(Number(v.toFixed(6)));
+  }
+  return out;
+}
+
+function compactCurrency(value: number): string {
+  const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  if (abs >= 1_000_000)
+    return `${sign}$${(abs / 1_000_000).toFixed(abs >= 10_000_000 ? 0 : 1)}M`;
+  if (abs >= 1_000)
+    return `${sign}$${(abs / 1_000).toFixed(abs >= 10_000 ? 0 : 1)}k`;
+  return `${sign}$${abs.toFixed(0)}`;
 }

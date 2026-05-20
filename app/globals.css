@@ -78,9 +78,61 @@ a {
   text-decoration: none;
 }
 
-/* Shared dashboard page content padding */
+/* Shared dashboard page content padding — tighter, more intentional spacing */
 .dashboard-page {
-  @apply px-4 py-6 sm:px-6 sm:py-8 lg:px-8;
+  padding: 20px 16px 40px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-page {
+    padding: 28px 32px 48px;
+  }
+}
+
+/* Surface tones — used to layer panels without ever placing two same-tone
+   surfaces next to each other. */
+.surface-1 { background-color: #06080d; }
+.surface-2 { background-color: #080b11; }
+.surface-3 { background-color: #0c1018; }
+.surface-4 { background-color: #0f1420; }
+
+/* Border opacity helpers */
+.border-line { border-color: #1a2030; }
+.border-line\/60 { border-color: rgba(26, 32, 48, 0.6); }
+.border-line\/30 { border-color: rgba(26, 32, 48, 0.3); }
+
+/* Heavy, intentional data values */
+.data-value {
+  font-family: var(--font-dm-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Tiny uppercase mono section label */
+.section-label {
+  font-family: var(--font-dm-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  color: #5a6580;
+  line-height: 1;
+}
+
+/* Bebas section heading */
+.section-heading {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color: #e8edf5;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .section-heading {
+    font-size: 32px;
+  }
 }
 
 .font-heading {
@@ -94,6 +146,18 @@ a {
 
 .font-sans {
   font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Tabular numbers for data tables and KPIs */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Sharp-corner data surface, used for tables, the equity chart inner body,
+   etc., to differentiate them from the softer cards. */
+.data-surface {
+  border-radius: 4px;
 }
 
 /* Landing page — reliable fallbacks using design-system variables */
@@ -304,4 +368,52 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 .glow-gold-strong {
   box-shadow: 0 0 0 1px rgba(240, 192, 64, 0.7), 0 0 28px rgba(240, 192, 64, 0.22);
+}
+
+/* Landing browser mockup perspective tilt + soft floor glow */
+.hero-mockup {
+  position: relative;
+  transform: perspective(1600px) rotateX(6deg);
+  transform-origin: 50% 0%;
+  transition: transform 400ms ease-out;
+}
+
+@media (max-width: 768px) {
+  .hero-mockup {
+    transform: none;
+  }
+}
+
+.hero-mockup::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -40px;
+  height: 80px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 229, 176, 0.22) 0%,
+    transparent 70%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Sidebar logo radial halo */
+.sidebar-logo-halo {
+  background: radial-gradient(
+    ellipse at top,
+    rgba(0, 229, 176, 0.07) 0%,
+    transparent 70%
+  );
+}
+
+/* Tiny sparkline used inside StatCards */
+.sparkline-track {
+  display: inline-block;
+  width: 40px;
+  height: 14px;
+  opacity: 0.55;
 }

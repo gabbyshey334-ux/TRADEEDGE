@@ -3,7 +3,6 @@ import { PageHeader } from "@/components/PageHeader";
 import { requireAuthUser } from "@/lib/auth/server";
 import { getTradesForMonth } from "@/lib/data/trades";
 import { formatCurrency } from "@/lib/utils";
-import type { Trade } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -79,6 +78,7 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
     <div className="animate-fadeIn">
       <PageHeader
         title="Calendar"
+        eyebrow="Monthly View"
         subtitle={`${monthlyCount} trades · ${formatCurrency(monthlyTotal)} net this month`}
         actions={
           <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end">
@@ -86,7 +86,13 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
               href={`/dashboard/calendar?month=${prevMonth}&year=${prevYear}`}
               direction="prev"
             />
-            <div className="h-9 sm:h-10 flex-1 sm:flex-none px-2 sm:px-5 rounded-lg border border-[#1a2030] bg-[#080b11] text-[10px] sm:text-xs font-mono font-bold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#e8edf5] inline-flex items-center justify-center min-w-0 sm:min-w-[160px] truncate">
+            <div
+              className="h-9 sm:h-10 flex-1 sm:flex-none px-3 sm:px-5 rounded-sm border border-[#1a2030] bg-[#080b11] inline-flex items-center justify-center min-w-0 sm:min-w-[180px] truncate font-mono font-bold uppercase text-[#e8edf5]"
+              style={{
+                fontSize: "11px",
+                letterSpacing: "0.28em",
+              }}
+            >
               {monthName}
             </div>
             <NavArrow
@@ -98,32 +104,55 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
       />
 
       <div className="dashboard-page space-y-6">
-        <div className="relative rounded-xl border border-[#1a2030] bg-[#0c1018] p-6 overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute top-0 left-0 right-0 h-[2px]"
-            style={{
-              background: "linear-gradient(to right, #00e5b0, transparent)",
-            }}
+        {/* Monthly summary bar */}
+        <div
+          className="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden border-y border-[#1a2030] bg-[#1a2030]"
+          style={{ marginLeft: "-1px", marginRight: "-1px" }}
+        >
+          <SummaryItem
+            label="Net P&L"
+            value={formatCurrency(monthlyTotal)}
+            color={monthlyTotal >= 0 ? "#00e5b0" : "#ff4d6d"}
           />
-          <div className="hidden sm:grid grid-cols-7 gap-1.5 sm:gap-2 mb-3">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <div
-                key={d}
-                className="text-[9px] sm:text-[10px] uppercase tracking-[0.28em] sm:tracking-[0.32em] text-[#5a6580] font-mono text-center py-2"
-              >
-                {d.slice(0, 3)}
-              </div>
-            ))}
+          <SummaryItem
+            label="Trading Days"
+            value={String(tradingDays)}
+            color="#e8edf5"
+          />
+          <SummaryItem label="Win Days" value={String(winDays)} color="#00e5b0" />
+          <SummaryItem
+            label="Loss Days"
+            value={String(lossDays)}
+            color="#ff4d6d"
+          />
+        </div>
+
+        <div className="rounded-lg border border-[#1a2030] bg-[#0c1018] overflow-hidden">
+          <div className="hidden sm:block px-5 py-4 border-b border-[#1a2030]/60 bg-[#080b11]/60">
+            <div className="grid grid-cols-7 gap-2">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+                <div
+                  key={d}
+                  className="font-mono uppercase text-center"
+                  style={{
+                    fontSize: "9px",
+                    letterSpacing: "0.32em",
+                    color: "#5a6580",
+                  }}
+                >
+                  {d}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="hidden sm:grid grid-cols-7 gap-1.5 sm:gap-2">
+          <div className="hidden sm:grid grid-cols-7 gap-1.5 p-4 sm:gap-2 sm:p-5">
             {cells.map(({ date, key }) => {
               if (!date) {
                 return (
                   <div
                     key={key}
-                    className="aspect-square rounded-lg border border-dashed border-[#1a2030]/50 bg-transparent"
+                    className="aspect-square rounded-sm border border-dashed border-[#1a2030]/40 bg-transparent"
                   />
                 );
               }
@@ -134,17 +163,16 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                 new Date().toISOString().slice(0, 10);
 
               let bg = "#080b11";
-              let borderColor = "#1a2030";
+              let borderColor = "rgba(26,32,48,0.6)";
               let textColor = "#5a6580";
               if (dayData) {
                 const intensity = Math.min(
-                  0.5,
-                  0.12 + (Math.abs(dayData.pnl) / maxAbsPnl) * 0.38
+                  0.55,
+                  0.14 + (Math.abs(dayData.pnl) / maxAbsPnl) * 0.42
                 );
-                const color =
-                  dayData.pnl >= 0 ? "0,229,176" : "255,77,109";
+                const color = dayData.pnl >= 0 ? "0,229,176" : "255,77,109";
                 bg = `rgba(${color}, ${intensity})`;
-                borderColor = `rgba(${color}, ${Math.min(0.5, intensity + 0.15)})`;
+                borderColor = `rgba(${color}, ${Math.min(0.6, intensity + 0.18)})`;
                 textColor = "#e8edf5";
               }
               if (isToday) {
@@ -154,13 +182,14 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
               return (
                 <div
                   key={key}
-                  className="aspect-square rounded-lg p-2.5 flex flex-col border transition-all duration-150 hover:scale-[1.02] cursor-default"
+                  className="aspect-square rounded-sm p-2 sm:p-2.5 flex flex-col border transition-all duration-150 hover:-translate-y-[1px] cursor-default"
                   style={{ background: bg, borderColor }}
                 >
                   <div className="flex items-start justify-between">
                     <div
-                      className="text-[11px] font-mono"
+                      className="font-mono"
                       style={{
+                        fontSize: "11px",
                         color: isToday ? "#00e5b0" : textColor,
                         fontWeight: isToday || dayData ? 700 : 400,
                       }}
@@ -168,7 +197,14 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                       {date.getUTCDate()}
                     </div>
                     {dayData && (
-                      <span className="inline-flex items-center rounded-full bg-[#06080d]/40 px-1.5 py-0.5 text-[8px] font-mono uppercase tracking-[0.18em] text-[#e8edf5]">
+                      <span
+                        className="inline-flex items-center bg-[#06080d]/50 px-1.5 py-0.5 font-mono uppercase text-[#e8edf5]"
+                        style={{
+                          fontSize: "8px",
+                          letterSpacing: "0.22em",
+                          borderRadius: "2px",
+                        }}
+                      >
                         {dayData.count}
                       </span>
                     )}
@@ -176,10 +212,11 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                   {dayData && (
                     <div className="mt-auto">
                       <div
-                        className="text-[12px] font-mono font-bold"
+                        className="data-value tabular"
                         style={{
-                          color:
-                            dayData.pnl >= 0 ? "#00e5b0" : "#ff4d6d",
+                          color: dayData.pnl >= 0 ? "#00e5b0" : "#ff4d6d",
+                          fontSize: "13px",
+                          lineHeight: 1,
                         }}
                       >
                         {formatCurrency(dayData.pnl, 0)}
@@ -191,8 +228,8 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
             })}
           </div>
 
-          {/* Mobile: list of days with activity */}
-          <div className="sm:hidden flex flex-col gap-2">
+          {/* Mobile list */}
+          <div className="sm:hidden flex flex-col divide-y divide-[#1a2030]/60">
             {cells
               .filter((c) => c.date)
               .map(({ date, key }) => {
@@ -203,9 +240,12 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                 return (
                   <div
                     key={key}
-                    className="flex items-center justify-between rounded-lg border border-[#1a2030] bg-[#080b11] px-4 py-3"
+                    className="flex items-center justify-between px-4 py-3"
                   >
-                    <div className="text-[12px] font-mono text-[#8892a4]">
+                    <div
+                      className="font-mono text-[#8892a4]"
+                      style={{ fontSize: "12px" }}
+                    >
                       {date.toLocaleDateString("en-US", {
                         weekday: "short",
                         month: "short",
@@ -217,9 +257,10 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                       </span>
                     </div>
                     <div
-                      className="text-[14px] font-mono font-bold"
+                      className="data-value tabular"
                       style={{
                         color: dayData.pnl >= 0 ? "#00e5b0" : "#ff4d6d",
+                        fontSize: "15px",
                       }}
                     >
                       {formatCurrency(dayData.pnl, 0)}
@@ -228,18 +269,14 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                 );
               })}
             {tradingDays === 0 && (
-              <p className="text-center text-[12px] font-mono text-[#5a6580] py-6">
+              <p
+                className="text-center font-mono uppercase py-8 text-[#5a6580]"
+                style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+              >
                 No trades this month yet.
               </p>
             )}
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 rounded-xl border border-[#1a2030] bg-[#0c1018] p-4 sm:p-5">
-          <SummaryItem label="Net P&L" value={formatCurrency(monthlyTotal)} color={monthlyTotal >= 0 ? "#00e5b0" : "#ff4d6d"} />
-          <SummaryItem label="Trading Days" value={String(tradingDays)} color="#e8edf5" />
-          <SummaryItem label="Win Days" value={String(winDays)} color="#00e5b0" />
-          <SummaryItem label="Loss Days" value={String(lossDays)} color="#ff4d6d" />
         </div>
       </div>
     </div>
@@ -256,13 +293,24 @@ function SummaryItem({
   color: string;
 }) {
   return (
-    <div>
-      <div className="text-[10px] uppercase tracking-[0.22em] text-[#5a6580] font-mono">
+    <div className="bg-[#080b11] px-5 py-5">
+      <div
+        className="font-mono uppercase"
+        style={{
+          fontSize: "9px",
+          letterSpacing: "0.32em",
+          color: "#5a6580",
+        }}
+      >
         {label}
       </div>
       <div
-        className="mt-1 font-heading text-2xl tracking-wide leading-none"
-        style={{ color }}
+        className="data-value tabular mt-2"
+        style={{
+          color,
+          fontSize: "clamp(20px, 2.6vw, 26px)",
+          lineHeight: 1,
+        }}
       >
         {value}
       </div>
@@ -281,7 +329,7 @@ function NavArrow({
   return (
     <Link
       href={href}
-      className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#1a2030] text-[#8892a4] hover:text-[#e8edf5] hover:border-[#2a3050] hover:bg-[#0f1420] transition-colors"
+      className="flex h-10 w-10 items-center justify-center rounded-sm border border-[#1a2030] text-[#8892a4] hover:text-[#e8edf5] hover:border-[#2a3050] hover:bg-[#0f1420] active:scale-[0.98] transition-all"
       aria-label={isPrev ? "Previous month" : "Next month"}
     >
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

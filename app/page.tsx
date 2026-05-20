@@ -38,15 +38,14 @@ function Logo() {
   );
 }
 
-function CheckIcon({ size = 14 }: { size?: number }) {
-  return (
-    <Check
-      size={size}
-      color="#00e5b0"
-      strokeWidth={3}
-      aria-hidden
-    />
-  );
+function CheckIcon({
+  size = 14,
+  color = "#00e5b0",
+}: {
+  size?: number;
+  color?: string;
+}) {
+  return <Check size={size} color={color} strokeWidth={3} aria-hidden />;
 }
 
 function StarIcon() {
@@ -151,6 +150,133 @@ function TestimonialCard({ quote, name, meta }: TestimonialProps) {
   );
 }
 
+/* -------------------------------- pricing -------------------------------- */
+
+interface PricingCardProps {
+  tier: string;
+  tierColor: string;
+  price: string;
+  blurb: string;
+  features: string[];
+  ctaLabel: string;
+  ctaStyle: "primary" | "secondary";
+  popular?: boolean;
+}
+
+function PricingCard({
+  tier,
+  tierColor,
+  price,
+  blurb,
+  features,
+  ctaLabel,
+  ctaStyle,
+  popular,
+}: PricingCardProps) {
+  return (
+    <div className="relative flex">
+      {popular && (
+        <span
+          className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-sm font-mono font-bold uppercase whitespace-nowrap"
+          style={{
+            fontSize: "10px",
+            letterSpacing: "0.28em",
+            color: "#06080d",
+            background: "#00e5b0",
+            boxShadow: "0 8px 24px -4px rgba(0,229,176,0.5)",
+          }}
+        >
+          <span aria-hidden>★</span>
+          Most Popular
+        </span>
+      )}
+
+      <div
+        className="relative flex w-full flex-col rounded-lg p-7 transition-transform duration-300"
+        style={{
+          background: popular
+            ? "linear-gradient(180deg, rgba(0,229,176,0.06) 0%, #0c1018 60%)"
+            : "#0c1018",
+          border: popular ? "1px solid #00e5b0" : "1px solid #1a2030",
+          transform: popular ? "scale(1.04)" : undefined,
+          boxShadow: popular
+            ? "0 0 0 1px rgba(0,229,176,0.25), 0 0 40px rgba(0,229,176,0.18), 0 30px 80px -30px rgba(0,229,176,0.25)"
+            : undefined,
+        }}
+      >
+        <div
+          className="font-mono uppercase"
+          style={{
+            fontSize: "11px",
+            letterSpacing: "0.32em",
+            color: tierColor,
+          }}
+        >
+          {tier}
+        </div>
+        <div className="mt-4 flex items-baseline gap-1.5">
+          <span
+            className="font-heading text-text data-value tabular"
+            style={{ fontSize: 60, letterSpacing: "0.02em", lineHeight: 1 }}
+          >
+            {price}
+          </span>
+          <span className="text-[14px] te-muted font-mono">/mo</span>
+        </div>
+        <p className="mt-2.5 text-[13px] te-muted font-sans leading-relaxed">
+          {blurb}
+        </p>
+
+        <div
+          className="my-6 h-px"
+          style={{ background: "rgba(26,32,48,0.6)" }}
+        />
+
+        <ul className="flex flex-col gap-3.5">
+          {features.map((f) => (
+            <li
+              key={f}
+              className="flex items-start gap-3 text-[14px] text-text font-sans"
+            >
+              <span
+                className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-sm"
+                style={{
+                  backgroundColor: `${tierColor}1f`,
+                }}
+              >
+                <CheckIcon size={12} color={tierColor} />
+              </span>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+
+        <Link
+          href="/signup"
+          className="mt-8 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-sm font-sans text-[14px] transition-all duration-150 active:scale-[0.98]"
+          style={
+            ctaStyle === "primary"
+              ? {
+                  backgroundColor: "#00e5b0",
+                  color: "#06080d",
+                  fontWeight: 600,
+                  boxShadow:
+                    "0 0 26px rgba(0, 229, 176, 0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
+                }
+              : {
+                  border: "1px solid #1a2030",
+                  color: "#e8edf5",
+                }
+          }
+        >
+          {ctaLabel}
+          {ctaStyle === "primary" && <span aria-hidden="true">→</span>}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 /* --------------------------------- page --------------------------------- */
 
 export default function LandingPage() {
@@ -180,53 +306,91 @@ export default function LandingPage() {
         {/* ================= SECTION 3 — HERO ================= */}
         <section
           id="hero"
-          className="relative w-full"
+          className="relative w-full overflow-hidden"
           style={{
             minHeight: "calc(100vh - 100px)",
             backgroundColor: "#06080d",
           }}
         >
-          <div className="max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 flex flex-col items-center text-center">
+          {/* Decorative grid backdrop */}
+          <div
+            aria-hidden
+            className="grid-backdrop pointer-events-none absolute inset-0 opacity-50"
+          />
+          {/* Soft radial spotlight */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(800px 500px at 50% 0%, rgba(0,229,176,0.10), transparent 70%)",
+            }}
+          />
+
+          <div className="relative max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 flex flex-col items-center text-center">
             {/* pill badge */}
             <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-card"
               style={{ border: "1px solid #1a2030" }}
             >
               <span
-                className="w-1.5 h-1.5 rounded-full"
+                className="w-1.5 h-1.5 rounded-full animate-pulseGlow"
                 style={{
                   backgroundColor: "#00e5b0",
-                  boxShadow: "0 0 8px #00e5b0",
+                  boxShadow: "0 0 10px #00e5b0",
                 }}
               />
               <span
-                className="font-mono text-[10px] uppercase tracking-[0.22em] text-quote"
+                className="font-mono text-[10px] uppercase tracking-[0.32em] te-quote"
               >
                 Now with AI Coaching Engine v2
               </span>
             </div>
 
-            {/* headline */}
+            {/* Headline — stacked, tiered sizes */}
             <h1
-              className="font-heading mt-8"
+              className="font-heading mt-10"
               style={{
-                fontSize: "clamp(56px, 9vw, 96px)",
-                lineHeight: 1.02,
-                letterSpacing: "clamp(1px, 0.5vw, 3px)",
                 color: "#e8edf5",
+                letterSpacing: "clamp(1px, 0.5vw, 4px)",
+                lineHeight: 0.95,
               }}
             >
-              <span className="block">TRADE SMARTER.</span>
-              <span className="block">WIN MORE.</span>
-              <span className="block">
-                POWERED BY <span style={{ color: "#00e5b0" }}>AI</span>
+              <span
+                className="block"
+                style={{ fontSize: "clamp(52px, 9.2vw, 96px)" }}
+              >
+                TRADE SMARTER.
+              </span>
+              <span
+                className="block mt-1"
+                style={{
+                  fontSize: "clamp(42px, 7.6vw, 80px)",
+                  color: "#a0afc0",
+                }}
+              >
+                WIN MORE.
+              </span>
+              <span
+                className="block mt-1"
+                style={{ fontSize: "clamp(34px, 5.8vw, 60px)" }}
+              >
+                POWERED BY{" "}
+                <span
+                  style={{
+                    color: "#00e5b0",
+                    textShadow: "0 0 24px rgba(0,229,176,0.6)",
+                  }}
+                >
+                  AI
+                </span>
               </span>
             </h1>
 
             {/* subheadline */}
             <p
-              className="mt-7 text-[18px] leading-relaxed text-muted font-sans"
-              style={{ maxWidth: 560 }}
+              className="mt-8 text-[17px] sm:text-[18px] leading-relaxed te-quote font-sans"
+              style={{ maxWidth: 580 }}
             >
               The only trading journal that analyzes your patterns, coaches
               your psychology, and calculates your edge — built for serious
@@ -234,14 +398,15 @@ export default function LandingPage() {
             </p>
 
             {/* CTA buttons */}
-            <div className="mt-9 flex flex-col sm:flex-row items-center gap-3">
+            <div className="mt-10 flex flex-col sm:flex-row items-center gap-3">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-md font-sans text-[15px] font-semibold hover:opacity-90 transition-opacity"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-sm font-sans text-[15px] font-semibold transition-all duration-150 hover:opacity-95 active:scale-[0.98]"
                 style={{
                   backgroundColor: "#00e5b0",
                   color: "#06080d",
-                  boxShadow: "0 0 40px rgba(0, 229, 176, 0.25)",
+                  boxShadow:
+                    "0 0 40px rgba(0, 229, 176, 0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
                 }}
               >
                 Start 14-Day Free Trial
@@ -249,7 +414,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="#features"
-                className="inline-flex items-center justify-center px-7 py-4 rounded-md font-sans text-[15px] text-text hover:bg-card transition-colors"
+                className="inline-flex items-center justify-center px-7 py-4 rounded-sm font-sans text-[15px] text-text hover:bg-card transition-colors active:scale-[0.98]"
                 style={{ border: "1px solid #1a2030" }}
               >
                 See All Features
@@ -257,7 +422,7 @@ export default function LandingPage() {
             </div>
 
             {/* trust badges */}
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               {[
                 "No credit card required",
                 "Cancel anytime",
@@ -265,7 +430,7 @@ export default function LandingPage() {
               ].map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-2 text-[12px] text-muted font-sans"
+                  className="inline-flex items-center gap-2 text-[12px] te-muted font-sans"
                 >
                   <CheckIcon size={12} />
                   {t}
@@ -275,16 +440,16 @@ export default function LandingPage() {
 
             {/* browser mockup */}
             <div
-              className="mt-16 w-full"
-              style={{ maxWidth: 1080 }}
+              className="hero-mockup mt-20 w-full"
+              style={{ maxWidth: 1100 }}
             >
               <div
-                className="rounded-xl overflow-hidden"
+                className="rounded-lg overflow-hidden"
                 style={{
                   background: "#0c1018",
                   border: "1px solid #1a2030",
                   boxShadow:
-                    "0 30px 80px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,229,176,0.05)",
+                    "0 60px 120px -30px rgba(0,0,0,0.75), 0 30px 60px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,229,176,0.06), inset 0 1px 0 rgba(255,255,255,0.04)",
                 }}
               >
                 {/* browser chrome */}
@@ -318,38 +483,73 @@ export default function LandingPage() {
                 </div>
 
                 {/* dashboard preview */}
-                <div className="p-5 md:p-8">
-                  {/* stat cards grid 2x2 */}
-                  <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <div className="p-5 md:p-7">
+                  {/* stat cards grid 2x2 — preview of new StatCard */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-3">
                     {[
                       {
                         label: "Total P&L",
                         value: "+$4,821",
                         color: "#00e5b0",
+                        sub: "48 trades logged",
                       },
-                      { label: "Win Rate", value: "68.4%", color: "#0066ff" },
-                      { label: "Avg R:R", value: "2.41R", color: "#b466ff" },
-                      { label: "Max DD", value: "-$412", color: "#f0c040" },
+                      {
+                        label: "Win Rate",
+                        value: "68.4%",
+                        color: "#0066ff",
+                        sub: "33W · 15L",
+                      },
+                      {
+                        label: "Avg R:R",
+                        value: "2.41",
+                        color: "#b466ff",
+                        sub: "Risk to reward",
+                      },
+                      {
+                        label: "Max DD",
+                        value: "-$412",
+                        color: "#f0c040",
+                        sub: "Peak-to-trough",
+                      },
                     ].map((s) => (
                       <div
                         key={s.label}
-                        className="relative rounded-lg bg-bg p-4 md:p-5 overflow-hidden"
-                        style={{ border: "1px solid #1a2030" }}
+                        className="relative rounded-md p-4 overflow-hidden"
+                        style={{
+                          border: "1px solid #1a2030",
+                          borderLeft: `2px solid ${s.color}`,
+                          background: `linear-gradient(180deg, ${s.color}10 0%, transparent 80%), #0c1018`,
+                        }}
                       >
                         <div
-                          className="absolute top-0 left-0 right-0"
-                          style={{ height: 2, backgroundColor: s.color }}
-                        />
-                        <div
-                          className="text-[10px] uppercase tracking-[0.18em] text-muted font-mono"
+                          className="font-mono uppercase"
+                          style={{
+                            fontSize: "9px",
+                            letterSpacing: "0.32em",
+                            color: "#5a6580",
+                          }}
                         >
                           {s.label}
                         </div>
                         <div
-                          className="mt-2 font-heading text-2xl md:text-3xl tracking-wide"
-                          style={{ color: s.color }}
+                          className="mt-3 data-value tabular"
+                          style={{
+                            color: s.color,
+                            fontSize: "clamp(22px, 3vw, 30px)",
+                            lineHeight: 1,
+                          }}
                         >
                           {s.value}
+                        </div>
+                        <div
+                          className="mt-2 font-mono uppercase"
+                          style={{
+                            fontSize: "9px",
+                            letterSpacing: "0.24em",
+                            color: "#3a4560",
+                          }}
+                        >
+                          {s.sub}
                         </div>
                       </div>
                     ))}
@@ -692,178 +892,60 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
               {/* Starter */}
-              <div
-                className="rounded-xl bg-card p-7 flex flex-col"
-                style={{ border: "1px solid #1a2030" }}
-              >
-                <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
-                  Starter
-                </div>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span
-                    className="font-heading text-text"
-                    style={{ fontSize: 56, letterSpacing: "0.02em" }}
-                  >
-                    $19
-                  </span>
-                  <span className="text-[14px] text-muted font-mono">
-                    /mo
-                  </span>
-                </div>
-                <p className="mt-2 text-[13px] text-muted font-sans">
-                  For traders just starting their journal.
-                </p>
+              <PricingCard
+                tier="Starter"
+                tierColor="#8892a4"
+                price="$19"
+                blurb="For traders just starting their journal."
+                features={[
+                  "Up to 50 trades/month",
+                  "Basic analytics",
+                  "Risk calculator",
+                  "Trade calendar",
+                  "Email support",
+                ]}
+                ctaLabel="Start Free Trial"
+                ctaStyle="secondary"
+              />
 
-                <ul className="mt-6 flex flex-col gap-3">
-                  {[
-                    "Up to 50 trades/month",
-                    "Basic analytics",
-                    "Risk calculator",
-                    "Trade calendar",
-                    "Email support",
-                  ].map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-center gap-3 text-[14px] text-text font-sans"
-                    >
-                      <CheckIcon />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/signup"
-                  className="mt-8 inline-flex items-center justify-center px-5 py-3 rounded-md font-sans text-[14px] text-text hover:bg-[#10141d] transition-colors"
-                  style={{ border: "1px solid #1a2030" }}
-                >
-                  Start Free Trial
-                </Link>
-              </div>
-
-              {/* Pro */}
-              <div
-                className="rounded-xl bg-card p-5 sm:p-7 flex flex-col relative lg:scale-[1.02] lg:-my-1"
-                style={{
-                  border: "1px solid #00e5b0",
-                  boxShadow:
-                    "0 0 0 1px rgba(0,229,176,0.15), 0 20px 60px -10px rgba(0,229,176,0.15)",
-                }}
-              >
-                <span
-                  className="absolute -top-3 left-1/2 -translate-x-1/2 font-mono text-[10px] uppercase tracking-[0.22em] px-3 py-1 rounded-full"
-                  style={{
-                    color: "#06080d",
-                    backgroundColor: "#00e5b0",
-                  }}
-                >
-                  Most Popular
-                </span>
-                <div
-                  className="font-mono text-[11px] uppercase tracking-[0.22em]"
-                  style={{ color: "#00e5b0" }}
-                >
-                  Pro
-                </div>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span
-                    className="font-heading text-text"
-                    style={{ fontSize: 56, letterSpacing: "0.02em" }}
-                  >
-                    $49
-                  </span>
-                  <span className="text-[14px] text-muted font-mono">
-                    /mo
-                  </span>
-                </div>
-                <p className="mt-2 text-[13px] text-muted font-sans">
-                  For serious traders ready to find their edge.
-                </p>
-
-                <ul className="mt-6 flex flex-col gap-3">
-                  {[
-                    "Unlimited trades",
-                    "Full AI coaching suite (10 reports/mo)",
-                    "Advanced analytics",
-                    "Psychology tracker",
-                    "Priority support",
-                    "Everything in Starter",
-                  ].map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-center gap-3 text-[14px] text-text font-sans"
-                    >
-                      <CheckIcon />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/signup"
-                  className="mt-8 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md font-sans text-[14px] font-semibold hover:opacity-90 transition-opacity"
-                  style={{
-                    backgroundColor: "#00e5b0",
-                    color: "#06080d",
-                  }}
-                >
-                  Start Free Trial
-                  <span aria-hidden="true">→</span>
-                </Link>
-              </div>
+              {/* Pro — elevated */}
+              <PricingCard
+                tier="Pro"
+                tierColor="#00e5b0"
+                price="$49"
+                blurb="For serious traders ready to find their edge."
+                features={[
+                  "Unlimited trades",
+                  "Full AI coaching suite (10 reports/mo)",
+                  "Advanced analytics",
+                  "Psychology tracker",
+                  "Priority support",
+                  "Everything in Starter",
+                ]}
+                ctaLabel="Start Free Trial"
+                ctaStyle="primary"
+                popular
+              />
 
               {/* Elite */}
-              <div
-                className="rounded-xl bg-card p-7 flex flex-col"
-                style={{ border: "1px solid #1a2030" }}
-              >
-                <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
-                  Elite
-                </div>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span
-                    className="font-heading text-text"
-                    style={{ fontSize: 56, letterSpacing: "0.02em" }}
-                  >
-                    $99
-                  </span>
-                  <span className="text-[14px] text-muted font-mono">
-                    /mo
-                  </span>
-                </div>
-                <p className="mt-2 text-[13px] text-muted font-sans">
-                  For power users, prop traders, and teams.
-                </p>
-
-                <ul className="mt-6 flex flex-col gap-3">
-                  {[
-                    "Everything in Pro",
-                    "Unlimited AI reports",
-                    "Congress trades feed (coming soon)",
-                    "Multi-account support (up to 5)",
-                    "API access",
-                    "Dedicated support",
-                  ].map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-center gap-3 text-[14px] text-text font-sans"
-                    >
-                      <CheckIcon />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/signup"
-                  className="mt-8 inline-flex items-center justify-center px-5 py-3 rounded-md font-sans text-[14px] text-text hover:bg-[#10141d] transition-colors"
-                  style={{ border: "1px solid #1a2030" }}
-                >
-                  Start Free Trial
-                </Link>
-              </div>
+              <PricingCard
+                tier="Elite"
+                tierColor="#f0c040"
+                price="$99"
+                blurb="For power users, prop traders, and teams."
+                features={[
+                  "Everything in Pro",
+                  "Unlimited AI reports",
+                  "Congress trades feed (coming soon)",
+                  "Multi-account support (up to 5)",
+                  "API access",
+                  "Dedicated support",
+                ]}
+                ctaLabel="Start Free Trial"
+                ctaStyle="secondary"
+              />
             </div>
 
             <p

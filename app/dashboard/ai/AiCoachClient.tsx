@@ -42,7 +42,6 @@ interface AiCoachClientProps {
   tradeCount: number;
   plan: Plan;
   reportsThisMonth: number;
-  /** Monthly limit for AI reports, or null if unlimited. */
   monthlyLimit: number | null;
 }
 
@@ -105,83 +104,100 @@ export function AiCoachClient({
     <div className="animate-fadeIn">
       <PageHeader
         title="AI Coach"
+        eyebrow="Research"
         subtitle={`${tradeCount} trades available for analysis`}
       />
 
-      <div className="dashboard-page space-y-6 sm:space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {MODES.map((m) => {
-            const active = mode === m.id;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setMode(m.id)}
-                className={cn(
-                  "group relative text-left rounded-xl border bg-[#0c1018] p-6 overflow-hidden",
-                  "transition-all duration-150 ease-out",
-                  active
-                    ? "scale-[1.01]"
-                    : "hover:bg-[#0f1420] hover:border-[#2a3050]"
-                )}
-                style={
-                  active
-                    ? {
-                        borderColor: m.color,
-                        boxShadow: `0 0 0 1px ${m.color}66, 0 0 28px ${m.color}33`,
-                      }
-                    : { borderColor: "#1a2030" }
-                }
-              >
-                <div
-                  aria-hidden
-                  className="absolute top-0 left-0 right-0 h-[2px]"
-                  style={{
-                    background: `linear-gradient(to right, ${m.color}, ${m.color}00)`,
-                  }}
-                />
-                <div className="flex items-start justify-between mb-4">
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-lg"
-                    style={{
-                      backgroundColor: `${m.color}1a`,
-                      color: m.color,
-                    }}
-                  >
-                    <m.Icon />
-                  </div>
-                  {active && (
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[9px] uppercase tracking-[0.22em] font-mono font-bold"
+      <div className="dashboard-page space-y-7">
+        {/* Mode selection */}
+        <div>
+          <div className="section-label mb-4">Select Mode</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {MODES.map((m) => {
+              const active = mode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setMode(m.id)}
+                  className={cn(
+                    "group relative text-left rounded-lg overflow-hidden",
+                    "transition-all duration-200 ease-out",
+                    "active:scale-[0.99]",
+                    active
+                      ? ""
+                      : "border border-[#1a2030] bg-[#0c1018] hover:border-[#2a3050] hover:bg-[#0f1420]"
+                  )}
+                  style={
+                    active
+                      ? {
+                          border: `1px solid ${m.color}`,
+                          background: `linear-gradient(180deg, ${m.color}10 0%, #0c1018 70%)`,
+                          boxShadow: `0 0 0 1px ${m.color}55, 0 0 40px -8px ${m.color}66, inset 0 1px 0 ${m.color}22`,
+                        }
+                      : undefined
+                  }
+                >
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-5">
+                      <div
+                        className="flex h-11 w-11 items-center justify-center rounded-sm"
+                        style={{
+                          backgroundColor: `${m.color}1a`,
+                          color: m.color,
+                          boxShadow: active
+                            ? `0 0 18px -4px ${m.color}88`
+                            : undefined,
+                        }}
+                      >
+                        <m.Icon />
+                      </div>
+                      {active && (
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-sm px-2 py-1 font-mono font-bold uppercase"
+                          style={{
+                            fontSize: "9px",
+                            letterSpacing: "0.28em",
+                            backgroundColor: `${m.color}1a`,
+                            color: m.color,
+                          }}
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: m.color }}
+                          />
+                          Active
+                        </span>
+                      )}
+                    </div>
+
+                    <div
+                      className="font-mono uppercase"
                       style={{
-                        backgroundColor: `${m.color}1a`,
+                        fontSize: "9px",
+                        letterSpacing: "0.32em",
                         color: m.color,
                       }}
                     >
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ backgroundColor: m.color }}
-                      />
-                      Active
-                    </span>
-                  )}
-                </div>
-
-                <div
-                  className="text-[10px] uppercase tracking-[0.32em] font-mono"
-                  style={{ color: m.color }}
-                >
-                  Mode
-                </div>
-                <div className="mt-2 font-heading text-2xl tracking-wide text-[#e8edf5] leading-none">
-                  {m.title}
-                </div>
-                <div className="mt-3 text-[13px] text-[#8892a4] font-mono leading-relaxed">
-                  {m.desc}
-                </div>
-              </button>
-            );
-          })}
+                      Mode
+                    </div>
+                    <div
+                      className="mt-2 font-heading leading-none text-[#e8edf5]"
+                      style={{
+                        fontSize: "26px",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      {m.title}
+                    </div>
+                    <div className="mt-3 text-[13px] text-[#a0afc0] font-sans leading-relaxed">
+                      {m.desc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -189,7 +205,7 @@ export function AiCoachClient({
             <Button
               onClick={generate}
               disabled={disabled}
-              className="w-full sm:w-auto sm:min-w-[200px]"
+              className="w-full sm:w-auto sm:min-w-[220px]"
             >
               {generating ? "Analyzing…" : "Generate Report"}
             </Button>
@@ -198,25 +214,29 @@ export function AiCoachClient({
               <div
                 className={cn(
                   "absolute inset-0 flex items-center justify-center gap-3 rounded-md",
-                  "bg-[#06080d]/85 backdrop-blur-sm border border-[#1a2030]",
+                  "bg-[#06080d]/90 backdrop-blur-sm border border-[#1a2030]",
                   "px-3"
                 )}
               >
                 <LockIcon />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8892a4]">
-                  Available on Pro &amp; Elite
+                <span
+                  className="font-mono font-bold uppercase text-[#8892a4]"
+                  style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+                >
+                  Pro &amp; Elite Only
                 </span>
                 <button
                   type="button"
                   onClick={() => startUpgrade("pro")}
                   disabled={upgrading}
                   className={cn(
-                    "h-7 px-3 rounded-md",
-                    "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#06080d]",
+                    "h-7 px-3 rounded-sm",
+                    "font-mono font-bold uppercase text-[#06080d]",
                     "bg-[#00e5b0] hover:bg-[#00f5be]",
                     "shadow-[0_0_18px_rgba(0,229,176,0.35)]",
                     "transition-all active:scale-[0.98] disabled:opacity-60"
                   )}
+                  style={{ fontSize: "10px", letterSpacing: "0.22em" }}
                 >
                   {upgrading ? "…" : "Upgrade"}
                 </button>
@@ -228,9 +248,10 @@ export function AiCoachClient({
             <div className="flex items-center gap-3">
               <span
                 className={cn(
-                  "text-[11px] font-mono uppercase tracking-[0.22em]",
+                  "font-mono uppercase",
                   reachedLimit ? "text-[#ff4d6d]" : "text-[#8892a4]"
                 )}
+                style={{ fontSize: "11px", letterSpacing: "0.22em" }}
               >
                 {reportsThisMonth} of {monthlyLimit} reports used this month
               </span>
@@ -240,11 +261,13 @@ export function AiCoachClient({
                   onClick={() => startUpgrade("elite")}
                   disabled={upgrading}
                   className={cn(
-                    "h-7 px-3 rounded-md",
-                    "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#06080d]",
+                    "h-8 px-3 rounded-sm",
+                    "font-mono font-bold uppercase text-[#06080d]",
                     "transition-all active:scale-[0.98] disabled:opacity-60"
                   )}
                   style={{
+                    fontSize: "10px",
+                    letterSpacing: "0.22em",
                     background:
                       "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
                   }}
@@ -257,9 +280,12 @@ export function AiCoachClient({
 
           {!isLocked && plan === "elite" && (
             <span
-              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] font-mono font-bold text-[#06080d]"
+              className="inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 font-mono font-bold uppercase text-[#06080d]"
               style={{
-                background: "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
+                fontSize: "10px",
+                letterSpacing: "0.24em",
+                background:
+                  "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
               }}
             >
               <SparkIcon />
@@ -268,60 +294,82 @@ export function AiCoachClient({
           )}
 
           {tradeCount === 0 && (
-            <span className="text-[11px] text-[#5a6580] font-mono uppercase tracking-[0.22em]">
+            <span
+              className="font-mono uppercase text-[#5a6580]"
+              style={{ fontSize: "11px", letterSpacing: "0.22em" }}
+            >
               Log at least one trade to enable AI analysis.
             </span>
           )}
         </div>
 
         {error && (
-          <div className="rounded-lg border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">
+          <div className="rounded-sm border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">
             {error}
           </div>
         )}
 
-        <div className="relative rounded-xl border border-[#1a2030] bg-[#0c1018] overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute top-0 left-0 right-0 h-[2px]"
-            style={{
-              background: `linear-gradient(to right, ${activeMode.color}, ${activeMode.color}00)`,
-            }}
-          />
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-[#1a2030]">
-            <div>
+        {/* Report area — premium research-report aesthetic */}
+        <div
+          className="relative rounded-lg border border-[#1a2030] overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, #0c1018 0%, #0a0d14 100%)",
+          }}
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-5 sm:px-8 py-5 sm:py-6 border-b border-[#1a2030]/60 bg-[#080b11]/60">
+            <div className="flex items-center gap-4">
               <div
-                className="text-[10px] uppercase tracking-[0.32em] font-mono"
-                style={{ color: activeMode.color }}
+                className="flex h-10 w-10 items-center justify-center rounded-sm"
+                style={{
+                  backgroundColor: `${activeMode.color}1a`,
+                  color: activeMode.color,
+                }}
               >
-                {activeMode.title}
+                <activeMode.Icon />
               </div>
-              <div className="mt-1 font-heading text-2xl tracking-wide text-[#e8edf5] leading-none">
-                Report
+              <div>
+                <div
+                  className="font-mono uppercase"
+                  style={{
+                    fontSize: "9px",
+                    letterSpacing: "0.32em",
+                    color: activeMode.color,
+                  }}
+                >
+                  {activeMode.title}
+                </div>
+                <div className="mt-1.5 font-heading text-[24px] leading-none tracking-[0.06em] text-[#e8edf5]">
+                  Research Report
+                </div>
               </div>
             </div>
             {generating && (
-              <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-[#5a6580] font-mono">
-                <span className="h-2 w-2 rounded-full bg-[#00e5b0] animate-pulseGlow" />
+              <span
+                className="inline-flex items-center gap-2 font-mono uppercase text-[#5a6580]"
+                style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+              >
+                <span
+                  className="h-2 w-2 rounded-full animate-pulseGlow"
+                  style={{ backgroundColor: activeMode.color }}
+                />
                 Generating
               </span>
             )}
           </div>
 
-          <div className="px-6 py-6 min-h-[320px]">
+          <div className="px-5 sm:px-10 py-8 sm:py-10 min-h-[360px]">
             {generating ? (
-              <div className="space-y-3">
+              <div className="space-y-4 max-w-[68ch]">
                 <div className="skeleton h-3 w-2/3 rounded" />
                 <div className="skeleton h-3 w-full rounded" />
                 <div className="skeleton h-3 w-5/6 rounded" />
                 <div className="skeleton h-3 w-3/4 rounded" />
                 <div className="skeleton h-3 w-full rounded" />
+                <div className="skeleton h-3 w-4/5 rounded" />
               </div>
             ) : result ? (
-              <div className="whitespace-pre-wrap text-[14px] text-[#e8edf5] font-mono leading-[1.85] animate-fadeInSoft">
-                {result}
-              </div>
+              <ResearchReport content={result} accent={activeMode.color} />
             ) : (
               <EmptyResult color={activeMode.color} />
             )}
@@ -332,16 +380,183 @@ export function AiCoachClient({
   );
 }
 
+/**
+ * Render an AI-generated report as formatted text. We do lightweight parsing
+ * so headings, bullets, and paragraphs read like a real research report
+ * without pulling in a markdown library.
+ */
+function ResearchReport({
+  content,
+  accent,
+}: {
+  content: string;
+  accent: string;
+}) {
+  const blocks = content
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((b) => b.trim())
+    .filter(Boolean);
+
+  return (
+    <article className="max-w-[68ch] animate-fadeInSoft">
+      {blocks.map((block, i) => {
+        const lines = block.split("\n").map((l) => l.replace(/\s+$/, ""));
+
+        // Heading patterns: "# ", "## ", or "ALL CAPS" lines
+        const first = lines[0];
+        const hashMatch = first.match(/^(#{1,3})\s+(.*)$/);
+        if (hashMatch) {
+          const level = hashMatch[1].length;
+          const text = hashMatch[2];
+          if (level <= 2) {
+            return (
+              <h2
+                key={i}
+                className="font-heading mt-8 first:mt-0 mb-3 text-[#e8edf5]"
+                style={{
+                  fontSize: level === 1 ? "26px" : "22px",
+                  letterSpacing: "0.06em",
+                  lineHeight: 1.1,
+                  borderBottom: "1px solid rgba(26,32,48,0.6)",
+                  paddingBottom: 10,
+                }}
+              >
+                <span style={{ color: accent }}>§ </span>
+                {text}
+              </h2>
+            );
+          }
+          return (
+            <h3
+              key={i}
+              className="font-mono uppercase mt-6 mb-2"
+              style={{
+                fontSize: "11px",
+                letterSpacing: "0.28em",
+                color: accent,
+              }}
+            >
+              {text}
+            </h3>
+          );
+        }
+
+        // Bullet list
+        if (lines.every((l) => /^[-*•]\s+/.test(l))) {
+          return (
+            <ul key={i} className="my-4 space-y-2.5 list-none pl-0">
+              {lines.map((l, j) => {
+                const text = l.replace(/^[-*•]\s+/, "");
+                return (
+                  <li
+                    key={j}
+                    className="flex gap-3 text-[13px] text-[#a0afc0] font-sans"
+                    style={{ lineHeight: 1.8 }}
+                  >
+                    <span
+                      className="mt-[10px] h-1 w-1 shrink-0 rounded-full"
+                      style={{ backgroundColor: accent }}
+                    />
+                    <span dangerouslySetInnerHTML={{ __html: inlineFormat(text) }} />
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+
+        // Numbered list
+        if (lines.every((l) => /^\d+[\.\)]\s+/.test(l))) {
+          return (
+            <ol key={i} className="my-4 space-y-2.5 list-none pl-0">
+              {lines.map((l, j) => {
+                const m = l.match(/^(\d+)[\.\)]\s+(.*)$/);
+                const num = m?.[1] ?? `${j + 1}`;
+                const text = m?.[2] ?? l;
+                return (
+                  <li
+                    key={j}
+                    className="flex gap-3 text-[13px] text-[#a0afc0] font-sans"
+                    style={{ lineHeight: 1.8 }}
+                  >
+                    <span
+                      className="shrink-0 font-mono font-bold tabular"
+                      style={{
+                        color: accent,
+                        fontSize: "12px",
+                        minWidth: 18,
+                      }}
+                    >
+                      {String(num).padStart(2, "0")}
+                    </span>
+                    <span dangerouslySetInnerHTML={{ __html: inlineFormat(text) }} />
+                  </li>
+                );
+              })}
+            </ol>
+          );
+        }
+
+        // Whole block looks like an uppercase title?
+        if (
+          first === first.toUpperCase() &&
+          first.length < 50 &&
+          /[A-Z]/.test(first) &&
+          lines.length <= 2
+        ) {
+          return (
+            <h3
+              key={i}
+              className="font-mono uppercase mt-6 mb-3"
+              style={{
+                fontSize: "11px",
+                letterSpacing: "0.32em",
+                color: accent,
+              }}
+            >
+              {first}
+            </h3>
+          );
+        }
+
+        // Paragraph
+        return (
+          <p
+            key={i}
+            className="my-4 text-[13px] text-[#a0afc0] font-sans"
+            style={{ lineHeight: 1.8 }}
+            dangerouslySetInnerHTML={{
+              __html: inlineFormat(lines.join("<br />")),
+            }}
+          />
+        );
+      })}
+    </article>
+  );
+}
+
+function inlineFormat(text: string): string {
+  // Escape lightly, then convert **bold** and `code`
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return escaped
+    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#e8edf5;font-weight:600">$1</strong>')
+    .replace(/`([^`]+)`/g, '<code style="color:#e8edf5;background:#080b11;padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-dm-mono),monospace">$1</code>');
+}
+
 function EmptyResult({ color }: { color: string }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-12">
-      <div className="relative mb-5">
+    <div className="flex flex-col items-center justify-center text-center py-14">
+      <div className="relative mb-6">
         <div
           className="absolute inset-0 rounded-2xl blur-2xl animate-pulseGlow"
-          style={{ backgroundColor: `${color}40` }}
+          style={{ backgroundColor: `${color}44` }}
         />
         <div
-          className="relative flex h-16 w-16 items-center justify-center rounded-2xl border"
+          className="relative flex h-16 w-16 items-center justify-center rounded-sm border"
           style={{
             backgroundColor: `${color}14`,
             borderColor: `${color}55`,
@@ -358,16 +573,20 @@ function EmptyResult({ color }: { color: string }) {
         </div>
       </div>
       <div
-        className="text-[10px] uppercase tracking-[0.32em] font-mono"
-        style={{ color }}
+        className="font-mono uppercase"
+        style={{
+          fontSize: "10px",
+          letterSpacing: "0.32em",
+          color,
+        }}
       >
         Ready
       </div>
-      <h3 className="mt-2 font-heading text-2xl tracking-wide text-[#e8edf5]">
+      <h3 className="mt-3 font-heading text-[26px] tracking-[0.06em] text-[#e8edf5]">
         Awaiting your data
       </h3>
-      <p className="mt-2 max-w-md text-sm text-[#8892a4] font-mono">
-        Pick a mode and press Generate Report to receive a personalized
+      <p className="mt-3 max-w-md text-[13px] text-[#a0afc0] font-sans" style={{ lineHeight: 1.7 }}>
+        Pick a mode above and press Generate Report to receive a personalized
         analysis of your trading data.
       </p>
     </div>

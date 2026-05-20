@@ -56,13 +56,14 @@ export default function RiskCalcPage() {
     <div className="animate-fadeIn">
       <PageHeader
         title="Risk Calculator"
+        eyebrow="Position Sizing"
         subtitle="Size your positions with precision"
       />
 
       <div className="dashboard-page">
-        <div className="mx-auto w-full max-w-[580px] space-y-6">
+        <div className="mx-auto w-full max-w-[640px] space-y-6">
           <div className="flex justify-center">
-            <div className="inline-flex items-center rounded-full border border-[#1a2030] bg-[#080b11] p-1">
+            <div className="inline-flex items-center rounded-sm border border-[#1a2030] bg-[#080b11] p-1">
               {(["Forex", "Futures"] as Mode[]).map((m) => {
                 const active = mode === m;
                 return (
@@ -71,12 +72,14 @@ export default function RiskCalcPage() {
                     type="button"
                     onClick={() => setMode(m)}
                     className={cn(
-                      "h-9 px-6 rounded-full text-[10px] font-mono font-bold uppercase tracking-[0.24em]",
-                      "transition-all duration-150",
+                      "h-10 px-7 rounded-sm",
+                      "font-mono font-bold uppercase",
+                      "transition-all duration-150 active:scale-[0.98]",
                       active
                         ? "bg-[#00e5b0] text-[#06080d] shadow-[0_0_18px_rgba(0,229,176,0.35)]"
                         : "text-[#8892a4] hover:text-[#e8edf5]"
                     )}
+                    style={{ fontSize: "10px", letterSpacing: "0.28em" }}
                   >
                     {m}
                   </button>
@@ -85,25 +88,13 @@ export default function RiskCalcPage() {
             </div>
           </div>
 
-          <div className="relative rounded-2xl border border-[#1a2030] bg-[#0c1018] p-5 sm:p-8 overflow-hidden">
-            <div
-              aria-hidden
-              className="absolute top-0 left-0 right-0 h-[2px]"
-              style={{
-                background: "linear-gradient(to right, #00e5b0, #0066ff, transparent)",
-              }}
-            />
-
-            <div className="mb-6">
-              <div className="text-[10px] uppercase tracking-[0.32em] text-[#5a6580] font-mono">
-                Position Sizing
-              </div>
-              <h2 className="mt-2 font-heading text-2xl tracking-wide text-[#e8edf5] leading-none">
-                Inputs
-              </h2>
+          <div className="rounded-lg border border-[#1a2030] bg-[#0c1018] overflow-hidden">
+            <div className="px-5 sm:px-8 py-5 border-b border-[#1a2030]/60 bg-[#080b11]/50">
+              <div className="section-label">Inputs</div>
+              <h2 className="section-heading mt-3">Position Sizing</h2>
             </div>
 
-            <div className="space-y-4">
+            <div className="px-5 sm:px-8 py-6 space-y-4">
               <Input
                 label="Account Size"
                 type="number"
@@ -164,38 +155,46 @@ export default function RiskCalcPage() {
               )}
             </div>
 
-            <div className="my-7 h-px bg-[#1a2030]" />
+            <div className="px-5 sm:px-8 py-5 border-y border-[#1a2030]/60 bg-[#080b11]/50">
+              <div className="section-label">Output</div>
+              <h2 className="section-heading mt-3">Results</h2>
+            </div>
 
-            <div className="mb-5">
-              <div className="text-[10px] uppercase tracking-[0.32em] text-[#5a6580] font-mono">
-                Output
+            <div className="px-5 sm:px-8 py-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <ResultBox
+                  label={calc.positionLabel}
+                  value={formatNumber(calc.positionSize, 4)}
+                  hint={calc.unit}
+                  accent="#00e5b0"
+                />
+                <ResultBox
+                  label="Risk Amount"
+                  value={formatCurrency(calc.riskAmount)}
+                  hint="max loss per trade"
+                  accent="#0066ff"
+                />
               </div>
-              <h2 className="mt-2 font-heading text-2xl tracking-wide text-[#e8edf5] leading-none">
-                Results
-              </h2>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <ResultBox
-                label={calc.positionLabel}
-                value={formatNumber(calc.positionSize, 4)}
-                hint={calc.unit}
-                accent="#00e5b0"
-              />
-              <ResultBox
-                label="Risk Amount"
-                value={formatCurrency(calc.riskAmount)}
-                hint="max loss per trade"
-                accent="#0066ff"
-              />
-            </div>
-
-            <div className="mt-6 rounded-lg border border-[#1a2030] bg-[#080b11] px-4 py-3 text-[11px] text-[#8892a4] font-mono leading-relaxed">
-              <span className="text-[#00e5b0] font-bold">FORMULA</span>{" "}
-              <span className="text-[#5a6580] mx-1">›</span>{" "}
-              {mode === "Forex"
-                ? "Lots = (Account × Risk%) / (Stop Loss pips × Pip Value)"
-                : "Contracts = (Account × Risk%) / (Stop Loss ticks × Tick Value)"}
+              <div
+                className="rounded-sm border border-[#1a2030] bg-[#080b11] px-4 py-3 font-mono text-[#8892a4] leading-relaxed"
+                style={{ fontSize: "11px" }}
+              >
+                <span
+                  className="font-bold uppercase"
+                  style={{
+                    fontSize: "10px",
+                    letterSpacing: "0.28em",
+                    color: "#00e5b0",
+                  }}
+                >
+                  Formula
+                </span>{" "}
+                <span className="text-[#5a6580] mx-1">›</span>{" "}
+                {mode === "Forex"
+                  ? "Lots = (Account × Risk%) / (Stop Loss pips × Pip Value)"
+                  : "Contracts = (Account × Risk%) / (Stop Loss ticks × Tick Value)"}
+              </div>
             </div>
           </div>
         </div>
@@ -217,32 +216,37 @@ function ResultBox({
 }) {
   return (
     <div
-      className="relative rounded-xl border p-5 overflow-hidden transition-colors duration-150"
+      className="rounded-sm border-l-2 border border-[#1a2030] p-5 overflow-hidden transition-colors duration-150"
       style={{
-        borderColor: `${accent}40`,
-        backgroundColor: `${accent}0d`,
+        borderLeftColor: accent,
+        backgroundColor: "#0c1018",
+        backgroundImage: `linear-gradient(180deg, ${accent}10 0%, transparent 80%)`,
       }}
     >
       <div
-        aria-hidden
-        className="absolute top-0 left-0 right-0 h-[2px]"
+        className="font-mono uppercase"
         style={{
-          background: `linear-gradient(to right, ${accent}, ${accent}00)`,
+          fontSize: "9px",
+          letterSpacing: "0.32em",
+          color: "#5a6580",
         }}
-      />
-      <div
-        className="text-[10px] uppercase tracking-[0.22em] font-mono"
-        style={{ color: accent }}
       >
         {label}
       </div>
       <div
-        className="mt-2 font-heading text-3xl leading-none tracking-wide"
-        style={{ color: accent }}
+        className="data-value tabular mt-3 leading-none"
+        style={{ color: accent, fontSize: "clamp(28px, 4vw, 36px)" }}
       >
         {value}
       </div>
-      <div className="mt-2 text-[10px] uppercase tracking-[0.22em] text-[#5a6580] font-mono">
+      <div
+        className="mt-3 font-mono uppercase"
+        style={{
+          fontSize: "10px",
+          letterSpacing: "0.24em",
+          color: "#3a4560",
+        }}
+      >
         {hint}
       </div>
     </div>

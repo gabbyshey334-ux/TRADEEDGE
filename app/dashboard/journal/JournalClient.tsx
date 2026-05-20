@@ -37,7 +37,8 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
     const sum = filtered.reduce((s, t) => s + Number(t.pnl), 0);
     const wins = filtered.filter((t) => Number(t.pnl) > 0).length;
     const losses = filtered.filter((t) => Number(t.pnl) < 0).length;
-    return { count: filtered.length, pnl: sum, wins, losses };
+    const winRate = filtered.length ? (wins / filtered.length) * 100 : 0;
+    return { count: filtered.length, pnl: sum, wins, losses, winRate };
   }, [filtered]);
 
   function openNew() {
@@ -83,10 +84,14 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
     else setTrades(res.data);
   }
 
+  const pnlColor =
+    totals.pnl > 0 ? "#00e5b0" : totals.pnl < 0 ? "#ff4d6d" : "#e8edf5";
+
   return (
     <div className="animate-fadeIn">
       <PageHeader
         title="Journal"
+        eyebrow="Trade Log"
         subtitle={`${totals.count} trades · ${formatCurrency(totals.pnl)} net`}
         actions={
           <Button
@@ -99,8 +104,42 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
       />
 
       <div className="dashboard-page space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="inline-flex items-center rounded-full border border-[#1a2030] bg-[#080b11] p-1">
+        {/* Summary bar — feels like a real trading platform */}
+        <div
+          className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-px overflow-hidden border-y border-[#1a2030] bg-[#1a2030]"
+          style={{ marginLeft: "-1px", marginRight: "-1px" }}
+        >
+          <SummaryStat
+            label="Trades"
+            value={String(totals.count)}
+            color="#e8edf5"
+          />
+          <SummaryStat
+            label="Net P&L"
+            value={formatCurrency(totals.pnl)}
+            color={pnlColor}
+          />
+          <SummaryStat
+            label="Win Rate"
+            value={`${totals.winRate.toFixed(1)}%`}
+            color="#0066ff"
+          />
+          <SummaryStat
+            label="Wins"
+            value={String(totals.wins)}
+            color="#00e5b0"
+            hideMobile
+          />
+          <SummaryStat
+            label="Losses"
+            value={String(totals.losses)}
+            color="#ff4d6d"
+            hideMobile
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <div className="inline-flex w-full sm:w-auto items-center rounded-sm border border-[#1a2030] bg-[#080b11] p-1">
             {(["All", "Forex", "Futures"] as Filter[]).map((f) => {
               const active = filter === f;
               const counts =
@@ -113,19 +152,26 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
                   type="button"
                   onClick={() => setFilter(f)}
                   className={cn(
-                    "relative h-8 px-4 rounded-full text-[10px] font-mono font-bold uppercase tracking-[0.22em]",
+                    "relative h-9 px-4 rounded-sm",
+                    "font-mono font-bold uppercase",
                     "transition-all duration-150 inline-flex items-center gap-2",
+                    "active:scale-[0.98]",
                     active
-                      ? "bg-[#00e5b0] text-[#06080d] shadow-[0_0_16px_rgba(0,229,176,0.3)]"
-                      : "text-[#8892a4] hover:text-[#e8edf5]"
+                      ? "bg-[#0c1018] text-[#e8edf5]"
+                      : "text-[#5a6580] hover:text-[#e8edf5]"
                   )}
+                  style={{
+                    fontSize: "10px",
+                    letterSpacing: "0.24em",
+                    boxShadow: active ? "inset 2px 0 0 #00e5b0" : undefined,
+                  }}
                 >
                   <span>{f}</span>
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0.5 text-[9px]",
+                      "rounded-sm px-1.5 py-0.5 text-[9px]",
                       active
-                        ? "bg-[#06080d]/20 text-[#06080d]"
+                        ? "bg-[#00e5b0]/15 text-[#00e5b0]"
                         : "bg-[#0c1018] text-[#5a6580]"
                     )}
                   >
@@ -135,31 +181,10 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
               );
             })}
           </div>
-
-          {totals.count > 0 && (
-            <div className="flex items-center gap-5 font-mono text-[11px] text-[#5a6580] uppercase tracking-[0.18em]">
-              <div>
-                <span className="text-[#00e5b0]">{totals.wins}W</span>
-                <span className="mx-1.5 text-[#3a4560]">·</span>
-                <span className="text-[#ff4d6d]">{totals.losses}L</span>
-              </div>
-              <div>
-                Net{" "}
-                <span
-                  className="font-bold"
-                  style={{
-                    color: totals.pnl >= 0 ? "#00e5b0" : "#ff4d6d",
-                  }}
-                >
-                  {formatCurrency(totals.pnl)}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
 
         {error && (
-          <div className="rounded-lg border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">
+          <div className="rounded-sm border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">
             {error}
             <button
               type="button"
@@ -200,6 +225,48 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
   );
 }
 
+function SummaryStat({
+  label,
+  value,
+  color,
+  hideMobile,
+}: {
+  label: string;
+  value: string;
+  color: string;
+  hideMobile?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "bg-[#080b11] px-4 py-4 sm:px-6 sm:py-5",
+        hideMobile && "hidden lg:block"
+      )}
+    >
+      <div
+        className="font-mono uppercase"
+        style={{
+          fontSize: "9px",
+          letterSpacing: "0.32em",
+          color: "#5a6580",
+        }}
+      >
+        {label}
+      </div>
+      <div
+        className="data-value tabular mt-2"
+        style={{
+          color,
+          fontSize: "clamp(20px, 2.6vw, 26px)",
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
 function EmptyState({
   hasTrades,
   onAdd,
@@ -210,8 +277,8 @@ function EmptyState({
   filter: Filter;
 }) {
   return (
-    <div className="rounded-xl border border-[#1a2030] bg-[#0c1018] py-16 px-6 flex flex-col items-center justify-center text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#080b11] border border-[#1a2030] mb-5">
+    <div className="rounded-lg border border-[#1a2030] bg-[#0c1018] py-16 px-6 flex flex-col items-center justify-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-[#080b11] border border-[#1a2030] mb-5">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
           <path
             d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"
@@ -226,12 +293,12 @@ function EmptyState({
           />
         </svg>
       </div>
-      <h3 className="font-heading text-2xl tracking-wide text-[#e8edf5]">
+      <h3 className="font-heading text-2xl tracking-[0.06em] text-[#e8edf5]">
         {hasTrades
           ? `No ${filter.toLowerCase()} trades yet`
           : "Your journal is empty"}
       </h3>
-      <p className="mt-2 text-sm text-[#8892a4] font-mono max-w-sm">
+      <p className="mt-2 text-sm text-[#8892a4] font-sans max-w-sm leading-relaxed">
         {hasTrades
           ? "Switch filters or log a new trade in this market."
           : "Log your first trade to start building your edge. Every trade leaves a clue."}
