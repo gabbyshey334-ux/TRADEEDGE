@@ -51,7 +51,7 @@ export function WelcomeGreeting({ name }: WelcomeGreetingProps) {
           Welcome back, <span className="text-[#00e5b0]">{firstName}</span>
         </h2>
       </div>
-      <div className="text-right">
+      <div className="text-left sm:text-right w-full sm:w-auto">
         <div className="text-[10px] uppercase tracking-[0.24em] text-[#5a6580] font-mono">
           {dateText || "—"}
         </div>
