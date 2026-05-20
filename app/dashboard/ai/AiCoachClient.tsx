@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { createCheckoutSession } from "@/lib/actions/billing";
 import { cn } from "@/lib/utils";
-import type { AiReportType } from "@/lib/types";
+import type { AiReportType, Plan } from "@/lib/types";
 
 const MODES: Array<{
   id: AiReportType;
@@ -38,13 +40,41 @@ const MODES: Array<{
 
 interface AiCoachClientProps {
   tradeCount: number;
+  plan: Plan;
+  reportsThisMonth: number;
+  /** Monthly limit for AI reports, or null if unlimited. */
+  monthlyLimit: number | null;
 }
 
-export function AiCoachClient({ tradeCount }: AiCoachClientProps) {
+export function AiCoachClient({
+  tradeCount,
+  plan,
+  reportsThisMonth,
+  monthlyLimit,
+}: AiCoachClientProps) {
+  const router = useRouter();
   const [mode, setMode] = useState<AiReportType>("session");
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [upgrading, setUpgrading] = useState(false);
+
+  const isLocked = plan === "starter";
+  const reachedLimit = monthlyLimit !== null && reportsThisMonth >= monthlyLimit;
+
+  async function startUpgrade(target: Plan) {
+    setError(null);
+    setUpgrading(true);
+    try {
+      const { url } = await createCheckoutSession(target);
+      router.push(url);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to start checkout."
+      );
+      setUpgrading(false);
+    }
+  }
 
   async function generate() {
     setError(null);
@@ -69,7 +99,7 @@ export function AiCoachClient({ tradeCount }: AiCoachClientProps) {
   }
 
   const activeMode = MODES.find((m) => m.id === mode)!;
-  const disabled = generating || tradeCount === 0;
+  const disabled = generating || tradeCount === 0 || isLocked || reachedLimit;
 
   return (
     <div className="animate-fadeIn">
@@ -155,13 +185,88 @@ export function AiCoachClient({ tradeCount }: AiCoachClientProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          <Button
-            onClick={generate}
-            disabled={disabled}
-            className="min-w-[220px]"
-          >
-            {generating ? "Analyzing…" : "Generate Report"}
-          </Button>
+          <div className="relative">
+            <Button
+              onClick={generate}
+              disabled={disabled}
+              className="min-w-[220px]"
+            >
+              {generating ? "Analyzing…" : "Generate Report"}
+            </Button>
+
+            {isLocked && (
+              <div
+                className={cn(
+                  "absolute inset-0 flex items-center justify-center gap-3 rounded-md",
+                  "bg-[#06080d]/85 backdrop-blur-sm border border-[#1a2030]",
+                  "px-3"
+                )}
+              >
+                <LockIcon />
+                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8892a4]">
+                  Available on Pro &amp; Elite
+                </span>
+                <button
+                  type="button"
+                  onClick={() => startUpgrade("pro")}
+                  disabled={upgrading}
+                  className={cn(
+                    "h-7 px-3 rounded-md",
+                    "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#06080d]",
+                    "bg-[#00e5b0] hover:bg-[#00f5be]",
+                    "shadow-[0_0_18px_rgba(0,229,176,0.35)]",
+                    "transition-all active:scale-[0.98] disabled:opacity-60"
+                  )}
+                >
+                  {upgrading ? "…" : "Upgrade"}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {!isLocked && plan === "pro" && monthlyLimit !== null && (
+            <div className="flex items-center gap-3">
+              <span
+                className={cn(
+                  "text-[11px] font-mono uppercase tracking-[0.22em]",
+                  reachedLimit ? "text-[#ff4d6d]" : "text-[#8892a4]"
+                )}
+              >
+                {reportsThisMonth} of {monthlyLimit} reports used this month
+              </span>
+              {reachedLimit && (
+                <button
+                  type="button"
+                  onClick={() => startUpgrade("elite")}
+                  disabled={upgrading}
+                  className={cn(
+                    "h-7 px-3 rounded-md",
+                    "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#06080d]",
+                    "transition-all active:scale-[0.98] disabled:opacity-60"
+                  )}
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
+                  }}
+                >
+                  {upgrading ? "…" : "Upgrade to Elite"}
+                </button>
+              )}
+            </div>
+          )}
+
+          {!isLocked && plan === "elite" && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] font-mono font-bold text-[#06080d]"
+              style={{
+                background: "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
+              }}
+            >
+              <SparkIcon />
+              Unlimited Reports
+            </span>
+          )}
+
           {tradeCount === 0 && (
             <span className="text-[11px] text-[#5a6580] font-mono uppercase tracking-[0.22em]">
               Log at least one trade to enable AI analysis.
@@ -306,6 +411,39 @@ function PsychologyIcon() {
     </svg>
   );
 }
+function LockIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect
+        x="4"
+        y="11"
+        width="16"
+        height="10"
+        rx="2"
+        stroke="#8892a4"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M8 11V8a4 4 0 0 1 8 0v3"
+        stroke="#8892a4"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function SparkIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 2l2.39 4.84L20 8l-4.34 3.78L17 18l-5-2.84L7 18l1.34-6.22L4 8l5.61-1.16L12 2z"
+        fill="#06080d"
+      />
+    </svg>
+  );
+}
+
 function EdgeIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>

@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/server";
-import type { NewTrade, Trade } from "@/lib/types";
+import { canAddTrade, PLAN_LIMITS } from "@/lib/plan-limits";
+import type { NewTrade, Plan, Trade } from "@/lib/types";
 
 function revalidateDashboardPages() {
   revalidatePath("/dashboard");
@@ -43,6 +44,34 @@ export async function createTrade(input: NewTrade): Promise<TradeActionResult> {
   if (!user) return { data: null, error: "Not authenticated." };
 
   const supabase = await createClient();
+
+  // Count trades this calendar month (server-side enforcement of plan limits).
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const { count } = await supabase
+    .from("trades")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("created_at", startOfMonth.toISOString());
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", user.id)
+    .single();
+
+  const plan: Plan = ((profile?.plan as Plan | undefined) ?? "starter") as Plan;
+
+  if (!canAddTrade(plan, count ?? 0)) {
+    const max = PLAN_LIMITS[plan].maxMonthlyTrades;
+    return {
+      data: null,
+      error: `You have reached your ${max} trade limit for this month. Upgrade to Pro for unlimited trades.`,
+    };
+  }
+
   const payload = { ...input, user_id: user.id };
 
   const { data, error } = await supabase

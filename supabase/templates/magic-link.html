@@ -1,0 +1,82 @@
+<!--
+  TradeEdge AI — Magic Link Email Template
+
+  HOW TO APPLY THIS TEMPLATE
+  1. Open the Supabase dashboard for your project.
+  2. Navigate to Authentication -> Email Templates.
+  3. Select "Magic Link" from the template list.
+  4. Copy the entire contents of this file (everything below this comment).
+  5. Paste it into the HTML editor, replacing the default template.
+  6. Click "Save" to apply.
+
+  Notes
+  - {{ .ConfirmationURL }} is a Supabase template variable and must remain
+    exactly as written. Supabase substitutes the real sign-in link at send
+    time.
+  - Link expiry is enforced by Supabase auth (mailer_otp_exp / otp_expiry),
+    not this HTML. Set to 1800 seconds (30 minutes) — see supabase/config.toml.
+  - All styles are inline because email clients strip <style> blocks,
+    external stylesheets, and class names.
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Your sign-in link — TradeEdge AI</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#06080d; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#06080d;">
+      <tr>
+        <td align="center" style="padding:40px 16px;">
+          <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="560" style="max-width:560px; width:100%; background-color:#0c1018; border:1px solid #1a2030; border-radius:12px; overflow:hidden;">
+
+            <!-- Header -->
+            <tr>
+              <td align="center" style="background:linear-gradient(180deg, #0c1018 0%, #080b11 100%); background-color:#0c1018; padding:40px 40px 32px 40px;">
+                <div style="width:48px; height:48px; background:linear-gradient(135deg, #00e5b0 0%, #0066ff 100%); background-color:#00e5b0; border-radius:10px; display:inline-block; line-height:48px; text-align:center; color:#ffffff; font-size:20px; font-weight:700; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">TE</div>
+                <div style="margin-top:16px; font-size:24px; font-weight:700; letter-spacing:4px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+                  <span style="color:#e8edf5;">TRADE</span><span style="color:#00e5b0;">EDGE AI</span>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="background-color:#0c1018; padding:40px;">
+                <h1 style="margin:0 0 12px 0; color:#e8edf5; font-size:22px; font-weight:700; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">Your sign-in link</h1>
+                <p style="margin:0 0 32px 0; color:#5a6580; font-size:15px; line-height:1.6; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">Click the button below to sign in to your TradeEdge AI account. No password needed.</p>
+
+                <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%">
+                  <tr>
+                    <td align="center">
+                      <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #00e5b0 0%, #0066ff 100%); background-color:#00e5b0; color:#ffffff; font-size:15px; font-weight:600; padding:16px 40px; border-radius:8px; text-decoration:none; letter-spacing:0.5px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">Sign In to TradeEdge AI &rarr;</a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin:24px 0 0 0; color:#3a4560; font-size:12px; line-height:1.6; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">This link expires in 30 minutes and can only be used once.</p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="background-color:#080b11; border-top:1px solid #1a2030; padding:24px 40px;">
+                <p style="margin:0 0 8px 0; color:#3a4560; font-size:11px; letter-spacing:1px; font-family:'Courier New', monospace;">&copy; 2026 TradeEdge AI. All rights reserved.</p>
+                <p style="margin:0; font-size:11px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+                  <a href="#" style="color:#5a6580; text-decoration:none;">Privacy</a>
+                  <span style="color:#3a4560;">&nbsp;&middot;&nbsp;</span>
+                  <a href="#" style="color:#5a6580; text-decoration:none;">Terms</a>
+                  <span style="color:#3a4560;">&nbsp;&middot;&nbsp;</span>
+                  <a href="#" style="color:#5a6580; text-decoration:none;">Support</a>
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

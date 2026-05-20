@@ -1,0 +1,31 @@
+# TradeEdge AI — Supabase project configuration
+# Remote project ref: rsrpbpssnabtnhnigvuq
+#
+# Apply to hosted project (pick one):
+#   • Supabase MCP: patch auth config with mailer_otp_exp = 1800, or run config push
+#   • CLI: supabase login && supabase link --project-ref rsrpbpssnabtnhnigvuq && supabase config push
+#
+# Email link expiry: auth.email.otp_expiry controls signup confirmation, magic link,
+# and password recovery tokens (must match "30 minutes" copy in supabase/templates/*.html).
+
+project_id = "tradeedge-ai"
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000"]
+
+[auth.email]
+# 30 minutes — matches template footer copy
+otp_expiry = 1800
+
+[auth.email.template.confirmation]
+subject = "Confirm your email address — TradeEdge AI"
+content_path = "./supabase/templates/confirm-signup.html"
+
+[auth.email.template.recovery]
+subject = "Reset your password — TradeEdge AI"
+content_path = "./supabase/templates/reset-password.html"
+
+[auth.email.template.magic_link]
+subject = "Your sign-in link — TradeEdge AI"
+content_path = "./supabase/templates/magic-link.html"

@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useTransition } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { signOutClient } from "@/lib/auth/client";
+import {
+  createCheckoutSession,
+  createPortalSession,
+} from "@/lib/actions/billing";
 import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/types";
 
@@ -29,11 +33,69 @@ function initialsFor(name: string): string {
   return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
 }
 
+const PLAN_PILL: Record<
+  Plan,
+  { label: string; className: string; style?: React.CSSProperties }
+> = {
+  starter: {
+    label: "Starter",
+    className:
+      "bg-[#1a2030] text-[#8892a4] border border-[#1a2030]",
+  },
+  pro: {
+    label: "Pro",
+    className:
+      "bg-[#00e5b0]/10 text-[#00e5b0] border border-[#00e5b0]/30",
+  },
+  elite: {
+    label: "Elite",
+    className:
+      "text-[#06080d] border border-transparent font-bold",
+    style: {
+      background: "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
+    },
+  },
+};
+
 export function Sidebar({ user }: { user: SidebarUser }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [billingPending, setBillingPending] = useState<"checkout" | "portal" | null>(
+    null
+  );
+  const [billingError, setBillingError] = useState<string | null>(null);
 
   const initials = initialsFor(user.name || user.email || "Trader");
+  const pill = PLAN_PILL[user.plan];
+
+  async function handleUpgrade() {
+    setBillingError(null);
+    setBillingPending("checkout");
+    try {
+      const { url } = await createCheckoutSession("pro");
+      router.push(url);
+    } catch (err) {
+      setBillingError(
+        err instanceof Error ? err.message : "Failed to start checkout."
+      );
+      setBillingPending(null);
+    }
+  }
+
+  async function handleBilling() {
+    setBillingError(null);
+    setBillingPending("portal");
+    try {
+      const { url } = await createPortalSession();
+      router.push(url);
+    } catch (err) {
+      setBillingError(
+        err instanceof Error ? err.message : "Failed to open billing portal."
+      );
+      setBillingPending(null);
+    }
+  }
 
   return (
     <aside
@@ -99,15 +161,59 @@ export function Sidebar({ user }: { user: SidebarUser }) {
               {user.name}
             </div>
             <div className="mt-0.5 inline-flex items-center gap-1.5">
-              <span className="inline-flex items-center rounded-full bg-[#00e5b0]/10 px-1.5 py-0.5 text-[8px] uppercase tracking-[0.22em] text-[#00e5b0] font-mono font-bold">
-                {user.plan}
-              </span>
-              <span className="text-[9px] uppercase tracking-[0.22em] text-[#5a6580] font-mono">
-                Trial
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] uppercase tracking-[0.22em] font-mono font-bold",
+                  pill.className
+                )}
+                style={pill.style}
+              >
+                {pill.label}
               </span>
             </div>
           </div>
         </div>
+
+        {user.plan === "starter" && (
+          <button
+            type="button"
+            onClick={handleUpgrade}
+            disabled={billingPending !== null}
+            className={cn(
+              "mt-3 w-full h-9 rounded-lg",
+              "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#06080d]",
+              "transition-all duration-150",
+              "bg-[#00e5b0] hover:bg-[#00f5be]",
+              "shadow-[0_0_18px_rgba(0,229,176,0.35)]",
+              "active:scale-[0.98] disabled:opacity-60"
+            )}
+          >
+            {billingPending === "checkout" ? "Loading…" : "Upgrade to Pro →"}
+          </button>
+        )}
+
+        {(user.plan === "pro" || user.plan === "elite") && (
+          <button
+            type="button"
+            onClick={handleBilling}
+            disabled={billingPending !== null}
+            className={cn(
+              "mt-3 w-full h-9 rounded-lg border border-[#1a2030]",
+              "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8892a4]",
+              "transition-all duration-150",
+              "hover:text-[#00e5b0] hover:border-[#00e5b0]/40 hover:bg-[#00e5b0]/[0.04]",
+              "active:scale-[0.98] disabled:opacity-60"
+            )}
+          >
+            {billingPending === "portal" ? "Loading…" : "Billing"}
+          </button>
+        )}
+
+        {billingError && (
+          <div className="mt-2 text-[9px] font-mono uppercase tracking-[0.22em] text-[#ff4d6d]">
+            {billingError}
+          </div>
+        )}
 
         <button
           type="button"
@@ -119,7 +225,7 @@ export function Sidebar({ user }: { user: SidebarUser }) {
             })
           }
           className={cn(
-            "mt-3 w-full h-9 rounded-lg border border-[#1a2030]",
+            "mt-2 w-full h-9 rounded-lg border border-[#1a2030]",
             "text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-[#8892a4]",
             "transition-all duration-150",
             "hover:text-[#ff4d6d] hover:border-[#ff4d6d]/40 hover:bg-[#ff4d6d]/[0.04]",

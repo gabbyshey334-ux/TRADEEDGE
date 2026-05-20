@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildTradeSummary } from "@/lib/utils";
-import type { Trade, AiReportType } from "@/lib/types";
+import { canRunAiReport } from "@/lib/plan-limits";
+import type { Trade, AiReportType, Plan } from "@/lib/types";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,36 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", user.id)
+    .single();
+
+  const plan: Plan = ((profile?.plan as Plan | undefined) ?? "starter") as Plan;
+
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const { count: reportsThisMonth } = await supabase
+    .from("ai_usage")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("created_at", startOfMonth.toISOString());
+
+  if (!canRunAiReport(plan, reportsThisMonth ?? 0)) {
+    return NextResponse.json(
+      {
+        error:
+          plan === "starter"
+            ? "AI Coach is available on Pro and Elite plans. Upgrade to unlock."
+            : "You have used all 10 AI reports for this month. Upgrade to Elite for unlimited reports.",
+      },
+      { status: 403 }
+    );
   }
 
   let body: { mode?: unknown; tradeSummary?: unknown } = {};
