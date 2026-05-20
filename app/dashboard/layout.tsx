@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/Sidebar";
+import { DashboardShell } from "@/components/DashboardShell";
 import { getSidebarUser } from "@/lib/auth/server";
 
 /** Auth + Supabase — must not run at build time without env vars. */
@@ -11,10 +11,5 @@ export default async function DashboardLayout({
 }) {
   const sidebarUser = await getSidebarUser();
 
-  return (
-    <div className="min-h-screen bg-[#06080d] text-[#e8edf5]">
-      <Sidebar user={sidebarUser} />
-      <main className="min-h-screen ml-[220px]">{children}</main>
-    </div>
-  );
+  return <DashboardShell user={sidebarUser}>{children}</DashboardShell>;
 }

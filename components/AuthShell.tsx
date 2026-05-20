@@ -14,7 +14,7 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
 
       <div className="relative w-full max-w-md animate-fadeIn">
         <div
-          className="relative rounded-2xl border border-[#1a2030] bg-[#0c1018] p-10 shadow-[0_24px_48px_rgba(0,0,0,0.5)] overflow-hidden"
+          className="relative rounded-2xl border border-[#1a2030] bg-[#0c1018] p-6 sm:p-10 shadow-[0_24px_48px_rgba(0,0,0,0.5)] overflow-hidden"
         >
           <div
             aria-hidden

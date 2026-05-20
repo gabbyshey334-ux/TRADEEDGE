@@ -49,7 +49,7 @@ export default async function DashboardPage() {
     <div className="animate-fadeIn">
       <PageHeader title="Dashboard" subtitle="Overview · live data" />
 
-      <div className="px-8 py-8 space-y-8">
+      <div className="dashboard-page space-y-6 sm:space-y-8">
         <WelcomeGreeting name={displayName} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

@@ -59,7 +59,7 @@ export default function RiskCalcPage() {
         subtitle="Size your positions with precision"
       />
 
-      <div className="px-8 py-8">
+      <div className="dashboard-page">
         <div className="mx-auto w-full max-w-[580px] space-y-6">
           <div className="flex justify-center">
             <div className="inline-flex items-center rounded-full border border-[#1a2030] bg-[#080b11] p-1">
@@ -85,7 +85,7 @@ export default function RiskCalcPage() {
             </div>
           </div>
 
-          <div className="relative rounded-2xl border border-[#1a2030] bg-[#0c1018] p-8 overflow-hidden">
+          <div className="relative rounded-2xl border border-[#1a2030] bg-[#0c1018] p-5 sm:p-8 overflow-hidden">
             <div
               aria-hidden
               className="absolute top-0 left-0 right-0 h-[2px]"

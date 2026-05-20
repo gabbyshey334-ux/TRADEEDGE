@@ -29,6 +29,12 @@ export const metadata: Metadata = {
     "Forex and Futures trading journal with AI-powered psychology and edge analytics.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: {

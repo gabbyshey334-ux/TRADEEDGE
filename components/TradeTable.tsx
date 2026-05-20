@@ -23,7 +23,7 @@ export function TradeTable({
 
   if (!trades.length) {
     return (
-      <div className="rounded-xl border border-[#1a2030] bg-[#0c1018] p-12 text-center text-sm text-[#8892a4] font-mono">
+      <div className="rounded-xl border border-[#1a2030] bg-[#0c1018] p-8 sm:p-12 text-center text-sm text-[#8892a4] font-mono">
         {emptyMessage}
       </div>
     );
@@ -42,8 +42,87 @@ export function TradeTable({
 
   return (
     <div className="rounded-xl border border-[#1a2030] bg-[#0c1018] overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      {/* Mobile card list */}
+      <div className="md:hidden divide-y divide-[#1a2030]">
+        {trades.map((t) => {
+          const pnl = Number(t.pnl);
+          const pnlColor = pnl >= 0 ? "#00e5b0" : "#ff4d6d";
+          return (
+            <div
+              key={t.id}
+              className={cn(
+                "p-4 space-y-3",
+                onEdit && "cursor-pointer active:bg-[#0f1420]"
+              )}
+              onClick={() => onEdit?.(t)}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-mono text-[15px] font-bold text-[#e8edf5] truncate">
+                    {t.symbol}
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <MarketBadge market={t.market} />
+                    <DirectionBadge direction={t.direction} />
+                    <span className="text-[11px] font-mono text-[#8892a4]">
+                      {formatDate(t.date)}
+                    </span>
+                  </div>
+                </div>
+                <div
+                  className="shrink-0 font-mono text-[15px] font-bold"
+                  style={{ color: pnlColor }}
+                >
+                  {formatCurrency(pnl)}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-[#8892a4]">
+                <span>
+                  Entry <span className="text-[#e8edf5]">{Number(t.entry).toFixed(5)}</span>
+                </span>
+                <span>
+                  R:R <span className="text-[#e8edf5]">{t.rr != null ? Number(t.rr).toFixed(2) : "—"}</span>
+                </span>
+                {!compact && t.setup && (
+                  <span className="col-span-2">
+                    Setup <span className="text-[#e8edf5]">{t.setup}</span>
+                  </span>
+                )}
+              </div>
+              {(onEdit || onDelete) && (
+                <div
+                  className="flex gap-4 pt-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {onEdit && (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(t)}
+                      className="text-[10px] uppercase tracking-[0.22em] text-[#8892a4] hover:text-[#00e5b0]"
+                    >
+                      Edit
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      type="button"
+                      disabled={deletingId === t.id}
+                      onClick={() => handleDelete(t)}
+                      className="text-[10px] uppercase tracking-[0.22em] text-[#8892a4] hover:text-[#ff4d6d] disabled:opacity-50"
+                    >
+                      {deletingId === t.id ? "…" : "Delete"}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="bg-[#080b11] border-b border-[#1a2030] text-[10px] uppercase tracking-[0.22em] text-[#5a6580] font-mono">
               <Th>Date</Th>
@@ -192,7 +271,7 @@ function Th({
 }) {
   return (
     <th
-      className="px-4 py-3.5 font-medium first:pl-6 last:pr-6"
+      className="px-3 lg:px-4 py-3.5 font-medium first:pl-4 lg:first:pl-6 last:pr-4 lg:last:pr-6"
       style={{ textAlign: align }}
     >
       {children}
@@ -216,7 +295,7 @@ function Td({
   return (
     <td
       className={cn(
-        "px-4 py-3.5 whitespace-nowrap first:pl-6 last:pr-6",
+        "px-3 lg:px-4 py-3.5 first:pl-4 lg:first:pl-6 last:pr-4 lg:last:pr-6",
         className
       )}
       style={{ textAlign: align, ...style }}

@@ -68,7 +68,7 @@ export function EquityChart({ trades, height = 260 }: EquityChartProps) {
   );
 
   return (
-    <div className="relative rounded-xl border border-[#1a2030] bg-[#0c1018] p-6 overflow-hidden transition-colors duration-150 hover:border-[#2a3050]">
+    <div className="relative rounded-xl border border-[#1a2030] bg-[#0c1018] p-4 sm:p-6 overflow-hidden transition-colors duration-150 hover:border-[#2a3050]">
       <div
         aria-hidden
         className="absolute top-0 left-0 right-0 h-[2px]"
@@ -76,13 +76,13 @@ export function EquityChart({ trades, height = 260 }: EquityChartProps) {
           background: `linear-gradient(to right, ${stroke}, ${stroke}00)`,
         }}
       />
-      <div className="flex items-start justify-between mb-5">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-5">
+        <div className="min-w-0">
           <div className="text-[10px] uppercase tracking-[0.32em] text-[#5a6580] font-mono">
             Equity Curve
           </div>
           <div
-            className="mt-2 font-heading text-4xl leading-none tracking-wide"
+            className="mt-2 font-heading text-2xl sm:text-3xl lg:text-4xl leading-none tracking-wide break-words"
             style={{ color: stroke }}
           >
             {formatCurrency(last)}

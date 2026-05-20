@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/types";
 
-interface SidebarUser {
+export interface SidebarUser {
   name: string;
   email: string;
   plan: Plan;
@@ -57,7 +57,15 @@ const PLAN_PILL: Record<
   },
 };
 
-export function Sidebar({ user }: { user: SidebarUser }) {
+export function Sidebar({
+  user,
+  mobileOpen = false,
+  onNavigate,
+}: {
+  user: SidebarUser;
+  mobileOpen?: boolean;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -99,8 +107,13 @@ export function Sidebar({ user }: { user: SidebarUser }) {
 
   return (
     <aside
-      className="fixed top-0 left-0 h-screen flex flex-col bg-[#080b11] border-r border-[#1a2030]"
-      style={{ width: 220 }}
+      className={cn(
+        "fixed top-0 left-0 z-50 flex h-screen w-[220px] max-w-[85vw] flex-col",
+        "border-r border-[#1a2030] bg-[#080b11]",
+        "transition-transform duration-200 ease-out",
+        "lg:translate-x-0",
+        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}
     >
       <div className="px-5 pt-7 pb-5 border-b border-[#1a2030]">
         <Link href="/dashboard" className="block group">
@@ -124,6 +137,7 @@ export function Sidebar({ user }: { user: SidebarUser }) {
             <Link
               key={href}
               href={href}
+              onClick={onNavigate}
               className={cn(
                 "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-mono tracking-wide",
                 "transition-all duration-150",

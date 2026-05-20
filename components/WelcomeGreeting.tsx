@@ -47,7 +47,7 @@ export function WelcomeGreeting({ name }: WelcomeGreetingProps) {
         <div className="text-[10px] uppercase tracking-[0.32em] text-[#00e5b0] font-mono">
           {greetingFor(hour)}
         </div>
-        <h2 className="mt-2 font-heading text-3xl tracking-wide text-[#e8edf5] leading-none">
+        <h2 className="mt-2 font-heading text-2xl sm:text-3xl tracking-wide text-[#e8edf5] leading-none">
           Welcome back, <span className="text-[#00e5b0]">{firstName}</span>
         </h2>
       </div>

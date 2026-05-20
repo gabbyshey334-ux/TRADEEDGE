@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { FaqAccordion } from "@/components/FaqAccordion";
+import { LandingNav } from "@/components/LandingNav";
 import { MarketTicker } from "@/components/MarketTicker";
 
 /* ----------------------------- shared atoms ----------------------------- */
@@ -155,32 +156,7 @@ function TestimonialCard({ quote, name, meta }: TestimonialProps) {
 export default function LandingPage() {
   return (
     <div className="landing min-h-screen bg-bg text-text">
-        {/* ================= SECTION 1 — TOP NAV ================= */}
-        <header
-          className="fixed top-0 left-0 right-0 z-50 bg-bg"
-          style={{ borderBottom: "1px solid #1a2030" }}
-        >
-          <div className="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
-            <Link href="/" aria-label="TradeEdge AI home">
-              <Logo />
-            </Link>
-            <nav className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="hidden sm:inline-flex items-center px-4 py-2 rounded-md font-sans text-[14px] text-text hover:bg-card transition-colors"
-              >
-                Log In
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex items-center px-4 py-2 rounded-md font-sans text-[14px] font-semibold hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: "#00e5b0", color: "#06080d" }}
-              >
-                Start Free Trial
-              </Link>
-            </nav>
-          </div>
-        </header>
+        <LandingNav />
 
         {/* ================= SECTION 2 — TICKER BAR ================= */}
         <div
@@ -198,8 +174,8 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* spacer for fixed nav + ticker */}
-        <div style={{ height: 64 + 36 }} aria-hidden="true" />
+        {/* spacer for fixed nav + ticker (nav is 56–64px + ticker 36px) */}
+        <div className="h-[92px] sm:h-[100px]" aria-hidden="true" />
 
         {/* ================= SECTION 3 — HERO ================= */}
         <section
@@ -236,7 +212,7 @@ export default function LandingPage() {
               style={{
                 fontSize: "clamp(56px, 9vw, 96px)",
                 lineHeight: 1.02,
-                letterSpacing: "3px",
+                letterSpacing: "clamp(1px, 0.5vw, 3px)",
                 color: "#e8edf5",
               }}
             >
@@ -434,36 +410,61 @@ export default function LandingPage() {
                         setup: "Reversal",
                       },
                     ].map((row, i, arr) => (
-                      <div
-                        key={i}
-                        className="grid grid-cols-2 md:grid-cols-7 gap-2 md:gap-0 font-mono text-[12px] text-text px-4 py-3"
-                        style={{
-                          gridTemplateColumns:
-                            "0.7fr 0.9fr 1fr 0.7fr 0.9fr 0.9fr 1.2fr",
-                          borderBottom:
-                            i < arr.length - 1 ? "1px solid #1a2030" : "none",
-                        }}
-                      >
-                        <span className="text-muted">{row.date}</span>
-                        <span className="text-quote">{row.market}</span>
-                        <span>{row.symbol}</span>
-                        <span
+                      <div key={i}>
+                        {/* Mobile row */}
+                        <div
+                          className="md:hidden px-4 py-3 font-mono text-[12px] border-b border-[#1a2030] last:border-b-0"
+                        >
+                          <div className="flex justify-between items-center gap-2">
+                            <span className="font-semibold text-text">{row.symbol}</span>
+                            <span
+                              style={{
+                                color: row.pnlPositive ? "#00e5b0" : "#ff4d6d",
+                              }}
+                            >
+                              {row.pnl}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-muted text-[11px]">
+                            <span>{row.date}</span>
+                            <span>{row.market}</span>
+                            <span style={{ color: row.side === "Long" ? "#00e5b0" : "#ff4d6d" }}>
+                              {row.side}
+                            </span>
+                            <span>{row.setup}</span>
+                          </div>
+                        </div>
+                        {/* Desktop row */}
+                        <div
+                          className="hidden md:grid font-mono text-[12px] text-text px-4 py-3 gap-0"
                           style={{
-                            color:
-                              row.side === "Long" ? "#00e5b0" : "#ff4d6d",
+                            gridTemplateColumns:
+                              "0.7fr 0.9fr 1fr 0.7fr 0.9fr 0.9fr 1.2fr",
+                            borderBottom:
+                              i < arr.length - 1 ? "1px solid #1a2030" : "none",
                           }}
                         >
-                          {row.side}
-                        </span>
-                        <span className="text-quote">{row.entry}</span>
-                        <span
-                          style={{
-                            color: row.pnlPositive ? "#00e5b0" : "#ff4d6d",
-                          }}
-                        >
-                          {row.pnl}
-                        </span>
-                        <span className="text-quote">{row.setup}</span>
+                          <span className="text-muted">{row.date}</span>
+                          <span className="text-quote">{row.market}</span>
+                          <span>{row.symbol}</span>
+                          <span
+                            style={{
+                              color:
+                                row.side === "Long" ? "#00e5b0" : "#ff4d6d",
+                            }}
+                          >
+                            {row.side}
+                          </span>
+                          <span className="text-quote">{row.entry}</span>
+                          <span
+                            style={{
+                              color: row.pnlPositive ? "#00e5b0" : "#ff4d6d",
+                            }}
+                          >
+                            {row.pnl}
+                          </span>
+                          <span className="text-quote">{row.setup}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -744,7 +745,7 @@ export default function LandingPage() {
 
               {/* Pro */}
               <div
-                className="rounded-xl bg-card p-7 flex flex-col relative md:scale-[1.04] md:-my-2"
+                className="rounded-xl bg-card p-5 sm:p-7 flex flex-col relative lg:scale-[1.02] lg:-my-1"
                 style={{
                   border: "1px solid #00e5b0",
                   boxShadow:

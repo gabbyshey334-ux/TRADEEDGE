@@ -108,7 +108,7 @@ export function AiCoachClient({
         subtitle={`${tradeCount} trades available for analysis`}
       />
 
-      <div className="px-8 py-8 space-y-8">
+      <div className="dashboard-page space-y-6 sm:space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {MODES.map((m) => {
             const active = mode === m.id;
@@ -189,7 +189,7 @@ export function AiCoachClient({
             <Button
               onClick={generate}
               disabled={disabled}
-              className="min-w-[220px]"
+              className="w-full sm:w-auto sm:min-w-[200px]"
             >
               {generating ? "Analyzing…" : "Generate Report"}
             </Button>
@@ -289,7 +289,7 @@ export function AiCoachClient({
             }}
           />
 
-          <div className="flex items-center justify-between px-6 py-5 border-b border-[#1a2030]">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-[#1a2030]">
             <div>
               <div
                 className="text-[10px] uppercase tracking-[0.32em] font-mono"

@@ -181,7 +181,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
         />
 
         {/* Header */}
-        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#1a2030] px-8 py-6">
+        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#1a2030] px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
           <div>
             <p className="text-[10px] uppercase tracking-[0.32em] text-[#00e5b0] font-mono mb-2">
               {trade ? "Edit entry" : "New entry"}
@@ -212,7 +212,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
           onSubmit={handleSubmit}
           className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="flex-1 overflow-y-auto px-8 py-6 space-y-8">
+          <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 space-y-6 sm:space-y-8">
             {/* Direction + market */}
             <section className="space-y-4">
               <FormSectionLabel accent="#00e5b0">Position</FormSectionLabel>
@@ -424,7 +424,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
           </div>
 
           {/* Footer */}
-          <div className="shrink-0 flex flex-col-reverse sm:flex-row items-stretch gap-3 border-t border-[#1a2030] bg-[#080b11]/80 px-8 py-5">
+          <div className="shrink-0 flex flex-col-reverse sm:flex-row items-stretch gap-3 border-t border-[#1a2030] bg-[#080b11]/80 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             <Button
               type="button"
               variant="secondary"

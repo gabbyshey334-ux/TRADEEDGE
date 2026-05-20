@@ -98,7 +98,7 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
         }
       />
 
-      <div className="px-8 py-8 space-y-6">
+      <div className="dashboard-page space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="inline-flex items-center rounded-full border border-[#1a2030] bg-[#080b11] p-1">
             {(["All", "Forex", "Futures"] as Filter[]).map((f) => {

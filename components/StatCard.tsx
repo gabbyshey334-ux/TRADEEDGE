@@ -53,7 +53,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "group relative rounded-xl bg-[#0c1018] border border-[#1a2030] p-6 overflow-hidden",
+        "group relative rounded-xl bg-[#0c1018] border border-[#1a2030] p-4 sm:p-6 overflow-hidden",
         "transition-all duration-150 ease-out",
         "hover:bg-[#0f1420] hover:border-[#2a3050] hover:shadow-[0_1px_3px_rgba(0,0,0,0.4)]",
         className
@@ -75,7 +75,7 @@ export function StatCard({
       </div>
 
       <div
-        className="mt-3 font-heading text-4xl leading-none tracking-wide"
+        className="mt-3 font-heading text-2xl sm:text-3xl lg:text-4xl leading-none tracking-wide break-words"
         style={{ color }}
       >
         {value}

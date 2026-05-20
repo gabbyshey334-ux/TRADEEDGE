@@ -128,7 +128,7 @@ export default async function AnalyticsPage() {
         subtitle={`${stats.tradeCount} trades · ${stats.winRate.toFixed(1)}% win rate`}
       />
 
-      <div className="px-8 py-8 space-y-8">
+      <div className="dashboard-page space-y-6 sm:space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <StatCard
             label="Avg Win"

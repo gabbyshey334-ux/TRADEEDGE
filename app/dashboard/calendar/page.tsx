@@ -81,12 +81,12 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
         title="Calendar"
         subtitle={`${monthlyCount} trades · ${formatCurrency(monthlyTotal)} net this month`}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <NavArrow
               href={`/dashboard/calendar?month=${prevMonth}&year=${prevYear}`}
               direction="prev"
             />
-            <div className="h-10 px-5 rounded-lg border border-[#1a2030] bg-[#080b11] text-xs font-mono font-bold uppercase tracking-[0.22em] text-[#e8edf5] inline-flex items-center min-w-[180px] justify-center">
+            <div className="h-9 sm:h-10 flex-1 sm:flex-none px-2 sm:px-5 rounded-lg border border-[#1a2030] bg-[#080b11] text-[10px] sm:text-xs font-mono font-bold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#e8edf5] inline-flex items-center justify-center min-w-0 sm:min-w-[160px] truncate">
               {monthName}
             </div>
             <NavArrow
@@ -97,7 +97,7 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
         }
       />
 
-      <div className="px-8 py-8 space-y-6">
+      <div className="dashboard-page space-y-6">
         <div className="relative rounded-xl border border-[#1a2030] bg-[#0c1018] p-6 overflow-hidden">
           <div
             aria-hidden
@@ -106,18 +106,18 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
               background: "linear-gradient(to right, #00e5b0, transparent)",
             }}
           />
-          <div className="grid grid-cols-7 gap-2 mb-3">
+          <div className="hidden sm:grid grid-cols-7 gap-1.5 sm:gap-2 mb-3">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
               <div
                 key={d}
-                className="text-[10px] uppercase tracking-[0.32em] text-[#5a6580] font-mono text-center py-2"
+                className="text-[9px] sm:text-[10px] uppercase tracking-[0.28em] sm:tracking-[0.32em] text-[#5a6580] font-mono text-center py-2"
               >
-                {d}
+                {d.slice(0, 3)}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-2">
+          <div className="hidden sm:grid grid-cols-7 gap-1.5 sm:gap-2">
             {cells.map(({ date, key }) => {
               if (!date) {
                 return (
@@ -190,9 +190,52 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
               );
             })}
           </div>
+
+          {/* Mobile: list of days with activity */}
+          <div className="sm:hidden flex flex-col gap-2">
+            {cells
+              .filter((c) => c.date)
+              .map(({ date, key }) => {
+                if (!date) return null;
+                const isoDate = date.toISOString().slice(0, 10);
+                const dayData = byDay.get(isoDate);
+                if (!dayData) return null;
+                return (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between rounded-lg border border-[#1a2030] bg-[#080b11] px-4 py-3"
+                  >
+                    <div className="text-[12px] font-mono text-[#8892a4]">
+                      {date.toLocaleDateString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        timeZone: "UTC",
+                      })}
+                      <span className="ml-2 text-[#5a6580]">
+                        {dayData.count} trade{dayData.count !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <div
+                      className="text-[14px] font-mono font-bold"
+                      style={{
+                        color: dayData.pnl >= 0 ? "#00e5b0" : "#ff4d6d",
+                      }}
+                    >
+                      {formatCurrency(dayData.pnl, 0)}
+                    </div>
+                  </div>
+                );
+              })}
+            {tradingDays === 0 && (
+              <p className="text-center text-[12px] font-mono text-[#5a6580] py-6">
+                No trades this month yet.
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-xl border border-[#1a2030] bg-[#0c1018] p-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 rounded-xl border border-[#1a2030] bg-[#0c1018] p-4 sm:p-5">
           <SummaryItem label="Net P&L" value={formatCurrency(monthlyTotal)} color={monthlyTotal >= 0 ? "#00e5b0" : "#ff4d6d"} />
           <SummaryItem label="Trading Days" value={String(tradingDays)} color="#e8edf5" />
           <SummaryItem label="Win Days" value={String(winDays)} color="#00e5b0" />
