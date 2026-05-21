@@ -160,7 +160,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <nav className="flex-1 px-3 pb-5 flex flex-col gap-0.5 overflow-y-auto">
+      <nav className="flex-1 min-h-0 px-3 pb-5 flex flex-col gap-0.5 overflow-y-auto">
         {NAV.map((item) => {
           const { href, label, icon: Icon } = item;
           const active =
@@ -213,8 +213,8 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* User section */}
-      <div className="border-t border-[#1a2030] bg-[#06080d]/40 px-4 py-5">
+      {/* User section — pinned below scrollable nav on mobile */}
+      <div className="shrink-0 border-t border-[#1a2030] bg-[#06080d]/40 px-4 py-5">
         <div className="flex items-center gap-3 px-1">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-[12px] font-mono font-bold text-[#06080d]"

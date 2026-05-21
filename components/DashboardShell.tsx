@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Sidebar, type SidebarUser } from "@/components/Sidebar";
+import { signOutClient } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 
 export function DashboardShell({
@@ -14,6 +15,7 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signingOut, startSignOut] = useTransition();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -48,7 +50,24 @@ export function DashboardShell({
           <span className="text-[#e8edf5]">TRADE</span>
           <span className="text-[#00e5b0]">EDGE</span>
         </Link>
-        <div className="w-10" aria-hidden />
+        <button
+          type="button"
+          disabled={signingOut}
+          onClick={() =>
+            startSignOut(async () => {
+              await signOutClient();
+              window.location.href = "/signed-out";
+            })
+          }
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-lg border border-[#1a2030]",
+            "text-[#5a6580] hover:text-[#ff4d6d] hover:border-[#ff4d6d]/30 hover:bg-[#ff4d6d]/[0.04]",
+            "transition-colors disabled:opacity-50"
+          )}
+          aria-label={signingOut ? "Signing out" : "Sign out"}
+        >
+          <SignOutIcon />
+        </button>
       </header>
 
       {menuOpen && (
@@ -79,6 +98,20 @@ function MenuIcon() {
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function SignOutIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
