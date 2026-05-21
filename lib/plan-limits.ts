@@ -2,11 +2,31 @@ import type { Plan } from "./types";
 
 export const PLAN_LIMITS: Record<
   Plan,
-  { maxMonthlyTrades: number; maxMonthlyAiReports: number }
+  {
+    maxMonthlyTrades: number;
+    maxMonthlyAiReports: number;
+    congressionalTrades: boolean;
+    propFirmTracker: boolean;
+  }
 > = {
-  starter: { maxMonthlyTrades: 50,       maxMonthlyAiReports: 0        },
-  pro:     { maxMonthlyTrades: Infinity, maxMonthlyAiReports: 10       },
-  elite:   { maxMonthlyTrades: Infinity, maxMonthlyAiReports: Infinity },
+  starter: {
+    maxMonthlyTrades: 50,
+    maxMonthlyAiReports: 0,
+    congressionalTrades: false,
+    propFirmTracker: false,
+  },
+  pro: {
+    maxMonthlyTrades: Infinity,
+    maxMonthlyAiReports: 10,
+    congressionalTrades: true,
+    propFirmTracker: true,
+  },
+  elite: {
+    maxMonthlyTrades: Infinity,
+    maxMonthlyAiReports: Infinity,
+    congressionalTrades: true,
+    propFirmTracker: true,
+  },
 };
 
 export function canAddTrade(plan: Plan, tradesThisMonth: number): boolean {

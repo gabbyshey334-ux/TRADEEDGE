@@ -24,6 +24,18 @@ const NAV = [
   { href: "/dashboard/risk", label: "Risk Calc", icon: CalcIcon },
   { href: "/dashboard/calendar", label: "Calendar", icon: CalIcon },
   { href: "/dashboard/ai", label: "AI Coach", icon: AiIcon },
+  {
+    href: "/dashboard/congressional-trades",
+    label: "Congressional Trades",
+    icon: CongressIcon,
+    proBadge: true,
+  },
+  {
+    href: "/dashboard/prop-firm-tracker",
+    label: "Prop Firm Tracker",
+    icon: PropFirmIcon,
+    proBadge: true,
+  },
 ] as const;
 
 function initialsFor(name: string): string {
@@ -149,11 +161,14 @@ export function Sidebar({
       </div>
 
       <nav className="flex-1 px-3 pb-5 flex flex-col gap-0.5 overflow-y-auto">
-        {NAV.map(({ href, label, icon: Icon }) => {
+        {NAV.map((item) => {
+          const { href, label, icon: Icon } = item;
           const active =
             href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(href);
+          const showProBadge =
+            "proBadge" in item && item.proBadge && user.plan === "starter";
           return (
             <Link
               key={href}
@@ -177,9 +192,22 @@ export function Sidebar({
               }
             >
               <Icon active={active} />
-              <span className={active ? "font-semibold" : undefined}>
+              <span className={cn("flex-1 min-w-0", active && "font-semibold")}>
                 {label}
               </span>
+              {showProBadge && (
+                <span
+                  className="shrink-0 rounded-sm px-1.5 py-0.5 font-mono font-bold uppercase"
+                  style={{
+                    fontSize: "9px",
+                    letterSpacing: "0.22em",
+                    backgroundColor: "rgba(0,229,176,0.12)",
+                    color: "#00e5b0",
+                  }}
+                >
+                  PRO
+                </span>
+              )}
             </Link>
           );
         })}
@@ -370,6 +398,41 @@ function AiIcon({ active }: { active: boolean }) {
         d="M12 2l2.39 4.84L20 8l-4.34 3.78L17 18l-5-2.84L7 18l1.34-6.22L4 8l5.61-1.16L12 2z"
         stroke={c}
         strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function CongressIcon({ active }: { active: boolean }) {
+  const c = active ? "#00e5b0" : "#5a6580";
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"
+        stroke={c}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 11h6M9 15h6"
+        stroke={c}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function PropFirmIcon({ active }: { active: boolean }) {
+  const c = active ? "#00e5b0" : "#5a6580";
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="3" y="7" width="18" height="13" rx="2" stroke={c} strokeWidth="1.6" />
+      <path
+        d="M8 7V5a4 4 0 0 1 8 0v2M12 12v4M10 14h4"
+        stroke={c}
+        strokeWidth="1.6"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
     </svg>
