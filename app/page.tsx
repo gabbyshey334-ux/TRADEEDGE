@@ -6,6 +6,7 @@ import {
   Check,
   Landmark,
   LineChart,
+  Briefcase,
   Scale,
   Star,
   TrendingUp,
@@ -741,7 +742,14 @@ export default function LandingPage() {
                 color="#00e5b0"
                 icon={Landmark}
                 title="CONGRESS TRADES FEED"
-                description="See what US senators and representatives are buying and selling. Public STOCK Act data surfaced inside your journal."
+                description="See what US senators and representatives are buying and selling. Public STOCK Act data surfaced inside your journal. Included on Pro and Elite."
+                comingSoon
+              />
+              <FeatureCard
+                color="#0066ff"
+                icon={Briefcase}
+                title="PROP FIRM TRACKER"
+                description="Track evaluations, payouts, and firm rules across your prop accounts in one dashboard. Included on Pro and Elite."
                 comingSoon
               />
             </div>
@@ -921,6 +929,8 @@ export default function LandingPage() {
                   "Full AI coaching suite (10 reports/mo)",
                   "Advanced analytics",
                   "Psychology tracker",
+                  "Congressional trades feed",
+                  "Prop firm tracker",
                   "Priority support",
                   "Everything in Starter",
                 ]}
@@ -938,7 +948,6 @@ export default function LandingPage() {
                 features={[
                   "Everything in Pro",
                   "Unlimited AI reports",
-                  "Congress trades feed (coming soon)",
                   "Multi-account support (up to 5)",
                   "API access",
                   "Dedicated support",
