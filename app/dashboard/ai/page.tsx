@@ -7,39 +7,74 @@ import { AiCoachClient } from "./AiCoachClient";
 
 export const dynamic = "force-dynamic";
 
+function parsePlan(value: unknown): Plan {
+  if (value === "pro" || value === "elite" || value === "starter") {
+    return value;
+  }
+  return "starter";
+}
+
 export default async function AiCoachPage() {
   const user = await requireAuthUser();
-  const trades = await getTradesForUser(user.id);
 
-  const supabase = await createClient();
+  let tradeCount = 0;
+  let plan: Plan = "starter";
+  let reportsThisMonth = 0;
+  let monthlyLimit: number | null = 0;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("plan")
-    .eq("id", user.id)
-    .maybeSingle();
+  try {
+    if (!user?.id) {
+      return (
+        <AiCoachClient
+          tradeCount={0}
+          plan="starter"
+          reportsThisMonth={0}
+          monthlyLimit={0}
+        />
+      );
+    }
 
-  const plan: Plan = ((profile?.plan as Plan | undefined) ?? "starter") as Plan;
+    const trades = await getTradesForUser(user.id);
+    tradeCount = Array.isArray(trades) ? trades.length : 0;
 
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+    const supabase = await createClient();
 
-  const { count } = await supabase
-    .from("ai_usage")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .gte("created_at", startOfMonth.toISOString());
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .maybeSingle();
 
-  const reportsThisMonth = count ?? 0;
-  const monthlyLimit = PLAN_LIMITS[plan].maxMonthlyAiReports;
+    if (!profileError && profile != null) {
+      plan = parsePlan(profile.plan);
+    }
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const { count, error: usageError } = await supabase
+      .from("ai_usage")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gte("created_at", startOfMonth.toISOString());
+
+    if (!usageError) {
+      reportsThisMonth = count ?? 0;
+    }
+
+    const limit = PLAN_LIMITS[plan].maxMonthlyAiReports;
+    monthlyLimit = Number.isFinite(limit) ? limit : null;
+  } catch (err) {
+    console.error("[AiCoachPage] Failed to load AI Coach data:", err);
+  }
 
   return (
     <AiCoachClient
-      tradeCount={trades.length}
+      tradeCount={tradeCount}
       plan={plan}
       reportsThisMonth={reportsThisMonth}
-      monthlyLimit={Number.isFinite(monthlyLimit) ? monthlyLimit : null}
+      monthlyLimit={monthlyLimit}
     />
   );
 }

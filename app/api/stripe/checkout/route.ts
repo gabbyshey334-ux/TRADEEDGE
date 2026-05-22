@@ -12,6 +12,18 @@ function isPlan(value: unknown): value is Plan {
   return typeof value === "string" && (VALID_PLANS as string[]).includes(value);
 }
 
+function resolveAppUrl(request: NextRequest): string | null {
+  const fromEnv = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  if (fromEnv) return fromEnv;
+
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  if (!host) return null;
+
+  const proto = request.headers.get("x-forwarded-proto") ?? "https";
+  return `${proto}://${host}`.replace(/\/$/, "");
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -46,10 +58,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const appUrl = resolveAppUrl(request);
     if (!appUrl) {
       return NextResponse.json(
-        { error: "NEXT_PUBLIC_APP_URL is not configured." },
+        { error: "Could not determine app URL for checkout redirects." },
         { status: 500 }
       );
     }
