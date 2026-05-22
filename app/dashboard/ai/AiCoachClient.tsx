@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { createCheckoutSession } from "@/lib/actions/billing";
@@ -51,7 +50,6 @@ export function AiCoachClient({
   reportsThisMonth,
   monthlyLimit,
 }: AiCoachClientProps) {
-  const router = useRouter();
   const [mode, setMode] = useState<AiReportType>("session");
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<string>("");
@@ -66,7 +64,7 @@ export function AiCoachClient({
     setUpgrading(true);
     try {
       const { url } = await createCheckoutSession(target);
-      router.push(url);
+      window.location.assign(url);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to start checkout."

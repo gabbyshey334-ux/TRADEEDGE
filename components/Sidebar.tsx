@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { signOutClient } from "@/lib/auth/client";
 import {
@@ -77,7 +77,6 @@ export function Sidebar({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [billingPending, setBillingPending] = useState<"checkout" | "portal" | null>(
     null
@@ -92,7 +91,7 @@ export function Sidebar({
     setBillingPending("checkout");
     try {
       const { url } = await createCheckoutSession("pro");
-      router.push(url);
+      window.location.assign(url);
     } catch (err) {
       setBillingError(
         err instanceof Error ? err.message : "Failed to start checkout."
@@ -106,7 +105,7 @@ export function Sidebar({
     setBillingPending("portal");
     try {
       const { url } = await createPortalSession();
-      router.push(url);
+      window.location.assign(url);
     } catch (err) {
       setBillingError(
         err instanceof Error ? err.message : "Failed to open billing portal."
