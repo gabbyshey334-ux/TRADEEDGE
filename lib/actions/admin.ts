@@ -2,20 +2,10 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/server";
+import { isAdminEmail } from "@/lib/auth/admin";
 import type { Plan } from "@/lib/types";
 
-const ADMIN_EMAILS = [
-  "sheywebstudio@gmail.com",
-  "brown.anthony89@yahoo.com",
-] as const;
-
 const VALID_PLANS: Plan[] = ["starter", "pro", "elite"];
-
-function isAdminEmail(email: string | null | undefined): boolean {
-  const normalized = email?.trim().toLowerCase();
-  if (!normalized) return false;
-  return (ADMIN_EMAILS as readonly string[]).includes(normalized);
-}
 
 function isPlan(value: unknown): value is Plan {
   return typeof value === "string" && VALID_PLANS.includes(value as Plan);

@@ -1,11 +1,18 @@
 import { syncUserPlanFromStripe } from "@/lib/billing/sync-plan";
 import { getServiceClient } from "@/lib/supabase/service";
+import { isAdminEmail } from "@/lib/auth/admin";
 
 /**
  * Sync plan from Stripe when the user has a billing account.
- * Safe to call on each dashboard load — no-ops without stripe_customer_id.
+ * Skips admin accounts (they get Elite via ensureAdminAccess).
  */
-export async function syncSubscriptionIfNeeded(userId: string): Promise<void> {
+export async function syncSubscriptionIfNeeded(
+  userId: string,
+  email?: string | null
+): Promise<void> {
+  if (isAdminEmail(email)) {
+    return;
+  }
   if (!process.env.STRIPE_SECRET_KEY?.trim()) {
     return;
   }

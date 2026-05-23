@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await requireAuthUser();
-  await syncSubscriptionIfNeeded(user.id);
+  await syncSubscriptionIfNeeded(user.id, user.email);
   await ensureAdminAccess();
   const sidebarUser = await getSidebarUser();
 
