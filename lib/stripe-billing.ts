@@ -66,7 +66,7 @@ export async function createStripeCheckoutSession(args: {
     allow_promotion_codes: true,
     metadata: { supabase_uid: user.id },
     subscription_data: {
-      metadata: { supabase_uid: user.id },
+      metadata: { supabase_uid: user.id, plan },
     },
   });
 

@@ -49,9 +49,20 @@ export function remainingAiReports(
 /** Map a Stripe Price ID to its internal plan tier. Returns null if no match. */
 export function priceIdToPlan(priceId: string | null | undefined): Plan | null {
   if (!priceId) return null;
-  if (priceId === process.env.STRIPE_STARTER_PRICE_ID) return "starter";
-  if (priceId === process.env.STRIPE_PRO_PRICE_ID) return "pro";
-  if (priceId === process.env.STRIPE_ELITE_PRICE_ID) return "elite";
+  const id = priceId.trim();
+  const starter = process.env.STRIPE_STARTER_PRICE_ID?.trim();
+  const pro = process.env.STRIPE_PRO_PRICE_ID?.trim();
+  const elite = process.env.STRIPE_ELITE_PRICE_ID?.trim();
+  if (starter && id === starter) return "starter";
+  if (pro && id === pro) return "pro";
+  if (elite && id === elite) return "elite";
+  return null;
+}
+
+export function parsePlan(value: unknown): Plan | null {
+  if (value === "pro" || value === "elite" || value === "starter") {
+    return value;
+  }
   return null;
 }
 

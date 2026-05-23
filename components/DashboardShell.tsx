@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Sidebar, type SidebarUser } from "@/components/Sidebar";
 import { signOutClient } from "@/lib/auth/client";
+import { syncSubscriptionFromStripe } from "@/lib/actions/billing";
 import { cn } from "@/lib/utils";
 
 export function DashboardShell({
@@ -16,7 +17,24 @@ export function DashboardShell({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, startSignOut] = useTransition();
+  const [, startSyncPlan] = useTransition();
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const upgraded = searchParams.get("upgraded") === "true";
+
+  useEffect(() => {
+    if (!upgraded) return;
+    startSyncPlan(async () => {
+      try {
+        await syncSubscriptionFromStripe();
+        router.replace(pathname);
+        router.refresh();
+      } catch (err) {
+        console.error("[DashboardShell] Plan sync after upgrade failed:", err);
+      }
+    });
+  }, [upgraded, pathname, router]);
 
   useEffect(() => {
     setMenuOpen(false);

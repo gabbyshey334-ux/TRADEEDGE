@@ -1,18 +1,11 @@
 import { requireAuthUser } from "@/lib/auth/server";
 import { getTradesForUser } from "@/lib/data/trades";
 import { createClient } from "@/lib/supabase/server";
-import { PLAN_LIMITS } from "@/lib/plan-limits";
+import { PLAN_LIMITS, parsePlan } from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
 import { AiCoachClient } from "./AiCoachClient";
 
 export const dynamic = "force-dynamic";
-
-function parsePlan(value: unknown): Plan {
-  if (value === "pro" || value === "elite" || value === "starter") {
-    return value;
-  }
-  return "starter";
-}
 
 export default async function AiCoachPage() {
   const user = await requireAuthUser();
@@ -46,7 +39,7 @@ export default async function AiCoachPage() {
       .maybeSingle();
 
     if (!profileError && profile != null) {
-      plan = parsePlan(profile.plan);
+      plan = parsePlan(profile.plan) ?? "starter";
     }
 
     const startOfMonth = new Date();
