@@ -8,6 +8,10 @@ import {
   createCheckoutSession,
   createPortalSession,
 } from "@/lib/actions/billing";
+import {
+  PAYMENT_NOT_CONFIGURED_ERROR,
+  PAYMENT_COMING_SOON_MESSAGE,
+} from "@/lib/billing-messages";
 import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/types";
 
@@ -82,34 +86,43 @@ export function Sidebar({
     null
   );
   const [billingError, setBillingError] = useState<string | null>(null);
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
 
   const initials = initialsFor(user.name || user.email || "Trader");
   const pill = PLAN_PILL[user.plan];
 
   async function handleUpgrade() {
     setBillingError(null);
+    setPaymentNotice(null);
     setBillingPending("checkout");
     try {
       const { url } = await createCheckoutSession("pro");
       window.location.assign(url);
     } catch (err) {
-      setBillingError(
-        err instanceof Error ? err.message : "Failed to start checkout."
-      );
+      const msg = err instanceof Error ? err.message : "";
+      if (msg === PAYMENT_NOT_CONFIGURED_ERROR) {
+        setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE);
+      } else {
+        setBillingError(msg || "Failed to start checkout.");
+      }
       setBillingPending(null);
     }
   }
 
   async function handleBilling() {
     setBillingError(null);
+    setPaymentNotice(null);
     setBillingPending("portal");
     try {
       const { url } = await createPortalSession();
       window.location.assign(url);
     } catch (err) {
-      setBillingError(
-        err instanceof Error ? err.message : "Failed to open billing portal."
-      );
+      const msg = err instanceof Error ? err.message : "";
+      if (msg === PAYMENT_NOT_CONFIGURED_ERROR) {
+        setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE);
+      } else {
+        setBillingError(msg || "Failed to open billing portal.");
+      }
       setBillingPending(null);
     }
   }
@@ -282,6 +295,15 @@ export function Sidebar({
           >
             {billingPending === "portal" ? "Loading…" : "Billing"}
           </button>
+        )}
+
+        {paymentNotice && (
+          <div
+            className="mt-2 rounded-sm border border-[#f0c040]/40 bg-[#f0c040]/[0.08] px-3 py-2.5 text-[12px] text-[#f0c040] font-sans leading-relaxed"
+            role="status"
+          >
+            {paymentNotice}
+          </div>
         )}
 
         {billingError && (

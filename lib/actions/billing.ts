@@ -6,12 +6,21 @@ import {
   createStripeCheckoutSession,
   createStripePortalSession,
 } from "@/lib/stripe-billing";
+import { PAYMENT_NOT_CONFIGURED_ERROR } from "@/lib/billing-messages";
 import type { Plan } from "@/lib/types";
+
+function assertStripeConfigured(): void {
+  if (!process.env.STRIPE_SECRET_KEY?.trim()) {
+    throw new Error(PAYMENT_NOT_CONFIGURED_ERROR);
+  }
+}
 
 export async function createCheckoutSession(
   plan: Plan
 ): Promise<{ url: string }> {
   try {
+    assertStripeConfigured();
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -41,6 +50,8 @@ export async function createCheckoutSession(
 
 export async function createPortalSession(): Promise<{ url: string }> {
   try {
+    assertStripeConfigured();
+
     const supabase = await createClient();
     const {
       data: { user },

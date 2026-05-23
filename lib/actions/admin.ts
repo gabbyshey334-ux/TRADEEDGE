@@ -4,16 +4,67 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/server";
 import type { Plan } from "@/lib/types";
 
-const DEV_EMAIL = "sheywebstudio@gmail.com";
+const ADMIN_EMAILS = [
+  "sheywebstudio@gmail.com",
+  "brown.anthony89@yahoo.com",
+] as const;
+
 const VALID_PLANS: Plan[] = ["starter", "pro", "elite"];
+
+function isAdminEmail(email: string | null | undefined): boolean {
+  const normalized = email?.trim().toLowerCase();
+  if (!normalized) return false;
+  return (ADMIN_EMAILS as readonly string[]).includes(normalized);
+}
 
 function isPlan(value: unknown): value is Plan {
   return typeof value === "string" && VALID_PLANS.includes(value as Plan);
 }
 
+async function upsertElitePlan(userId: string): Promise<void> {
+  const supabase = await createClient();
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ plan: "elite" })
+    .eq("id", userId);
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
+  const { error: subError } = await supabase.from("subscriptions").upsert(
+    {
+      user_id: userId,
+      plan: "elite",
+      plan_status: "active",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+
+  if (subError) {
+    throw new Error(subError.message);
+  }
+}
+
 /**
- * Testing-only: set the authenticated user's plan in profiles and subscriptions.
- * Restricted to the developer account. Not exposed in UI.
+ * Ensures admin accounts always have Elite access on each dashboard session.
+ */
+export async function ensureAdminAccess(): Promise<void> {
+  try {
+    const { user } = await getAuthUser();
+    if (!user?.id || !isAdminEmail(user.email)) {
+      return;
+    }
+    await upsertElitePlan(user.id);
+  } catch (err) {
+    console.error("[ensureAdminAccess] Failed to upsert admin plan:", err);
+  }
+}
+
+/**
+ * Testing-only: restricted to admin emails; always sets Elite for admins.
  */
 export async function setTestPlan(
   plan: Plan
@@ -27,8 +78,7 @@ export async function setTestPlan(
     return { ok: false, error: "Not authenticated." };
   }
 
-  const email = user.email?.trim().toLowerCase();
-  if (email !== DEV_EMAIL) {
+  if (!isAdminEmail(user.email)) {
     return { ok: false, error: "Unauthorized." };
   }
 
@@ -37,31 +87,7 @@ export async function setTestPlan(
   }
 
   try {
-    const supabase = await createClient();
-
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({ plan })
-      .eq("id", user.id);
-
-    if (profileError) {
-      return { ok: false, error: profileError.message };
-    }
-
-    const { error: subError } = await supabase.from("subscriptions").upsert(
-      {
-        user_id: user.id,
-        plan,
-        plan_status: "active",
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" }
-    );
-
-    if (subError) {
-      return { ok: false, error: subError.message };
-    }
-
+    await upsertElitePlan(user.id);
     return { ok: true };
   } catch (err) {
     const message =

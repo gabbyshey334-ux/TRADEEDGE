@@ -4,6 +4,10 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { createCheckoutSession } from "@/lib/actions/billing";
+import {
+  PAYMENT_NOT_CONFIGURED_ERROR,
+  PAYMENT_COMING_SOON_MESSAGE,
+} from "@/lib/billing-messages";
 import { cn } from "@/lib/utils";
 import type { AiReportType, Plan } from "@/lib/types";
 
@@ -54,6 +58,7 @@ export function AiCoachClient({
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
   const [upgrading, setUpgrading] = useState(false);
 
   const isLocked = plan === "starter";
@@ -300,6 +305,15 @@ export function AiCoachClient({
             </span>
           )}
         </div>
+
+        {paymentNotice && (
+          <div
+            className="rounded-sm border border-[#f0c040]/40 bg-[#f0c040]/[0.08] px-4 py-3 text-[13px] text-[#f0c040] font-sans leading-relaxed animate-fadeInSoft"
+            role="status"
+          >
+            {paymentNotice}
+          </div>
+        )}
 
         {error && (
           <div className="rounded-sm border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">

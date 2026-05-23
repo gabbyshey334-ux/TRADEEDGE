@@ -8,12 +8,22 @@ export const runtime = "nodejs";
 
 const VALID_PLANS: Plan[] = ["starter", "pro", "elite"];
 
+const PAYMENT_NOT_CONFIGURED_ERROR =
+  "Payment system is not yet configured. Please contact support.";
+
 function isPlan(value: unknown): value is Plan {
   return typeof value === "string" && (VALID_PLANS as string[]).includes(value);
 }
 
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.STRIPE_SECRET_KEY?.trim()) {
+      return NextResponse.json(
+        { error: PAYMENT_NOT_CONFIGURED_ERROR },
+        { status: 503 }
+      );
+    }
+
     const supabase = await createClient();
     const {
       data: { user },

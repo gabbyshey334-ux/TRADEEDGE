@@ -1,24 +1,23 @@
-import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
 import { requireAuthUser, getUserProfile } from "@/lib/auth/server";
-import { createCheckoutSession } from "@/lib/actions/billing";
 import { PLAN_LIMITS } from "@/lib/plan-limits";
-import { cn } from "@/lib/utils";
+import { LockedFeaturePanel } from "@/components/LockedFeaturePanel";
 import type { Plan } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-async function upgradeToPro() {
-  "use server";
-  const { url } = await createCheckoutSession("pro");
-  redirect(url);
+function parsePlan(value: unknown): Plan {
+  if (value === "pro" || value === "elite" || value === "starter") {
+    return value;
+  }
+  return "starter";
 }
 
 export default async function PropFirmTrackerPage() {
   const user = await requireAuthUser();
   const profile = await getUserProfile(user.id);
-  const plan: Plan = ((profile?.plan as Plan | undefined) ?? "starter") as Plan;
-  const unlocked = PLAN_LIMITS[plan].propFirmTracker;
+  const plan = parsePlan(profile?.plan);
+  const unlocked = plan !== "starter" && PLAN_LIMITS[plan].propFirmTracker;
 
   return (
     <div className="animate-fadeIn">
@@ -46,61 +45,10 @@ export default async function PropFirmTrackerPage() {
               </div>
             </div>
           ) : (
-            <div
-              className={cn(
-                "absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-lg",
-                "bg-[#06080d]/90 backdrop-blur-sm border border-[#1a2030]",
-                "px-6 py-12 text-center"
-              )}
-            >
-              <LockIcon />
-              <p
-                className="max-w-md font-mono font-bold uppercase text-[#8892a4]"
-                style={{ fontSize: "10px", letterSpacing: "0.24em" }}
-              >
-                Prop Firm Tracker is available on Pro and Elite plans.
-              </p>
-              <form action={upgradeToPro}>
-                <button
-                  type="submit"
-                  className={cn(
-                    "h-9 px-4 rounded-sm",
-                    "font-mono font-bold uppercase text-[#06080d]",
-                    "bg-[#00e5b0] hover:bg-[#00f5be]",
-                    "shadow-[0_0_18px_rgba(0,229,176,0.35)]",
-                    "transition-all active:scale-[0.98]"
-                  )}
-                  style={{ fontSize: "10px", letterSpacing: "0.22em" }}
-                >
-                  Upgrade to Pro
-                </button>
-              </form>
-            </div>
+            <LockedFeaturePanel message="Prop Firm Tracker is available on Pro and Elite plans" />
           )}
         </div>
       </div>
     </div>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect
-        x="4"
-        y="11"
-        width="16"
-        height="10"
-        rx="2"
-        stroke="#8892a4"
-        strokeWidth="1.6"
-      />
-      <path
-        d="M8 11V8a4 4 0 0 1 8 0v3"
-        stroke="#8892a4"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }

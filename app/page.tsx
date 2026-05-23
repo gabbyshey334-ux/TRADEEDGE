@@ -162,6 +162,7 @@ interface PricingCardProps {
   ctaLabel: string;
   ctaStyle: "primary" | "secondary";
   popular?: boolean;
+  premium?: boolean;
 }
 
 function PricingCard({
@@ -173,6 +174,7 @@ function PricingCard({
   ctaLabel,
   ctaStyle,
   popular,
+  premium,
 }: PricingCardProps) {
   return (
     <div className="relative flex">
@@ -192,17 +194,43 @@ function PricingCard({
         </span>
       )}
 
+      {premium && (
+        <span
+          className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-sm font-mono font-bold uppercase whitespace-nowrap"
+          style={{
+            fontSize: "10px",
+            letterSpacing: "0.28em",
+            color: "#f0c040",
+            background: "rgba(240,192,64,0.12)",
+            boxShadow: "0 8px 24px -4px rgba(240,192,64,0.35)",
+          }}
+        >
+          <span aria-hidden>★</span>
+          Most Powerful
+        </span>
+      )}
+
       <div
-        className="relative flex w-full flex-col rounded-lg p-7 transition-transform duration-300"
+        className={`relative flex w-full flex-col rounded-lg p-7 transition-transform duration-300${
+          premium ? " border border-[#f0c040]/40" : ""
+        }`}
         style={{
           background: popular
             ? "linear-gradient(180deg, rgba(0,229,176,0.06) 0%, #0c1018 60%)"
-            : "#0c1018",
-          border: popular ? "1px solid #00e5b0" : "1px solid #1a2030",
-          transform: popular ? "scale(1.04)" : undefined,
+            : premium
+              ? "linear-gradient(180deg, rgba(240,192,64,0.08) 0%, #0c1018 55%)"
+              : "#0c1018",
+          border: popular
+            ? "1px solid #00e5b0"
+            : premium
+              ? undefined
+              : "1px solid #1a2030",
+          transform: popular ? "scale(1.04)" : premium ? "scale(1.03)" : undefined,
           boxShadow: popular
             ? "0 0 0 1px rgba(0,229,176,0.25), 0 0 40px rgba(0,229,176,0.18), 0 30px 80px -30px rgba(0,229,176,0.25)"
-            : undefined,
+            : premium
+              ? "0 0 0 1px rgba(240,192,64,0.2), 0 0 48px rgba(240,192,64,0.12), 0 28px 70px -28px rgba(240,192,64,0.2)"
+              : undefined,
         }}
       >
         <div
@@ -948,12 +976,17 @@ export default function LandingPage() {
                 features={[
                   "Everything in Pro",
                   "Unlimited AI reports",
-                  "Multi-account support (up to 5)",
+                  "AI Readiness Score (daily performance readiness rating)",
+                  "Rule Break Prediction (AI flags trades likely to break your rules before you take them)",
+                  "Daily Coaching Reports (automated morning briefing based on your recent trading)",
+                  "Congress trades feed",
+                  "Multi-account support up to 5 accounts",
                   "API access",
                   "Dedicated support",
                 ]}
                 ctaLabel="Start Free Trial"
                 ctaStyle="secondary"
+                premium
               />
             </div>
 
