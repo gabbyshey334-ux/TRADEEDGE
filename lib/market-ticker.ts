@@ -19,6 +19,8 @@ export const TICKER_INSTRUMENTS: InstrumentConfig[] = [
   { label: "NQ1!", yahooSymbol: "NQ=F", decimals: 2, thousands: true },
   { label: "GC1!", yahooSymbol: "GC=F", decimals: 2, thousands: true },
   { label: "CL1!", yahooSymbol: "CL=F", decimals: 2, thousands: false },
+  { label: "BTC/USD", yahooSymbol: "BTC-USD", decimals: 0, thousands: true },
+  { label: "AAPL", yahooSymbol: "AAPL", decimals: 2, thousands: false },
 ];
 
 const YAHOO_HEADERS = {

@@ -8,18 +8,18 @@ const POLL_MS = 30_000;
 function TickerItems({ items }: { items: TickerQuote[] }) {
   return (
     <>
-      {items.map((it) => (
+      {items.map((it, index) => (
         <span
-          key={it.symbol}
+          key={`${it.symbol}-${index}`}
           className="inline-flex items-center gap-2 px-6 font-mono text-[11px] uppercase whitespace-nowrap"
           style={{ letterSpacing: "0.18em" }}
         >
-          <span className="text-text">{it.symbol}</span>
-          <span className="text-muted">{it.price}</span>
+          <span className="text-[#e8edf5]">{it.symbol}</span>
+          <span className="text-[#5a6580]">{it.price}</span>
           <span style={{ color: it.positive ? "#00e5b0" : "#ff4d6d" }}>
             {it.change}
           </span>
-          <span className="text-dimmed px-2">•</span>
+          <span className="px-2 text-[#3a4560]">•</span>
         </span>
       ))}
     </>
