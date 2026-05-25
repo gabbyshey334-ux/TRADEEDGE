@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { createCheckoutSession } from "@/lib/actions/billing";
@@ -381,7 +382,7 @@ export function AiCoachClient({
                 <div className="skeleton h-3 w-4/5 rounded" />
               </div>
             ) : result ? (
-              <ResearchReport content={result} accent={activeMode.color} />
+              <ResearchReport content={result} />
             ) : (
               <EmptyResult color={activeMode.color} />
             )}
@@ -392,171 +393,21 @@ export function AiCoachClient({
   );
 }
 
-/**
- * Render an AI-generated report as formatted text. We do lightweight parsing
- * so headings, bullets, and paragraphs read like a real research report
- * without pulling in a markdown library.
- */
-function ResearchReport({
-  content,
-  accent,
-}: {
-  content: string;
-  accent: string;
-}) {
-  const blocks = content
-    .replace(/\r\n/g, "\n")
-    .split(/\n{2,}/)
-    .map((b) => b.trim())
-    .filter(Boolean);
+/** Normalize API text: CRLF → LF, literal <br> tags → paragraph breaks. */
+function normalizeReportContent(content: string): string {
+  return content.replace(/\r\n/g, "\n").replace(/<br\s*\/?>/gi, "\n\n");
+}
+
+function ResearchReport({ content }: { content: string }) {
+  const markdown = normalizeReportContent(content);
 
   return (
     <article className="max-w-[68ch] animate-fadeInSoft">
-      {blocks.map((block, i) => {
-        const lines = block.split("\n").map((l) => l.replace(/\s+$/, ""));
-
-        // Heading patterns: "# ", "## ", or "ALL CAPS" lines
-        const first = lines[0];
-        const hashMatch = first.match(/^(#{1,3})\s+(.*)$/);
-        if (hashMatch) {
-          const level = hashMatch[1].length;
-          const text = hashMatch[2];
-          if (level <= 2) {
-            return (
-              <h2
-                key={i}
-                className="font-heading mt-8 first:mt-0 mb-3 text-[#e8edf5]"
-                style={{
-                  fontSize: level === 1 ? "26px" : "22px",
-                  letterSpacing: "0.06em",
-                  lineHeight: 1.1,
-                  borderBottom: "1px solid rgba(26,32,48,0.6)",
-                  paddingBottom: 10,
-                }}
-              >
-                <span style={{ color: accent }}>§ </span>
-                {text}
-              </h2>
-            );
-          }
-          return (
-            <h3
-              key={i}
-              className="font-mono uppercase mt-6 mb-2"
-              style={{
-                fontSize: "11px",
-                letterSpacing: "0.28em",
-                color: accent,
-              }}
-            >
-              {text}
-            </h3>
-          );
-        }
-
-        // Bullet list
-        if (lines.every((l) => /^[-*•]\s+/.test(l))) {
-          return (
-            <ul key={i} className="my-4 space-y-2.5 list-none pl-0">
-              {lines.map((l, j) => {
-                const text = l.replace(/^[-*•]\s+/, "");
-                return (
-                  <li
-                    key={j}
-                    className="flex gap-3 text-[13px] text-[#a0afc0] font-sans"
-                    style={{ lineHeight: 1.8 }}
-                  >
-                    <span
-                      className="mt-[10px] h-1 w-1 shrink-0 rounded-full"
-                      style={{ backgroundColor: accent }}
-                    />
-                    <span dangerouslySetInnerHTML={{ __html: inlineFormat(text) }} />
-                  </li>
-                );
-              })}
-            </ul>
-          );
-        }
-
-        // Numbered list
-        if (lines.every((l) => /^\d+[\.\)]\s+/.test(l))) {
-          return (
-            <ol key={i} className="my-4 space-y-2.5 list-none pl-0">
-              {lines.map((l, j) => {
-                const m = l.match(/^(\d+)[\.\)]\s+(.*)$/);
-                const num = m?.[1] ?? `${j + 1}`;
-                const text = m?.[2] ?? l;
-                return (
-                  <li
-                    key={j}
-                    className="flex gap-3 text-[13px] text-[#a0afc0] font-sans"
-                    style={{ lineHeight: 1.8 }}
-                  >
-                    <span
-                      className="shrink-0 font-mono font-bold tabular"
-                      style={{
-                        color: accent,
-                        fontSize: "12px",
-                        minWidth: 18,
-                      }}
-                    >
-                      {String(num).padStart(2, "0")}
-                    </span>
-                    <span dangerouslySetInnerHTML={{ __html: inlineFormat(text) }} />
-                  </li>
-                );
-              })}
-            </ol>
-          );
-        }
-
-        // Whole block looks like an uppercase title?
-        if (
-          first === first.toUpperCase() &&
-          first.length < 50 &&
-          /[A-Z]/.test(first) &&
-          lines.length <= 2
-        ) {
-          return (
-            <h3
-              key={i}
-              className="font-mono uppercase mt-6 mb-3"
-              style={{
-                fontSize: "11px",
-                letterSpacing: "0.32em",
-                color: accent,
-              }}
-            >
-              {first}
-            </h3>
-          );
-        }
-
-        // Paragraph
-        return (
-          <p
-            key={i}
-            className="my-4 text-[13px] text-[#a0afc0] font-sans"
-            style={{ lineHeight: 1.8 }}
-            dangerouslySetInnerHTML={{
-              __html: inlineFormat(lines.join("<br />")),
-            }}
-          />
-        );
-      })}
+      <div className="prose prose-invert prose-sm max-w-none text-[#c8d5e8] font-mono text-xs leading-relaxed">
+        <ReactMarkdown>{markdown}</ReactMarkdown>
+      </div>
     </article>
   );
-}
-
-function inlineFormat(text: string): string {
-  // Escape lightly, then convert **bold** and `code`
-  const escaped = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-  return escaped
-    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#e8edf5;font-weight:600">$1</strong>')
-    .replace(/`([^`]+)`/g, '<code style="color:#e8edf5;background:#080b11;padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--font-dm-mono),monospace">$1</code>');
 }
 
 function EmptyResult({ color }: { color: string }) {

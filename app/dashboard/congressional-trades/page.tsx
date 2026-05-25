@@ -1,23 +1,15 @@
 import { PageHeader } from "@/components/PageHeader";
 import { requireAuthUser, getUserProfile } from "@/lib/auth/server";
-import { PLAN_LIMITS } from "@/lib/plan-limits";
-import { cn } from "@/lib/utils";
-import type { Plan } from "@/lib/types";
+import { PLAN_LIMITS, parsePlan } from "@/lib/plan-limits";
 import { LockedFeaturePanel } from "@/components/LockedFeaturePanel";
+import { CongressTradesTable } from "@/components/CongressTradesTable";
 
 export const dynamic = "force-dynamic";
-
-function parsePlan(value: unknown): Plan {
-  if (value === "pro" || value === "elite" || value === "starter") {
-    return value;
-  }
-  return "starter";
-}
 
 export default async function CongressionalTradesPage() {
   const user = await requireAuthUser();
   const profile = await getUserProfile(user.id);
-  const plan = parsePlan(profile?.plan);
+  const plan = parsePlan(profile?.plan) ?? "starter";
   const unlocked = plan !== "starter" && PLAN_LIMITS[plan].congressionalTrades;
 
   return (
@@ -29,26 +21,13 @@ export default async function CongressionalTradesPage() {
       />
 
       <div className="dashboard-page">
-        <div className="relative min-h-[420px]">
-          {unlocked ? (
-            <div
-              className="rounded-lg border border-[#1a2030] overflow-hidden"
-              style={{
-                background:
-                  "linear-gradient(180deg, #0c1018 0%, #0a0d14 100%)",
-              }}
-            >
-              <div className="px-5 sm:px-8 py-8 sm:py-10 min-h-[360px] flex flex-col items-center justify-center text-center">
-                <p className="text-[13px] text-[#a0afc0] font-sans max-w-md leading-relaxed">
-                  Congressional trades from senators and representatives will
-                  appear here as they are filed.
-                </p>
-              </div>
-            </div>
-          ) : (
+        {unlocked ? (
+          <CongressTradesTable />
+        ) : (
+          <div className="relative min-h-[420px]">
             <LockedFeaturePanel message="Congressional Trades Feed is available on Pro and Elite plans" />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

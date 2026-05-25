@@ -335,6 +335,31 @@ export function Sidebar({
         >
           {pending ? "Signing out…" : "Sign Out"}
         </button>
+
+        <div
+          className="mt-4 flex items-center justify-center gap-3 font-mono uppercase"
+          style={{
+            fontSize: "9px",
+            letterSpacing: "0.24em",
+            color: "#3a4560",
+          }}
+        >
+          <Link
+            href="/privacy"
+            onClick={onNavigate}
+            className="transition-colors hover:text-[#8892a4]"
+          >
+            Privacy
+          </Link>
+          <span aria-hidden>·</span>
+          <Link
+            href="/terms"
+            onClick={onNavigate}
+            className="transition-colors hover:text-[#8892a4]"
+          >
+            Terms
+          </Link>
+        </div>
       </div>
     </aside>
   );

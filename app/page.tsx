@@ -600,11 +600,13 @@ export default function LandingPage() {
       <footer className="border-t border-[#1a2030] bg-[#080b11] px-5 py-8 md:px-8">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
           <Logo />
-          <nav className="flex flex-wrap justify-center gap-6 font-mono text-[11px] uppercase tracking-[0.2em] text-[#5a6580]">
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-            <Link href="/login">Log in</Link>
+          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[#5a6580]">
+            <a href="#features" className="transition-colors hover:text-[#e8edf5]">Features</a>
+            <a href="#pricing" className="transition-colors hover:text-[#e8edf5]">Pricing</a>
+            <a href="#faq" className="transition-colors hover:text-[#e8edf5]">FAQ</a>
+            <Link href="/login" className="transition-colors hover:text-[#e8edf5]">Log in</Link>
+            <Link href="/privacy" className="transition-colors hover:text-[#e8edf5]">Privacy</Link>
+            <Link href="/terms" className="transition-colors hover:text-[#e8edf5]">Terms</Link>
           </nav>
           <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#5a6580]">
             © 2026 TradeEdge AI.
