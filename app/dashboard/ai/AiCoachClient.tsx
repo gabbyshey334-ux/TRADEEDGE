@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { createCheckoutSession } from "@/lib/actions/billing";
@@ -393,18 +394,22 @@ export function AiCoachClient({
   );
 }
 
-/** Normalize API text: CRLF → LF, literal <br> tags → paragraph breaks. */
-function normalizeReportContent(content: string): string {
-  return content.replace(/\r\n/g, "\n").replace(/<br\s*\/?>/gi, "\n\n");
+function normalizeReportContent(text: string): string {
+  return text
+    .replace(/<br\s*\/>/gi, "\n\n")
+    .replace(/<br>/gi, "\n\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\*\*(.*?)\*\*/g, "**$1**")
+    .trim();
 }
 
 function ResearchReport({ content }: { content: string }) {
-  const markdown = normalizeReportContent(content);
-
   return (
     <article className="max-w-[68ch] animate-fadeInSoft">
       <div className="prose prose-invert prose-sm max-w-none text-[#c8d5e8] font-mono text-xs leading-relaxed">
-        <ReactMarkdown>{markdown}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {normalizeReportContent(content)}
+        </ReactMarkdown>
       </div>
     </article>
   );
