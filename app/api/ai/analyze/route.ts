@@ -1,3 +1,16 @@
+// =============================================================================
+// AI Coach rate limiting — VERIFIED 2026-05-24 (Milestone 3 QA)
+// -----------------------------------------------------------------------------
+// Starter : PLAN_LIMITS.starter.maxMonthlyAiReports = 0
+//           canRunAiReport returns false on the first attempt -> 403 with the
+//           "AI Coach is available on Pro and Elite plans" upgrade message.
+// Pro     : PLAN_LIMITS.pro.maxMonthlyAiReports = 10
+//           Counts rows in ai_usage created since the 1st of the current month
+//           and blocks once the count reaches 10 -> 403 with the Elite-upgrade
+//           message.
+// Elite   : PLAN_LIMITS.elite.maxMonthlyAiReports = Infinity
+//           canRunAiReport always returns true; unlimited reports.
+// =============================================================================
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildTradeSummary } from "@/lib/utils";
@@ -101,7 +114,7 @@ export async function POST(request: NextRequest) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-5",
         max_tokens: 1500,
         messages: [{ role: "user", content: prompts[mode] }],
       }),
