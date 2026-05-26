@@ -1,5 +1,6 @@
 import type { BillingActionResult } from "@/lib/actions/billing";
 import {
+  MANUAL_PLAN_BILLING_MESSAGE,
   PAYMENT_NOT_CONFIGURED_ERROR,
   PAYMENT_COMING_SOON_MESSAGE,
 } from "@/lib/billing-messages";
@@ -9,6 +10,7 @@ export function handleBillingActionResult(
   handlers: {
     onSuccess: (url: string) => void;
     onNotConfigured?: () => void;
+    onManualPlan?: () => void;
     onError: (message: string) => void;
   }
 ): void {
@@ -25,7 +27,18 @@ export function handleBillingActionResult(
     return;
   }
 
+  if (
+    result.code === "no_customer" ||
+    result.error === MANUAL_PLAN_BILLING_MESSAGE
+  ) {
+    handlers.onManualPlan?.();
+    return;
+  }
+
   handlers.onError(result.error);
 }
 
-export { PAYMENT_COMING_SOON_MESSAGE };
+export {
+  MANUAL_PLAN_BILLING_MESSAGE,
+  PAYMENT_COMING_SOON_MESSAGE,
+};

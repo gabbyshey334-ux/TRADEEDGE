@@ -6,7 +6,10 @@ import {
   createStripeCheckoutSession,
   createStripePortalSession,
 } from "@/lib/stripe-billing";
-import { PAYMENT_NOT_CONFIGURED_ERROR } from "@/lib/billing-messages";
+import {
+  MANUAL_PLAN_BILLING_MESSAGE,
+  PAYMENT_NOT_CONFIGURED_ERROR,
+} from "@/lib/billing-messages";
 import { syncUserPlanFromStripe } from "@/lib/billing/sync-plan";
 import type { Plan } from "@/lib/types";
 
@@ -131,8 +134,7 @@ export async function createPortalSession(): Promise<BillingActionResult> {
     if (!profile?.stripe_customer_id) {
       return {
         ok: false,
-        error:
-          "No Stripe billing profile found for this account. If you upgraded manually, contact support — otherwise subscribe via Upgrade to Pro first.",
+        error: MANUAL_PLAN_BILLING_MESSAGE,
         code: "no_customer",
       };
     }

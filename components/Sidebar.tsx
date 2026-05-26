@@ -10,6 +10,7 @@ import {
 } from "@/lib/actions/billing";
 import {
   handleBillingActionResult,
+  MANUAL_PLAN_BILLING_MESSAGE,
   PAYMENT_COMING_SOON_MESSAGE,
 } from "@/lib/billing-client";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ export interface SidebarUser {
   name: string;
   email: string;
   plan: Plan;
+  hasStripeBilling: boolean;
 }
 
 const NAV = [
@@ -112,6 +114,7 @@ export function Sidebar({
     handleBillingActionResult(result, {
       onSuccess: (url) => window.location.assign(url),
       onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
+      onManualPlan: () => setPaymentNotice(MANUAL_PLAN_BILLING_MESSAGE),
       onError: (msg) => setBillingError(msg || "Failed to open billing portal."),
     });
     if (!result.ok) setBillingPending(null);
@@ -269,7 +272,7 @@ export function Sidebar({
           </button>
         )}
 
-        {(user.plan === "pro" || user.plan === "elite") && (
+        {(user.plan === "pro" || user.plan === "elite") && user.hasStripeBilling && (
           <button
             type="button"
             onClick={handleBilling}
@@ -285,6 +288,15 @@ export function Sidebar({
           >
             {billingPending === "portal" ? "Loading…" : "Billing"}
           </button>
+        )}
+
+        {(user.plan === "pro" || user.plan === "elite") && !user.hasStripeBilling && (
+          <div
+            className="mt-4 rounded-sm border border-[#00e5b0]/25 bg-[#00e5b0]/[0.06] px-3 py-2.5 text-[12px] text-[#a0afc0] font-sans leading-relaxed"
+            role="status"
+          >
+            {MANUAL_PLAN_BILLING_MESSAGE}
+          </div>
         )}
 
         {paymentNotice && (

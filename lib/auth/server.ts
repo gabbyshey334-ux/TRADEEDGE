@@ -38,14 +38,21 @@ export interface SidebarUserData {
   name: string;
   email: string;
   plan: Plan;
+  /** True when the user has a Stripe customer id and can open the billing portal. */
+  hasStripeBilling: boolean;
 }
 
 export async function getSidebarUser(): Promise<SidebarUserData> {
   if (!getSupabaseEnv()) {
-    return { name: "Trader", email: "", plan: "starter" };
+    return { name: "Trader", email: "", plan: "starter", hasStripeBilling: false };
   }
   const user = await requireAuthUser();
-  const profile = await getUserProfile(user.id);
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, email, plan, stripe_customer_id")
+    .eq("id", user.id)
+    .maybeSingle();
 
   return {
     name:
@@ -55,5 +62,6 @@ export async function getSidebarUser(): Promise<SidebarUserData> {
       "Trader",
     email: profile?.email || user.email || "",
     plan: ((profile?.plan as Plan | undefined) ?? "starter") as Plan,
+    hasStripeBilling: Boolean(profile?.stripe_customer_id),
   };
 }
