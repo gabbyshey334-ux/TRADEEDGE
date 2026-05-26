@@ -10,18 +10,34 @@ import { PAYMENT_NOT_CONFIGURED_ERROR } from "@/lib/billing-messages";
 import { syncUserPlanFromStripe } from "@/lib/billing/sync-plan";
 import type { Plan } from "@/lib/types";
 
-function assertStripeConfigured(): void {
-  if (!process.env.STRIPE_SECRET_KEY?.trim()) {
-    throw new Error(PAYMENT_NOT_CONFIGURED_ERROR);
-  }
+export type BillingActionResult =
+  | { ok: true; url: string }
+  | {
+      ok: false;
+      error: string;
+      code?: "not_configured" | "no_customer" | "auth" | "unknown";
+    };
+
+export type SyncPlanResult =
+  | { ok: true; plan: Plan }
+  | { ok: false; error: string };
+
+function notConfigured(): BillingActionResult {
+  return {
+    ok: false,
+    error: PAYMENT_NOT_CONFIGURED_ERROR,
+    code: "not_configured",
+  };
 }
 
 export async function createCheckoutSession(
   plan: Plan
-): Promise<{ url: string }> {
-  try {
-    assertStripeConfigured();
+): Promise<BillingActionResult> {
+  if (!process.env.STRIPE_SECRET_KEY?.trim()) {
+    return notConfigured();
+  }
 
+  try {
     const supabase = await createClient();
     const {
       data: { user },
@@ -29,49 +45,34 @@ export async function createCheckoutSession(
     } = await supabase.auth.getUser();
 
     if (authError) {
-      throw new Error(authError.message);
+      return { ok: false, error: authError.message, code: "auth" };
     }
     if (!user) {
-      throw new Error("Please sign in to upgrade your plan.");
+      return {
+        ok: false,
+        error: "Please sign in to upgrade your plan.",
+        code: "auth",
+      };
     }
 
     const appUrl = await resolveAppUrl();
-    return await createStripeCheckoutSession({
+    const { url } = await createStripeCheckoutSession({
       supabase,
       user,
       plan,
       appUrl,
     });
+    return { ok: true, url };
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to create checkout session.";
-    throw new Error(message);
+    return { ok: false, error: message, code: "unknown" };
   }
 }
 
 /** Reconcile profiles.plan with Stripe (post-checkout fallback). */
-export async function syncSubscriptionFromStripe(): Promise<{ plan: Plan }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError) {
-    throw new Error(authError.message);
-  }
-  if (!user) {
-    throw new Error("Please sign in.");
-  }
-
-  const plan = await syncUserPlanFromStripe(user.id);
-  return { plan: plan ?? "starter" };
-}
-
-export async function createPortalSession(): Promise<{ url: string }> {
+export async function syncSubscriptionFromStripe(): Promise<SyncPlanResult> {
   try {
-    assertStripeConfigured();
-
     const supabase = await createClient();
     const {
       data: { user },
@@ -79,21 +80,73 @@ export async function createPortalSession(): Promise<{ url: string }> {
     } = await supabase.auth.getUser();
 
     if (authError) {
-      throw new Error(authError.message);
+      return { ok: false, error: authError.message };
     }
     if (!user) {
-      throw new Error("Please sign in to manage billing.");
+      return { ok: false, error: "Please sign in." };
+    }
+
+    const plan = await syncUserPlanFromStripe(user.id);
+    return { ok: true, plan: plan ?? "starter" };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to sync subscription.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function createPortalSession(): Promise<BillingActionResult> {
+  if (!process.env.STRIPE_SECRET_KEY?.trim()) {
+    return notConfigured();
+  }
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError) {
+      return { ok: false, error: authError.message, code: "auth" };
+    }
+    if (!user) {
+      return {
+        ok: false,
+        error: "Please sign in to manage billing.",
+        code: "auth",
+      };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      return { ok: false, error: profileError.message, code: "unknown" };
+    }
+
+    if (!profile?.stripe_customer_id) {
+      return {
+        ok: false,
+        error:
+          "No Stripe billing profile found for this account. If you upgraded manually, contact support — otherwise subscribe via Upgrade to Pro first.",
+        code: "no_customer",
+      };
     }
 
     const appUrl = await resolveAppUrl();
-    return await createStripePortalSession({
+    const { url } = await createStripePortalSession({
       supabase,
       userId: user.id,
       appUrl,
     });
+    return { ok: true, url };
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to open billing portal.";
-    throw new Error(message);
+    return { ok: false, error: message, code: "unknown" };
   }
 }

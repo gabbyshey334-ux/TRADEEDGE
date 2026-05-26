@@ -7,9 +7,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { createCheckoutSession } from "@/lib/actions/billing";
 import {
-  PAYMENT_NOT_CONFIGURED_ERROR,
+  handleBillingActionResult,
   PAYMENT_COMING_SOON_MESSAGE,
-} from "@/lib/billing-messages";
+} from "@/lib/billing-client";
 import { cn } from "@/lib/utils";
 import type { AiReportType, Plan } from "@/lib/types";
 
@@ -69,15 +69,13 @@ export function AiCoachClient({
   async function startUpgrade(target: Plan) {
     setError(null);
     setUpgrading(true);
-    try {
-      const { url } = await createCheckoutSession(target);
-      window.location.assign(url);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to start checkout."
-      );
-      setUpgrading(false);
-    }
+    const result = await createCheckoutSession(target);
+    handleBillingActionResult(result, {
+      onSuccess: (url) => window.location.assign(url),
+      onNotConfigured: () => setError(PAYMENT_COMING_SOON_MESSAGE),
+      onError: (msg) => setError(msg || "Failed to start checkout."),
+    });
+    if (!result.ok) setUpgrading(false);
   }
 
   async function generate() {

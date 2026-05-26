@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { createCheckoutSession } from "@/lib/actions/billing";
 import {
-  PAYMENT_NOT_CONFIGURED_ERROR,
+  handleBillingActionResult,
   PAYMENT_COMING_SOON_MESSAGE,
-} from "@/lib/billing-messages";
+} from "@/lib/billing-client";
 import { cn } from "@/lib/utils";
 
 export function LockedFeaturePanel({ message }: { message: string }) {
@@ -15,16 +15,13 @@ export function LockedFeaturePanel({ message }: { message: string }) {
   async function handleUpgrade() {
     setPaymentNotice(null);
     setPending(true);
-    try {
-      const { url } = await createCheckoutSession("pro");
-      window.location.assign(url);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg === PAYMENT_NOT_CONFIGURED_ERROR) {
-        setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE);
-      }
-      setPending(false);
-    }
+    const result = await createCheckoutSession("pro");
+    handleBillingActionResult(result, {
+      onSuccess: (url) => window.location.assign(url),
+      onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
+      onError: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
+    });
+    if (!result.ok) setPending(false);
   }
 
   return (

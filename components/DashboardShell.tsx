@@ -26,13 +26,13 @@ export function DashboardShell({
   useEffect(() => {
     if (!upgraded) return;
     startSyncPlan(async () => {
-      try {
-        await syncSubscriptionFromStripe();
-        router.replace(pathname);
-        router.refresh();
-      } catch (err) {
-        console.error("[DashboardShell] Plan sync after upgrade failed:", err);
+      const result = await syncSubscriptionFromStripe();
+      if (!result.ok) {
+        console.error("[DashboardShell] Plan sync after upgrade failed:", result.error);
+        return;
       }
+      router.replace(pathname);
+      router.refresh();
     });
   }, [upgraded, pathname, router]);
 

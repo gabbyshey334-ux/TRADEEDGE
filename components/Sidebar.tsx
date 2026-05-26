@@ -9,9 +9,9 @@ import {
   createPortalSession,
 } from "@/lib/actions/billing";
 import {
-  PAYMENT_NOT_CONFIGURED_ERROR,
+  handleBillingActionResult,
   PAYMENT_COMING_SOON_MESSAGE,
-} from "@/lib/billing-messages";
+} from "@/lib/billing-client";
 import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/types";
 
@@ -95,36 +95,26 @@ export function Sidebar({
     setBillingError(null);
     setPaymentNotice(null);
     setBillingPending("checkout");
-    try {
-      const { url } = await createCheckoutSession("pro");
-      window.location.assign(url);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg === PAYMENT_NOT_CONFIGURED_ERROR) {
-        setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE);
-      } else {
-        setBillingError(msg || "Failed to start checkout.");
-      }
-      setBillingPending(null);
-    }
+    const result = await createCheckoutSession("pro");
+    handleBillingActionResult(result, {
+      onSuccess: (url) => window.location.assign(url),
+      onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
+      onError: (msg) => setBillingError(msg || "Failed to start checkout."),
+    });
+    if (!result.ok) setBillingPending(null);
   }
 
   async function handleBilling() {
     setBillingError(null);
     setPaymentNotice(null);
     setBillingPending("portal");
-    try {
-      const { url } = await createPortalSession();
-      window.location.assign(url);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg === PAYMENT_NOT_CONFIGURED_ERROR) {
-        setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE);
-      } else {
-        setBillingError(msg || "Failed to open billing portal.");
-      }
-      setBillingPending(null);
-    }
+    const result = await createPortalSession();
+    handleBillingActionResult(result, {
+      onSuccess: (url) => window.location.assign(url),
+      onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
+      onError: (msg) => setBillingError(msg || "Failed to open billing portal."),
+    });
+    if (!result.ok) setBillingPending(null);
   }
 
   return (
