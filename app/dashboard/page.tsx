@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { EquityChart } from "@/components/EquityChart";
 import { TradeTable } from "@/components/TradeTable";
@@ -9,11 +8,21 @@ import { getTradesForUser } from "@/lib/data/trades";
 import {
   aggregatePnl,
   calcStats,
+  cn,
   cumulativeEquity,
   formatCurrency,
   groupBy,
 } from "@/lib/utils";
 export const dynamic = "force-dynamic";
+
+function formatHeaderDate(): string {
+  return new Date().toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 export default async function DashboardPage() {
   const user = await requireAuthUser();
@@ -43,7 +52,6 @@ export default async function DashboardPage() {
     }))
     .sort((a, b) => b.pnl - a.pnl);
 
-  // Build small sparklines for stat cards
   const equity = cumulativeEquity(tradeList).map((p) => p.equity);
 
   const pnlTrend =
@@ -51,22 +59,29 @@ export default async function DashboardPage() {
 
   return (
     <div className="animate-fadeIn">
-      <PageHeader
-        title="Dashboard"
-        subtitle="Overview · live data"
-        eyebrow="Workspace"
-      />
+      <div className="border-b border-[#1c2235] pb-4 mb-6 flex flex-wrap items-end justify-between gap-3 px-4 md:px-0">
+        <div>
+          <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+            WORKSPACE
+          </div>
+          <h1 className="font-display text-3xl font-bold text-[#e8edf5] mt-1">
+            Dashboard
+          </h1>
+        </div>
+        <div className="font-mono text-[11px] text-[#4a5568]">
+          {formatHeaderDate()}
+        </div>
+      </div>
 
       <div className="dashboard-page space-y-7">
         <WelcomeGreeting name={displayName} />
 
-        {/* Stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             label="Total P&L"
             value={formatCurrency(stats.totalPnl)}
             sub={`${stats.tradeCount} trades logged`}
-            color={stats.totalPnl >= 0 ? "#00e5b0" : "#ff4d6d"}
+            color={stats.totalPnl >= 0 ? "#00ff88" : "#ff3b5c"}
             trend={pnlTrend}
             spark={equity.length >= 2 ? equity : undefined}
           />
@@ -74,14 +89,14 @@ export default async function DashboardPage() {
             label="Win Rate"
             value={`${stats.winRate.toFixed(1)}%`}
             sub={`${stats.wins} wins · ${stats.losses} losses`}
-            color="#0066ff"
+            color="#0ea5e9"
             trend={stats.winRate >= 50 ? "up" : "down"}
           />
           <StatCard
             label="Avg R:R"
             value={stats.avgRR.toFixed(2)}
             sub="Risk to reward"
-            color="#b466ff"
+            color="#a78bfa"
             trend={stats.avgRR >= 1 ? "up" : "down"}
           />
           <StatCard
@@ -92,12 +107,11 @@ export default async function DashboardPage() {
                 : "∞"
             }
             sub={`${formatCurrency(stats.grossProfit)} / ${formatCurrency(stats.grossLoss)}`}
-            color="#f0c040"
+            color="#f59e0b"
             trend={stats.profitFactor >= 1 ? "up" : "down"}
           />
         </div>
 
-        {/* Two column layout — 65/35 */}
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_400px] gap-5">
           <div className="space-y-5 min-w-0">
             <EquityChart trades={tradeList} />
@@ -105,13 +119,16 @@ export default async function DashboardPage() {
             <section className="space-y-4">
               <div className="flex items-end justify-between">
                 <div>
-                  <div className="section-label">Activity</div>
-                  <h2 className="section-heading mt-3">Recent Trades</h2>
+                  <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+                    Activity
+                  </div>
+                  <h2 className="font-display text-2xl font-bold text-[#e8edf5] mt-2">
+                    Recent Trades
+                  </h2>
                 </div>
                 <Link
                   href="/dashboard/journal"
-                  className="font-mono uppercase text-[#8892a4] hover:text-[#00e5b0] active:scale-[0.98] transition-colors"
-                  style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+                  className="font-mono text-[10px] tracking-[0.15em] uppercase text-[#8892a4] hover:text-[#00ff88] active:scale-[0.98] transition-colors duration-150"
                 >
                   View all →
                 </Link>
@@ -122,17 +139,17 @@ export default async function DashboardPage() {
 
           <div className="space-y-5 min-w-0">
             <section className="space-y-4">
-              <div>
-                <div className="section-label">Breakdown</div>
-                <h2 className="section-heading mt-3">Setup Performance</h2>
-              </div>
               <SetupPerformancePanel setupPerf={setupPerf} />
             </section>
 
             <section className="space-y-4">
               <div>
-                <div className="section-label">Shortcut</div>
-                <h2 className="section-heading mt-3">Quick Add</h2>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+                  Shortcut
+                </div>
+                <h2 className="font-display text-2xl font-bold text-[#e8edf5] mt-2">
+                  Quick Add
+                </h2>
               </div>
               <QuickAddCard />
             </section>
@@ -154,15 +171,18 @@ function SetupPerformancePanel({
   }>;
 }) {
   return (
-    <div className="rounded-lg border border-[#1a2030] bg-[#0c1018] p-5 overflow-hidden">
+    <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] p-5 overflow-hidden">
+      <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase mb-4">
+        SETUP PERFORMANCE
+      </div>
       {setupPerf.length === 0 ? (
-        <div className="py-10 text-center font-mono uppercase text-[10px] tracking-[0.24em] text-[#5a6580]">
+        <div className="py-10 text-center font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
           Log trades to see performance by setup.
         </div>
       ) : (
         <ul className="flex flex-col gap-4">
           {setupPerf.slice(0, 6).map((row) => {
-            const pnlColor = row.pnl >= 0 ? "#00e5b0" : "#ff4d6d";
+            const pnlPositive = row.pnl >= 0;
             const max = Math.max(
               ...setupPerf.map((r) => Math.abs(r.pnl)),
               1
@@ -170,29 +190,32 @@ function SetupPerformancePanel({
             const width = (Math.abs(row.pnl) / max) * 100;
             return (
               <li key={row.setup}>
-                <div className="flex items-center justify-between font-mono text-[13px]">
-                  <span className="text-[#e8edf5]">{row.setup}</span>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-body text-[13px] text-[#e8edf5] truncate">
+                    {row.setup}
+                  </span>
                   <span
-                    className="data-value tabular"
-                    style={{ color: pnlColor, fontSize: "14px" }}
+                    className={cn(
+                      "font-mono text-[13px] shrink-0",
+                      pnlPositive ? "text-[#00ff88]" : "text-[#ff3b5c]"
+                    )}
                   >
                     {formatCurrency(row.pnl)}
                   </span>
                 </div>
-                <div className="mt-1.5 h-1.5 bg-[#080b11] overflow-hidden">
+                <div className="mt-2 h-1 rounded-full bg-[#1c2235] overflow-hidden">
                   <div
-                    className="h-full transition-[width] duration-300"
+                    className="h-full rounded-full transition-[width] duration-300"
                     style={{
                       width: `${width}%`,
-                      background: pnlColor,
-                      borderTopRightRadius: 2,
-                      borderBottomRightRadius: 2,
+                      backgroundColor: pnlPositive ? "#00ff88" : "#ff3b5c",
+                      boxShadow: pnlPositive
+                        ? "0 0 8px rgba(0, 255, 136, 0.35)"
+                        : "0 0 8px rgba(255, 59, 92, 0.25)",
                     }}
                   />
                 </div>
-                <div
-                  className="mt-1.5 flex items-center justify-between font-mono uppercase text-[9px] tracking-[0.24em] text-[#5a6580]"
-                >
+                <div className="mt-1.5 flex items-center justify-between font-mono text-[10px] text-[#4a5568]">
                   <span>{row.count} trades</span>
                   <span>{row.winRate.toFixed(0)}% win</span>
                 </div>
@@ -208,14 +231,16 @@ function SetupPerformancePanel({
 function QuickAddCard() {
   return (
     <div
-      className="relative overflow-hidden rounded-lg border border-[#1a2030] bg-[#0c1018] p-6"
+      className="relative overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] p-6"
       style={{
         backgroundImage:
-          "radial-gradient(600px 200px at 100% 0%, rgba(0,229,176,0.06), transparent 70%)",
+          "radial-gradient(600px 200px at 100% 0%, rgba(0,255,136,0.06), transparent 70%)",
       }}
     >
-      <div className="section-label">Log a new trade</div>
-      <p className="mt-4 text-[13px] text-[#a0afc0] font-sans leading-relaxed">
+      <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+        Log a new trade
+      </div>
+      <p className="mt-4 font-body text-[13px] text-[#8892a4] leading-relaxed">
         Capture your next trade in seconds. Track entry, exit, setup, emotion,
         and outcome in one place.
       </p>
@@ -229,12 +254,9 @@ function QuickAddCard() {
         ].map((label) => (
           <li
             key={label}
-            className="flex items-center gap-2.5 text-[12px] font-mono text-[#8892a4]"
+            className="flex items-center gap-2.5 font-mono text-[12px] text-[#8892a4]"
           >
-            <span
-              className="h-1 w-1 rounded-full"
-              style={{ backgroundColor: "#00e5b0" }}
-            />
+            <span className="h-1 w-1 rounded-full bg-[#00ff88]" />
             {label}
           </li>
         ))}
@@ -242,12 +264,7 @@ function QuickAddCard() {
 
       <Link
         href="/dashboard/journal"
-        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-[#00e5b0] px-4 py-2.5 font-mono font-bold uppercase text-[#06080d] transition-all duration-150 hover:bg-[#00f5be] active:scale-[0.98]"
-        style={{
-          fontSize: "10px",
-          letterSpacing: "0.24em",
-          boxShadow: "0 0 20px rgba(0,229,176,0.35)",
-        }}
+        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#00ff88] px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#080a0f] transition-all duration-200 hover:bg-[#00ff88]/90 glow-green active:scale-[0.98]"
       >
         Open Journal
         <span aria-hidden>→</span>

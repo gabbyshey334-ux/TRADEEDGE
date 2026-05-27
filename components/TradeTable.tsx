@@ -23,7 +23,7 @@ export function TradeTable({
 
   if (!trades.length) {
     return (
-      <div className="rounded-sm border border-[#1a2030] bg-[#0c1018] p-10 sm:p-14 text-center font-mono uppercase text-[11px] tracking-[0.24em] text-[#5a6580]">
+      <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] p-10 sm:p-14 text-center font-mono uppercase text-[11px] tracking-[0.24em] text-[#4a5568]">
         {emptyMessage}
       </div>
     );
@@ -41,25 +41,24 @@ export function TradeTable({
   }
 
   return (
-    <div className="rounded-sm border border-[#1a2030] bg-[#0c1018] overflow-hidden">
+    <div className="rounded-xl border border-[#1c2235] overflow-hidden bg-[#0c0f17]">
       {/* Mobile card list */}
-      <div className="md:hidden divide-y divide-[#1a2030]/60">
-        {trades.map((t, i) => {
+      <div className="md:hidden divide-y divide-[#1c2235]/50">
+        {trades.map((t) => {
           const pnl = Number(t.pnl);
-          const pnlColor = pnl >= 0 ? "#00e5b0" : "#ff4d6d";
+          const pnlPositive = pnl >= 0;
           return (
             <div
               key={t.id}
               className={cn(
-                "group px-4 py-4 transition-colors duration-150",
-                i % 2 === 0 ? "bg-transparent" : "bg-[#0c1018]",
-                onEdit && "cursor-pointer active:bg-[#0f1420]"
+                "group px-4 py-4 transition-colors duration-100",
+                onEdit && "cursor-pointer hover:bg-[#111520] active:bg-[#111520]"
               )}
               onClick={() => onEdit?.(t)}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="font-mono text-[17px] font-bold text-[#e8edf5] truncate tracking-[0.02em]">
+                  <div className="font-mono text-[17px] font-semibold text-[#e8edf5] truncate">
                     {t.symbol}
                   </div>
                   <div className="mt-1.5 flex flex-wrap items-center gap-2">
@@ -68,37 +67,45 @@ export function TradeTable({
                   </div>
                 </div>
                 <div
-                  className="shrink-0 data-value text-right"
-                  style={{ color: pnlColor, fontSize: "18px" }}
+                  className={cn(
+                    "shrink-0 font-mono text-[18px] font-semibold text-right tabular-nums",
+                    pnlPositive ? "text-[#00ff88]" : "text-[#ff3b5c]"
+                  )}
                 >
                   {formatCurrency(pnl)}
                 </div>
               </div>
-              <div
-                className="mt-3 grid grid-cols-3 gap-2 font-mono uppercase text-[9px] tracking-[0.22em] text-[#5a6580]"
-              >
+              <div className="mt-3 grid grid-cols-3 gap-2">
                 <span>
-                  <span className="block text-[#3a4560]">Date</span>
-                  <span className="mt-0.5 block text-[#8892a4]">
+                  <span className="block font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
+                    Date
+                  </span>
+                  <span className="mt-0.5 block font-mono text-[12px] text-[#4a5568]">
                     {formatDate(t.date)}
                   </span>
                 </span>
                 <span>
-                  <span className="block text-[#3a4560]">Entry</span>
-                  <span className="mt-0.5 block text-[#e8edf5]">
+                  <span className="block font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
+                    Entry
+                  </span>
+                  <span className="mt-0.5 block font-mono text-[12px] text-[#e8edf5]">
                     {Number(t.entry).toFixed(5)}
                   </span>
                 </span>
                 <span>
-                  <span className="block text-[#3a4560]">R:R</span>
-                  <span className="mt-0.5 block text-[#e8edf5]">
+                  <span className="block font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
+                    R:R
+                  </span>
+                  <span className="mt-0.5 block font-mono text-[12px] text-[#a78bfa]">
                     {t.rr != null ? Number(t.rr).toFixed(2) : "—"}
                   </span>
                 </span>
                 {!compact && t.setup && (
                   <span className="col-span-3 pt-1">
-                    <span className="block text-[#3a4560]">Setup</span>
-                    <span className="mt-0.5 block text-[#8892a4]">
+                    <span className="block font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
+                      Setup
+                    </span>
+                    <span className="mt-0.5 block font-mono text-[12px] text-[#8892a4]">
                       {t.setup}
                     </span>
                   </span>
@@ -106,15 +113,14 @@ export function TradeTable({
               </div>
               {(onEdit || onDelete) && (
                 <div
-                  className="mt-3 flex gap-4"
+                  className="mt-3 flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {onEdit && (
                     <button
                       type="button"
                       onClick={() => onEdit(t)}
-                      className="font-mono uppercase text-[#8892a4] hover:text-[#00e5b0] active:scale-[0.98] transition-colors"
-                      style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+                      className="font-mono text-[10px] tracking-widest uppercase text-[#8892a4] hover:text-[#e8edf5] transition-colors duration-150"
                     >
                       Edit
                     </button>
@@ -124,8 +130,7 @@ export function TradeTable({
                       type="button"
                       disabled={deletingId === t.id}
                       onClick={() => handleDelete(t)}
-                      className="font-mono uppercase text-[#8892a4] hover:text-[#ff4d6d] active:scale-[0.98] disabled:opacity-50 transition-colors"
-                      style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+                      className="font-mono text-[10px] tracking-widest uppercase text-[#8892a4] hover:text-[#ff3b5c] transition-colors duration-150 disabled:opacity-50"
                     >
                       {deletingId === t.id ? "…" : "Delete"}
                     </button>
@@ -141,7 +146,7 @@ export function TradeTable({
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse">
           <thead>
-            <tr className="bg-[#080b11] border-b border-[#1a2030]">
+            <tr className="bg-[#080a0f] border-b border-[#1c2235]">
               <Th>Date</Th>
               <Th>Symbol</Th>
               <Th>Market</Th>
@@ -158,56 +163,60 @@ export function TradeTable({
             </tr>
           </thead>
           <tbody>
-            {trades.map((t, i) => {
+            {trades.map((t) => {
               const pnl = Number(t.pnl);
-              const pnlColor = pnl >= 0 ? "#00e5b0" : "#ff4d6d";
-              const zebra = i % 2 === 1;
+              const pnlPositive = pnl >= 0;
               return (
                 <tr
                   key={t.id}
                   className={cn(
-                    "group border-b border-[#1a2030]/60 last:border-b-0",
-                    "transition-colors duration-150",
-                    zebra ? "bg-[#0c1018]" : "bg-transparent",
-                    onEdit && "cursor-pointer hover:bg-[#0f1420]"
+                    "group border-b border-[#1c2235]/50 last:border-0",
+                    "transition-colors duration-100 hover:bg-[#111520]",
+                    onEdit && "cursor-pointer"
                   )}
                   onClick={() => onEdit?.(t)}
                 >
-                  <Td className="text-[#5a6580]">{formatDate(t.date)}</Td>
-                  <Td className="text-[#e8edf5] font-semibold tracking-[0.02em]">
-                    {t.symbol}
-                  </Td>
+                  <Td className="text-[#4a5568]">{formatDate(t.date)}</Td>
+                  <Td className="text-[#e8edf5] font-semibold">{t.symbol}</Td>
                   <Td>
                     <MarketBadge market={t.market} />
                   </Td>
                   <Td>
                     <DirectionBadge direction={t.direction} />
                   </Td>
-                  {!compact && <Td className="text-[#8892a4]">{t.setup ?? "—"}</Td>}
-                  {!compact && <Td className="text-[#8892a4]">{t.session ?? "—"}</Td>}
-                  <Td align="right" className="text-[#e8edf5] tabular">
+                  {!compact && (
+                    <Td className="text-[#8892a4]">{t.setup ?? "—"}</Td>
+                  )}
+                  {!compact && (
+                    <Td className="text-[#8892a4]">{t.session ?? "—"}</Td>
+                  )}
+                  <Td align="right" className="text-[#e8edf5] tabular-nums">
                     {Number(t.entry).toFixed(5)}
                   </Td>
-                  <Td align="right" className="text-[#8892a4] tabular">
+                  <Td align="right" className="text-[#e8edf5] tabular-nums">
                     {t.exit_price != null ? Number(t.exit_price).toFixed(5) : "—"}
                   </Td>
                   {!compact && (
-                    <Td align="right" className="text-[#8892a4] tabular">
+                    <Td align="right" className="text-[#8892a4] tabular-nums">
                       {t.size != null ? Number(t.size).toFixed(2) : "—"}
                     </Td>
                   )}
-                  <Td align="right" className="text-[#8892a4] tabular">
+                  <Td align="right" className="text-[#a78bfa] tabular-nums">
                     {t.rr != null ? Number(t.rr).toFixed(2) : "—"}
                   </Td>
                   <Td
                     align="right"
-                    style={{ color: pnlColor }}
-                    className="data-value tabular"
+                    className={cn(
+                      "font-semibold tabular-nums",
+                      pnlPositive ? "text-[#00ff88]" : "text-[#ff3b5c]"
+                    )}
                   >
                     {formatCurrency(pnl)}
                   </Td>
                   {!compact && (
-                    <Td className="text-[#8892a4]">{t.emotion ?? "—"}</Td>
+                    <Td className="font-body text-[11px] text-[#4a5568] italic">
+                      {t.emotion ?? "—"}
+                    </Td>
                   )}
                   {(onEdit || onDelete) && (
                     <Td align="right" onClick={(e) => e.stopPropagation()}>
@@ -224,11 +233,7 @@ export function TradeTable({
                               e.stopPropagation();
                               onEdit(t);
                             }}
-                            className="font-mono uppercase text-[#8892a4] hover:text-[#00e5b0] active:scale-[0.98] transition-colors"
-                            style={{
-                              fontSize: "10px",
-                              letterSpacing: "0.24em",
-                            }}
+                            className="font-mono text-[10px] tracking-widest uppercase text-[#8892a4] hover:text-[#e8edf5] transition-colors duration-150"
                           >
                             Edit
                           </button>
@@ -241,11 +246,7 @@ export function TradeTable({
                               e.stopPropagation();
                               handleDelete(t);
                             }}
-                            className="font-mono uppercase text-[#8892a4] hover:text-[#ff4d6d] active:scale-[0.98] disabled:opacity-50 transition-colors"
-                            style={{
-                              fontSize: "10px",
-                              letterSpacing: "0.24em",
-                            }}
+                            className="font-mono text-[10px] tracking-widest uppercase text-[#8892a4] hover:text-[#ff3b5c] transition-colors duration-150 disabled:opacity-50"
                           >
                             {deletingId === t.id ? "…" : "Delete"}
                           </button>
@@ -267,17 +268,12 @@ function DirectionBadge({ direction }: { direction: "Long" | "Short" }) {
   const isLong = direction === "Long";
   return (
     <span
-      className="inline-flex items-center font-mono font-bold uppercase"
-      style={{
-        fontSize: "9px",
-        letterSpacing: "0.22em",
-        padding: "3px 8px",
-        borderRadius: "3px",
-        backgroundColor: isLong
-          ? "rgba(0, 229, 176, 0.1)"
-          : "rgba(255, 77, 109, 0.1)",
-        color: isLong ? "#00e5b0" : "#ff4d6d",
-      }}
+      className={cn(
+        "inline-flex items-center font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 rounded border",
+        isLong
+          ? "bg-[#00ff88]/10 text-[#00ff88] border-[#00ff88]/20"
+          : "bg-[#ff3b5c]/10 text-[#ff3b5c] border-[#ff3b5c]/20"
+      )}
     >
       {direction}
     </span>
@@ -288,17 +284,12 @@ function MarketBadge({ market }: { market: "Forex" | "Futures" }) {
   const isForex = market === "Forex";
   return (
     <span
-      className="inline-flex items-center font-mono font-bold uppercase"
-      style={{
-        fontSize: "9px",
-        letterSpacing: "0.22em",
-        padding: "3px 8px",
-        borderRadius: "3px",
-        backgroundColor: isForex
-          ? "rgba(0, 229, 176, 0.12)"
-          : "rgba(0, 102, 255, 0.12)",
-        color: isForex ? "#00e5b0" : "#0066ff",
-      }}
+      className={cn(
+        "inline-flex items-center font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 rounded border",
+        isForex
+          ? "bg-[#0ea5e9]/10 text-[#0ea5e9] border-[#0ea5e9]/20"
+          : "bg-[#a78bfa]/10 text-[#a78bfa] border-[#a78bfa]/20"
+      )}
     >
       {market}
     </span>
@@ -314,13 +305,8 @@ function Th({
 }) {
   return (
     <th
-      className="font-mono uppercase font-medium px-3 lg:px-4 py-3.5 first:pl-5 lg:first:pl-6 last:pr-5 lg:last:pr-6"
-      style={{
-        textAlign: align,
-        fontSize: "9px",
-        letterSpacing: "0.32em",
-        color: "#5a6580",
-      }}
+      className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase font-medium px-4 py-3 text-left"
+      style={{ textAlign: align }}
     >
       {children}
     </th>
@@ -343,8 +329,7 @@ function Td({
   return (
     <td
       className={cn(
-        "px-3 lg:px-4 py-3.5 first:pl-5 lg:first:pl-6 last:pr-5 lg:last:pr-6",
-        "font-mono text-[13px]",
+        "px-4 py-3 font-mono text-[12px] text-[#8892a4]",
         className
       )}
       style={{ textAlign: align, ...style }}

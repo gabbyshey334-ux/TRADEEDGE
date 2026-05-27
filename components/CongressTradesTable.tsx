@@ -109,7 +109,9 @@ export function CongressTradesTable() {
         <EmptyState
           message={
             rows.length === 0
-              ? "No congressional trades available yet. The feed refreshes every hour."
+              ? meta?.source === "empty"
+                ? "No congressional trade disclosures are available right now. Check back later — the feed refreshes hourly."
+                : "No congressional trades in this snapshot. The feed refreshes every hour."
               : "No trades match your filters."
           }
         />
@@ -233,41 +235,35 @@ function SourcePill({
   source: CongressionalTradesResponse["source"];
   fetchedAt?: string;
 }) {
-  const config: Record<
-    CongressionalTradesResponse["source"],
-    { label: string; color: string }
-  > = {
-    live: { label: "Live · Quiver", color: "#00e5b0" },
-    cache: { label: "Cached snapshot", color: "#f0c040" },
-    empty: { label: "No data", color: "#5a6580" },
-  };
-  const c = config[source];
-  const time = fetchedAt
-    ? new Date(fetchedAt).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
+  if (source === "empty") return null;
+
+  const dotColor = source === "live" ? "#00e5b0" : "#f0c040";
+  const label =
+    source === "live"
+      ? "Live"
+      : fetchedAt
+        ? `Cached as of ${formatDate(fetchedAt)}`
+        : "Cached";
+
   return (
-    <div className="flex items-center gap-2 self-start sm:self-auto">
+    <div
+      className="flex items-center gap-2 self-start sm:self-auto"
+      role="status"
+      aria-label={label}
+    >
       <span
-        className="h-2 w-2 rounded-full"
-        style={{ backgroundColor: c.color, boxShadow: `0 0 10px ${c.color}` }}
+        className="h-2 w-2 shrink-0 rounded-full"
+        style={{
+          backgroundColor: dotColor,
+          boxShadow: `0 0 10px ${dotColor}`,
+        }}
       />
       <span
         className="font-mono uppercase"
-        style={{ fontSize: "10px", letterSpacing: "0.24em", color: c.color }}
+        style={{ fontSize: "10px", letterSpacing: "0.24em", color: dotColor }}
       >
-        {c.label}
+        {label}
       </span>
-      {time && (
-        <span
-          className="font-mono uppercase text-[#3a4560]"
-          style={{ fontSize: "10px", letterSpacing: "0.24em" }}
-        >
-          · {time}
-        </span>
-      )}
     </div>
   );
 }

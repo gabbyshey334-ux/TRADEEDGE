@@ -19,7 +19,7 @@ export function LockedFeaturePanel({ message }: { message: string }) {
     handleBillingActionResult(result, {
       onSuccess: (url) => window.location.assign(url),
       onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
-      onError: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
+      onError: (msg) => setPaymentNotice(msg || "Failed to start checkout."),
     });
     if (!result.ok) setPending(false);
   }

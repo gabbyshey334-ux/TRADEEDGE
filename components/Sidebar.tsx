@@ -10,11 +10,14 @@ import {
 } from "@/lib/actions/billing";
 import {
   handleBillingActionResult,
-  MANUAL_PLAN_BILLING_MESSAGE,
   PAYMENT_COMING_SOON_MESSAGE,
 } from "@/lib/billing-client";
 import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/types";
+
+/** Shown when Pro/Elite was granted without Stripe (no_customer from portal action). */
+const MANUAL_BILLING_NOTICE =
+  "Your plan is managed directly. Contact support to manage billing.";
 
 export interface SidebarUser {
   name: string;
@@ -57,19 +60,18 @@ const PLAN_PILL: Record<
 > = {
   starter: {
     label: "Starter",
-    className: "bg-[#0c1018] text-[#8892a4] border border-[#1a2030]",
+    className:
+      "bg-[#111520] border border-[#1c2235] text-[#4a5568] font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 rounded",
   },
   pro: {
     label: "Pro",
     className:
-      "bg-[#00e5b0]/12 text-[#00e5b0] border border-[#00e5b0]/40",
+      "bg-[#00ff88]/10 border border-[#00ff88]/30 text-[#00ff88] font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 rounded",
   },
   elite: {
     label: "Elite",
-    className: "text-[#06080d] border border-transparent font-bold",
-    style: {
-      background: "linear-gradient(135deg, #b466ff 0%, #f0c040 100%)",
-    },
+    className:
+      "bg-gradient-to-r from-[#a78bfa] to-[#f59e0b] text-[#080a0f] font-mono text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded border border-transparent",
   },
 };
 
@@ -99,7 +101,9 @@ export function Sidebar({
     setBillingPending("checkout");
     const result = await createCheckoutSession("pro");
     handleBillingActionResult(result, {
-      onSuccess: (url) => window.location.assign(url),
+      onSuccess: (url) => {
+        window.location.href = url;
+      },
       onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
       onError: (msg) => setBillingError(msg || "Failed to start checkout."),
     });
@@ -110,58 +114,53 @@ export function Sidebar({
     setBillingError(null);
     setPaymentNotice(null);
     setBillingPending("portal");
-    const result = await createPortalSession();
-    handleBillingActionResult(result, {
-      onSuccess: (url) => window.location.assign(url),
-      onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
-      onManualPlan: () => setPaymentNotice(MANUAL_PLAN_BILLING_MESSAGE),
-      onError: (msg) => setBillingError(msg || "Failed to open billing portal."),
-    });
-    if (!result.ok) setBillingPending(null);
+    try {
+      const result = await createPortalSession();
+      handleBillingActionResult(result, {
+        onSuccess: (url) => {
+          setBillingPending(null);
+          window.location.href = url;
+        },
+        onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
+        onManualPlan: () => setPaymentNotice(MANUAL_BILLING_NOTICE),
+        onError: (msg) =>
+          setBillingError(msg || "Failed to open billing portal."),
+      });
+      if (!result.ok) setBillingPending(null);
+    } catch {
+      setBillingError("Failed to open billing portal. Please try again.");
+      setBillingPending(null);
+    }
   }
 
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-50 flex h-screen w-[232px] max-w-[85vw] flex-col",
-        "border-r border-[#1a2030] bg-[#080b11]",
+        "fixed top-0 left-0 z-50 flex h-screen w-[240px] max-w-[85vw] flex-col",
+        "border-r border-[#1c2235] bg-[#080a0f]",
         "transition-transform duration-200 ease-out",
         "lg:translate-x-0",
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
-      {/* Logo block with subtle radial halo */}
-      <div className="relative px-6 pt-8 pb-6 border-b border-[#1a2030]">
-        <div className="sidebar-logo-halo absolute inset-0 pointer-events-none" />
-        <Link href="/dashboard" className="relative block group">
-          <div className="font-heading text-[24px] tracking-[0.14em] leading-none">
+      {/* Logo block */}
+      <div className="px-3 pt-8 pb-4">
+        <Link href="/dashboard" className="block px-3 group transition-colors duration-150">
+          <div className="font-display font-bold text-[22px] leading-none tracking-tight">
             <span className="text-[#e8edf5]">TRADE</span>
-            <span className="text-[#00e5b0]">EDGE</span>
+            <span className="text-[#00ff88]">EDGE</span>
           </div>
-          <div
-            className="mt-2.5 font-mono uppercase"
-            style={{
-              fontSize: "9px",
-              letterSpacing: "0.42em",
-              color: "#5a6580",
-            }}
-          >
-            AI · Journal Suite
+          <div className="mt-2 font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
+            AI · JOURNAL SUITE
           </div>
+          <hr className="mt-3 border-[#1c2235]" />
         </Link>
       </div>
 
       {/* Section label */}
-      <div className="px-6 pt-5 pb-2">
-        <div
-          className="font-mono uppercase"
-          style={{
-            fontSize: "9px",
-            letterSpacing: "0.32em",
-            color: "#3a4560",
-          }}
-        >
-          Workspace
+      <div className="px-3 pb-1">
+        <div className="font-mono text-[9px] tracking-[0.25em] text-[#4a5568] uppercase mb-2 px-3">
+          WORKSPACE
         </div>
       </div>
 
@@ -180,36 +179,20 @@ export function Sidebar({
               href={href}
               onClick={onNavigate}
               className={cn(
-                "group relative flex items-center gap-3 rounded-sm px-3.5 py-2.5",
-                "font-sans text-[13px] tracking-wide",
-                "transition-colors duration-150",
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2",
+                "font-body text-[13px]",
+                "transition-all duration-150",
                 active
-                  ? "bg-[#0c1018] text-[#e8edf5]"
-                  : "text-[#5a6580] hover:text-[#e8edf5] hover:bg-[#0c1018]"
+                  ? "bg-[#111520] text-[#e8edf5] border-l-2 border-[#00ff88] shadow-[inset_2px_0_8px_rgba(0,255,136,0.08)]"
+                  : "text-[#8892a4] hover:bg-[#111520] hover:text-[#e8edf5]"
               )}
-              style={
-                active
-                  ? {
-                      boxShadow:
-                        "inset 2px 0 0 #00e5b0, 0 0 24px -8px rgba(0, 229, 176, 0.45)",
-                    }
-                  : undefined
-              }
             >
               <Icon active={active} />
-              <span className={cn("flex-1 min-w-0", active && "font-semibold")}>
+              <span className={cn("flex-1 min-w-0", active && "font-medium")}>
                 {label}
               </span>
               {showProBadge && (
-                <span
-                  className="shrink-0 rounded-sm px-1.5 py-0.5 font-mono font-bold uppercase"
-                  style={{
-                    fontSize: "9px",
-                    letterSpacing: "0.22em",
-                    backgroundColor: "rgba(0,229,176,0.12)",
-                    color: "#00e5b0",
-                  }}
-                >
+                <span className="shrink-0 bg-[#00ff88]/10 text-[#00ff88] border border-[#00ff88]/20 font-mono text-[9px] tracking-widest px-1.5 py-0.5 rounded uppercase">
                   PRO
                 </span>
               )}
@@ -219,33 +202,22 @@ export function Sidebar({
       </nav>
 
       {/* User section — pinned below scrollable nav on mobile */}
-      <div className="shrink-0 border-t border-[#1a2030] bg-[#06080d]/40 px-4 py-5">
-        <div className="flex items-center gap-3 px-1">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-[12px] font-mono font-bold text-[#06080d]"
-            style={{
-              background:
-                "linear-gradient(135deg, #00e5b0 0%, #0066ff 100%)",
-              boxShadow: "0 0 16px -4px rgba(0,229,176,0.4)",
-            }}
-          >
+      <div className="shrink-0 border-t border-[#1c2235] px-3 py-5">
+        <div className="flex items-center gap-3 px-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#00ff88] to-[#0ea5e9] text-[12px] font-mono font-bold text-[#080a0f]">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-semibold text-[#e8edf5] font-sans">
+            <div className="truncate font-body font-medium text-[#e8edf5] text-[13px]">
               {user.name}
+            </div>
+            <div className="truncate font-mono text-[10px] text-[#4a5568] mt-0.5">
+              {user.email}
             </div>
             <div className="mt-1.5">
               <span
-                className={cn(
-                  "inline-flex items-center rounded-sm px-2 py-[3px] font-mono font-bold uppercase",
-                  pill.className
-                )}
-                style={{
-                  fontSize: "9px",
-                  letterSpacing: "0.28em",
-                  ...(pill.style ?? {}),
-                }}
+                className={cn("inline-flex items-center", pill.className)}
+                style={pill.style}
               >
                 {pill.label}
               </span>
@@ -259,11 +231,10 @@ export function Sidebar({
             onClick={handleUpgrade}
             disabled={billingPending !== null}
             className={cn(
-              "mt-4 w-full h-10 rounded-sm",
-              "font-mono font-bold uppercase text-[#06080d]",
+              "mt-4 w-full h-10 rounded-lg",
+              "font-mono font-bold uppercase text-[#080a0f]",
               "transition-all duration-150",
-              "bg-[#00e5b0] hover:bg-[#00f5be]",
-              "shadow-[0_0_20px_rgba(0,229,176,0.35)]",
+              "bg-[#00ff88] hover:bg-[#00ff88]/90 glow-green",
               "active:scale-[0.98] disabled:opacity-60"
             )}
             style={{ fontSize: "10px", letterSpacing: "0.22em" }}
@@ -272,16 +243,16 @@ export function Sidebar({
           </button>
         )}
 
-        {(user.plan === "pro" || user.plan === "elite") && user.hasStripeBilling && (
+        {(user.plan === "pro" || user.plan === "elite") && (
           <button
             type="button"
             onClick={handleBilling}
             disabled={billingPending !== null}
             className={cn(
-              "mt-4 w-full h-10 rounded-sm border border-[#1a2030]",
+              "mt-4 w-full h-10 rounded-lg border border-[#1c2235]",
               "font-mono font-bold uppercase text-[#8892a4]",
               "transition-all duration-150",
-              "hover:text-[#00e5b0] hover:border-[#00e5b0]/40 hover:bg-[#00e5b0]/[0.04]",
+              "hover:text-[#00ff88] hover:border-[#00ff88]/40 hover:bg-[#00ff88]/[0.04]",
               "active:scale-[0.98] disabled:opacity-60"
             )}
             style={{ fontSize: "10px", letterSpacing: "0.22em" }}
@@ -290,18 +261,18 @@ export function Sidebar({
           </button>
         )}
 
-        {(user.plan === "pro" || user.plan === "elite") && !user.hasStripeBilling && (
-          <div
-            className="mt-4 rounded-sm border border-[#00e5b0]/25 bg-[#00e5b0]/[0.06] px-3 py-2.5 text-[12px] text-[#a0afc0] font-sans leading-relaxed"
+        {paymentNotice && paymentNotice === MANUAL_BILLING_NOTICE && (
+          <p
+            className="mt-3 px-3 font-mono text-[10px] text-[#4a5568] italic leading-relaxed"
             role="status"
           >
-            {MANUAL_PLAN_BILLING_MESSAGE}
-          </div>
+            {paymentNotice}
+          </p>
         )}
 
-        {paymentNotice && (
+        {paymentNotice && paymentNotice !== MANUAL_BILLING_NOTICE && (
           <div
-            className="mt-2 rounded-sm border border-[#f0c040]/40 bg-[#f0c040]/[0.08] px-3 py-2.5 text-[12px] text-[#f0c040] font-sans leading-relaxed"
+            className="mt-2 mx-3 rounded-xl border border-[#f59e0b]/20 bg-[#f59e0b]/10 px-3 py-2.5 text-[12px] text-[#f59e0b] font-body leading-relaxed"
             role="status"
           >
             {paymentNotice}
@@ -310,8 +281,8 @@ export function Sidebar({
 
         {billingError && (
           <div
-            className="mt-2 font-mono uppercase text-[#ff4d6d]"
-            style={{ fontSize: "9px", letterSpacing: "0.22em" }}
+            className="mt-2 mx-3 rounded-xl border border-[#ff3b5c]/20 bg-[#ff3b5c]/10 px-3 py-2.5 text-[12px] text-[#ff3b5c] font-body leading-relaxed"
+            role="alert"
           >
             {billingError}
           </div>
@@ -327,10 +298,10 @@ export function Sidebar({
             })
           }
           className={cn(
-            "mt-2 w-full h-10 rounded-sm border border-transparent",
-            "font-mono font-bold uppercase text-[#5a6580]",
+            "mt-2 w-full h-10 rounded-lg border border-transparent",
+            "font-mono font-bold uppercase text-[#8892a4]",
             "transition-all duration-150",
-            "hover:text-[#ff4d6d] hover:border-[#ff4d6d]/30 hover:bg-[#ff4d6d]/[0.04]",
+            "hover:text-[#ff3b5c] hover:border-[#ff3b5c]/30 hover:bg-[#ff3b5c]/[0.04]",
             "active:scale-[0.98] disabled:opacity-50"
           )}
           style={{ fontSize: "10px", letterSpacing: "0.22em" }}
@@ -338,18 +309,11 @@ export function Sidebar({
           {pending ? "Signing out…" : "Sign Out"}
         </button>
 
-        <div
-          className="mt-4 flex items-center justify-center gap-3 font-mono uppercase"
-          style={{
-            fontSize: "9px",
-            letterSpacing: "0.24em",
-            color: "#3a4560",
-          }}
-        >
+        <div className="mt-4 flex items-center justify-center gap-3 font-mono text-[9px] tracking-[0.24em] text-[#4a5568] uppercase">
           <Link
             href="/privacy"
             onClick={onNavigate}
-            className="transition-colors hover:text-[#8892a4]"
+            className="transition-colors duration-150 hover:text-[#8892a4]"
           >
             Privacy
           </Link>
@@ -357,7 +321,7 @@ export function Sidebar({
           <Link
             href="/terms"
             onClick={onNavigate}
-            className="transition-colors hover:text-[#8892a4]"
+            className="transition-colors duration-150 hover:text-[#8892a4]"
           >
             Terms
           </Link>
@@ -368,7 +332,7 @@ export function Sidebar({
 }
 
 function DashIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <rect x="3" y="3" width="7" height="7" stroke={c} strokeWidth="1.6" />
@@ -379,7 +343,7 @@ function DashIcon({ active }: { active: boolean }) {
   );
 }
 function JournalIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
@@ -397,7 +361,7 @@ function JournalIcon({ active }: { active: boolean }) {
   );
 }
 function ChartIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path d="M3 20h18" stroke={c} strokeWidth="1.6" strokeLinecap="round" />
@@ -411,7 +375,7 @@ function ChartIcon({ active }: { active: boolean }) {
   );
 }
 function CalcIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <rect x="4" y="3" width="16" height="18" rx="2" stroke={c} strokeWidth="1.6" />
@@ -425,7 +389,7 @@ function CalcIcon({ active }: { active: boolean }) {
   );
 }
 function CalIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <rect x="3" y="5" width="18" height="16" rx="2" stroke={c} strokeWidth="1.6" />
@@ -439,7 +403,7 @@ function CalIcon({ active }: { active: boolean }) {
   );
 }
 function AiIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
@@ -452,7 +416,7 @@ function AiIcon({ active }: { active: boolean }) {
   );
 }
 function CongressIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
@@ -472,7 +436,7 @@ function CongressIcon({ active }: { active: boolean }) {
   );
 }
 function PropFirmIcon({ active }: { active: boolean }) {
-  const c = active ? "#00e5b0" : "#5a6580";
+  const c = active ? "#00ff88" : "#8892a4";
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
       <rect x="3" y="7" width="18" height="13" rx="2" stroke={c} strokeWidth="1.6" />

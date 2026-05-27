@@ -18,9 +18,29 @@ interface StatCardProps {
   className?: string;
 }
 
-function hexWithAlpha(hex: string, alphaHex: string): string {
-  // hex like "#00e5b0" + alphaHex like "0a" -> "#00e5b00a"
-  return `${hex}${alphaHex}`;
+function accentWashClass(color: string): string {
+  const map: Record<string, string> = {
+    "#00ff88": "from-[#00ff88]/[0.03]",
+    "#00e5b0": "from-[#00ff88]/[0.03]",
+    "#0ea5e9": "from-[#0ea5e9]/[0.03]",
+    "#0066ff": "from-[#0ea5e9]/[0.03]",
+    "#a78bfa": "from-[#a78bfa]/[0.03]",
+    "#b466ff": "from-[#a78bfa]/[0.03]",
+    "#f59e0b": "from-[#f59e0b]/[0.03]",
+    "#f0c040": "from-[#f59e0b]/[0.03]",
+    "#ff3b5c": "from-[#ff3b5c]/[0.03]",
+    "#ff4d6d": "from-[#ff3b5c]/[0.03]",
+  };
+  return map[color] ?? "from-[#00ff88]/[0.03]";
+}
+
+function valueColorClass(color: string): string {
+  if (color === "#ff3b5c" || color === "#ff4d6d") return "text-[#ff3b5c]";
+  if (color === "#00ff88" || color === "#00e5b0") return "text-[#00ff88]";
+  if (color === "#0ea5e9" || color === "#0066ff") return "text-[#0ea5e9]";
+  if (color === "#a78bfa" || color === "#b466ff") return "text-[#a78bfa]";
+  if (color === "#f59e0b" || color === "#f0c040") return "text-[#f59e0b]";
+  return "text-[#e8edf5]";
 }
 
 function Sparkline({
@@ -32,8 +52,6 @@ function Sparkline({
   color: string;
   trend: "up" | "down" | "neutral";
 }) {
-  // Build a tiny shape. If real points were provided we use them; otherwise
-  // we synthesize a small representative curve tied to the trend.
   const synthetic =
     trend === "up"
       ? [0.4, 0.45, 0.42, 0.55, 0.6, 0.7, 0.78, 0.85]
@@ -59,7 +77,7 @@ function Sparkline({
       width={W}
       height={H}
       viewBox={`0 0 ${W} ${H}`}
-      className="sparkline-track shrink-0"
+      className="shrink-0 opacity-40"
       aria-hidden
     >
       <path
@@ -85,62 +103,51 @@ export function StatCard({
   label,
   value,
   sub,
-  color = "#00e5b0",
+  color = "#00ff88",
   trend = "neutral",
   spark,
   className,
 }: StatCardProps) {
+  const isPositivePnl =
+    color === "#00ff88" || color === "#00e5b0";
+
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-lg",
-        "border border-[#1a2030] border-l-2",
-        "transition-all duration-150 ease-out",
-        "hover:border-[#2a3050]",
+        "group relative overflow-hidden rounded-xl",
+        "bg-[#0c0f17] border border-[#1c2235] p-5",
+        "hover:border-[#2a3350] transition-colors duration-200",
         className
       )}
-      style={{
-        borderLeftColor: color,
-        backgroundColor: "#0c1018",
-        backgroundImage: `linear-gradient(180deg, ${hexWithAlpha(color, "0a")} 0%, ${hexWithAlpha(color, "00")} 80%)`,
-      }}
     >
-      <div className="px-5 py-5 sm:px-6 sm:py-6">
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 bg-gradient-to-br to-transparent",
+          accentWashClass(color)
+        )}
+        aria-hidden
+      />
+
+      <div className="relative">
         <div className="flex items-center justify-between gap-2">
-          <span
-            className="font-mono uppercase"
-            style={{
-              fontSize: "9px",
-              letterSpacing: "0.32em",
-              color: "#5a6580",
-              lineHeight: 1,
-            }}
-          >
+          <span className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
             {label}
           </span>
           <Sparkline points={spark} color={color} trend={trend} />
         </div>
 
         <div
-          className="data-value mt-4 leading-none break-words"
-          style={{
-            color,
-            fontSize: "clamp(28px, 4.2vw, 42px)",
-          }}
+          className={cn(
+            "mt-4 font-mono text-3xl font-bold tracking-tight leading-none break-words",
+            valueColorClass(color),
+            isPositivePnl && "glow-green-text"
+          )}
         >
           {value}
         </div>
 
         {sub && (
-          <div
-            className="mt-3 font-mono uppercase"
-            style={{
-              fontSize: "10px",
-              letterSpacing: "0.24em",
-              color: "#3a4560",
-              lineHeight: 1.2,
-            }}
-          >
+          <div className="mt-2 pt-2 border-t border-[#1c2235] font-mono text-[11px] text-[#4a5568]">
             {sub}
           </div>
         )}

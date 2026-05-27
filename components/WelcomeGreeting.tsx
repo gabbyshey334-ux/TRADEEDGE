@@ -14,49 +14,60 @@ function greetingFor(hour: number): string {
   return "Markets never sleep";
 }
 
+function formatDayLine(date: Date): string {
+  const weekday = date
+    .toLocaleDateString("en-US", { weekday: "long" })
+    .toUpperCase();
+  const day = date.getDate();
+  const month = date
+    .toLocaleDateString("en-US", { month: "short" })
+    .toUpperCase();
+  const greeting = greetingFor(date.getHours()).toUpperCase();
+  return `${weekday}, ${day} ${month} · ${greeting}`;
+}
+
 export function WelcomeGreeting({ name }: WelcomeGreetingProps) {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
     setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 60_000);
+    const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  const hour = now?.getHours() ?? 12;
-  const dateText = now
-    ? now.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "";
   const timeText = now
     ? now.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
       })
-    : "";
+    : "—:—:—";
 
+  const dayLine = now ? formatDayLine(now) : "—";
   const firstName = name.split(" ")[0] || name;
 
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div className="text-[10px] uppercase tracking-[0.32em] text-[#00e5b0] font-mono">
-          {greetingFor(hour)}
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0">
+        <div className="font-mono text-[11px] tracking-[0.15em] text-[#4a5568] uppercase">
+          {dayLine}
         </div>
-        <h2 className="mt-2 font-heading text-2xl sm:text-3xl tracking-wide text-[#e8edf5] leading-none">
-          Welcome back, <span className="text-[#00e5b0]">{firstName}</span>
+        <h2 className="mt-2 font-display text-2xl font-semibold text-[#e8edf5] leading-tight">
+          Welcome back,{" "}
+          <span className="text-[#00ff88] glow-green-text">{firstName}</span>
         </h2>
       </div>
-      <div className="text-left sm:text-right w-full sm:w-auto">
-        <div className="text-[10px] uppercase tracking-[0.24em] text-[#5a6580] font-mono">
-          {dateText || "—"}
+
+      <div className="ml-auto text-right">
+        <div className="font-mono text-2xl text-[#e8edf5] tracking-tight tabular-nums">
+          {timeText}
         </div>
-        <div className="mt-1 font-mono text-sm text-[#8892a4]">
-          {timeText || "—"}
+        <div className="mt-1.5 flex items-center justify-end gap-1.5">
+          <span className="pulse-dot animate-pulse shrink-0" aria-hidden />
+          <span className="font-mono text-[9px] text-[#00ff88] tracking-widest uppercase">
+            LIVE
+          </span>
         </div>
       </div>
     </div>

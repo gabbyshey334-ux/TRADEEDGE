@@ -103,7 +103,7 @@ export function DashboardShell({
         onNavigate={() => setMenuOpen(false)}
       />
 
-      <main className="min-h-screen pt-14 lg:pt-0 lg:ml-[232px]">{children}</main>
+      <main className="min-h-screen pt-14 lg:pt-0 lg:ml-[240px]">{children}</main>
     </div>
   );
 }

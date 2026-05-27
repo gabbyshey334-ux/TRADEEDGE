@@ -172,35 +172,27 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
       />
 
       <div
-        className="relative z-10 flex w-full max-w-[720px] max-h-[min(85vh,820px)] flex-col rounded-lg border border-[#2a3050] bg-[#0c1018] shadow-[0_32px_64px_rgba(0,0,0,0.55)] animate-fadeInSoft overflow-hidden"
+        className="relative z-10 flex w-full max-w-[720px] max-h-[min(85vh,820px)] flex-col rounded-xl border border-[#1c2235] bg-[#0c0f17] shadow-[0_32px_64px_rgba(0,0,0,0.55)] animate-fadeInSoft overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div
           aria-hidden
-          className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00e5b0] via-[#0066ff] to-transparent"
+          className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00ff88] via-[#0ea5e9] to-transparent"
         />
 
         {/* Header */}
-        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#1a2030] bg-[#080b11]/50 px-5 py-5 sm:px-7 sm:py-6">
+        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#1c2235] bg-[#080a0f] px-5 py-5 sm:px-7 sm:py-6">
           <div>
-            <p
-              className="font-mono uppercase mb-2"
-              style={{
-                fontSize: "10px",
-                letterSpacing: "0.32em",
-                color: "#00e5b0",
-              }}
-            >
+            <p className="font-mono text-[10px] tracking-[0.2em] text-[#00ff88] uppercase mb-2">
               {trade ? "Edit entry" : "New entry"}
             </p>
             <h2
               id="trade-modal-title"
-              className="font-heading text-[#e8edf5] leading-none"
-              style={{ fontSize: "32px", letterSpacing: "0.06em" }}
+              className="font-display text-2xl font-bold text-[#e8edf5] leading-tight"
             >
               {trade ? "Edit Trade" : "Log Trade"}
             </h2>
-            <p className="mt-2 text-[13px] text-[#a0afc0] font-sans leading-relaxed">
+            <p className="mt-2 font-body text-[13px] text-[#8892a4] leading-relaxed">
               {trade
                 ? "Update the details for this journal entry."
                 : "Capture execution, context, and outcome in one place."}
@@ -209,7 +201,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 flex h-10 w-10 items-center justify-center rounded-sm border border-[#1a2030] bg-[#080b11] text-[#8892a4] hover:text-[#e8edf5] hover:border-[#2a3050] active:scale-[0.96] transition-all duration-150"
+            className="shrink-0 flex h-10 w-10 items-center justify-center rounded-lg border border-[#1c2235] bg-[#111520] text-[#8892a4] hover:text-[#e8edf5] hover:border-[#2a3350] active:scale-[0.96] transition-all duration-200"
             aria-label="Close"
           >
             <CloseIcon />
@@ -442,19 +434,27 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
           </div>
 
           {/* Footer */}
-          <div className="shrink-0 flex flex-col-reverse sm:flex-row items-stretch gap-3 border-t border-[#1a2030] bg-[#080b11] px-5 py-4 sm:px-7 sm:py-5">
+          <div className="shrink-0 flex flex-col-reverse sm:flex-row items-stretch gap-3 border-t border-[#1c2235] bg-[#080a0f] px-5 py-4 sm:px-7 sm:py-5">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
-              className="sm:w-[140px]"
+              className={cn(
+                "sm:w-[140px] rounded-lg border-[#1c2235] bg-transparent text-[#8892a4]",
+                "hover:text-[#e8edf5] hover:border-[#2a3350] hover:bg-[#111520]",
+                "transition-all duration-200"
+              )}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={saving}
-              className="flex-1 shadow-[0_0_20px_rgba(0,229,176,0.25)]"
+              className={cn(
+                "flex-1 rounded-lg bg-[#00ff88] text-[#080a0f] border-[#00ff88]",
+                "hover:bg-[#00ff88]/90 hover:shadow-[0_0_16px_rgba(0,255,136,0.25)]",
+                "transition-all duration-200"
+              )}
             >
               {saving
                 ? "Saving…"

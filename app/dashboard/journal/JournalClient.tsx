@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { Button } from "@/components/ui/Button";
 import { TradeTable } from "@/components/TradeTable";
 import { TradeModal } from "@/components/TradeModal";
 import {
@@ -84,8 +83,12 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
     else setTrades(res.data);
   }
 
-  const pnlColor =
-    totals.pnl > 0 ? "#00e5b0" : totals.pnl < 0 ? "#ff4d6d" : "#e8edf5";
+  const pnlClass =
+    totals.pnl > 0
+      ? "text-[#00ff88]"
+      : totals.pnl < 0
+        ? "text-[#ff3b5c]"
+        : "text-[#e8edf5]";
 
   return (
     <div className="animate-fadeIn">
@@ -94,102 +97,86 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
         eyebrow="Trade Log"
         subtitle={`${totals.count} trades · ${formatCurrency(totals.pnl)} net`}
         actions={
-          <Button
+          <button
+            type="button"
             onClick={openNew}
-            className="shadow-[0_0_18px_rgba(0,229,176,0.35)]"
+            className={cn(
+              "inline-flex items-center justify-center gap-2",
+              "bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px]",
+              "tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg",
+              "hover:bg-[#00ff88]/90 hover:shadow-[0_0_16px_rgba(0,255,136,0.25)]",
+              "transition-all duration-200 active:scale-[0.98]"
+            )}
           >
-            <PlusIcon /> Add Trade
-          </Button>
+            <PlusIcon />
+            Add Trade
+          </button>
         }
       />
 
       <div className="dashboard-page space-y-6">
-        {/* Summary bar — feels like a real trading platform */}
-        <div
-          className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-px overflow-hidden border-y border-[#1a2030] bg-[#1a2030]"
-          style={{ marginLeft: "-1px", marginRight: "-1px" }}
-        >
-          <SummaryStat
-            label="Trades"
-            value={String(totals.count)}
-            color="#e8edf5"
-          />
+        <div className="flex overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] divide-x divide-[#1c2235]">
+          <SummaryStat label="Trades" value={String(totals.count)} valueClass="text-[#e8edf5]" />
           <SummaryStat
             label="Net P&L"
             value={formatCurrency(totals.pnl)}
-            color={pnlColor}
+            valueClass={pnlClass}
           />
           <SummaryStat
             label="Win Rate"
             value={`${totals.winRate.toFixed(1)}%`}
-            color="#0066ff"
+            valueClass="text-[#0ea5e9]"
           />
           <SummaryStat
             label="Wins"
             value={String(totals.wins)}
-            color="#00e5b0"
+            valueClass="text-[#00ff88]"
             hideMobile
           />
           <SummaryStat
             label="Losses"
             value={String(totals.losses)}
-            color="#ff4d6d"
+            valueClass="text-[#ff3b5c]"
             hideMobile
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-          <div className="inline-flex w-full sm:w-auto items-center rounded-sm border border-[#1a2030] bg-[#080b11] p-1">
-            {(["All", "Forex", "Futures"] as Filter[]).map((f) => {
-              const active = filter === f;
-              const counts =
-                f === "All"
-                  ? trades.length
-                  : trades.filter((t) => t.market === f).length;
-              return (
-                <button
-                  key={f}
-                  type="button"
-                  onClick={() => setFilter(f)}
-                  className={cn(
-                    "relative h-9 px-4 rounded-sm",
-                    "font-mono font-bold uppercase",
-                    "transition-all duration-150 inline-flex items-center gap-2",
-                    "active:scale-[0.98]",
-                    active
-                      ? "bg-[#0c1018] text-[#e8edf5]"
-                      : "text-[#5a6580] hover:text-[#e8edf5]"
-                  )}
-                  style={{
-                    fontSize: "10px",
-                    letterSpacing: "0.24em",
-                    boxShadow: active ? "inset 2px 0 0 #00e5b0" : undefined,
-                  }}
-                >
-                  <span>{f}</span>
-                  <span
-                    className={cn(
-                      "rounded-sm px-1.5 py-0.5 text-[9px]",
-                      active
-                        ? "bg-[#00e5b0]/15 text-[#00e5b0]"
-                        : "bg-[#0c1018] text-[#5a6580]"
-                    )}
-                  >
-                    {counts}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {(["All", "Forex", "Futures"] as Filter[]).map((f) => {
+            const active = filter === f;
+            const counts =
+              f === "All"
+                ? trades.length
+                : trades.filter((t) => t.market === f).length;
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "inline-flex items-center border font-mono text-[11px] tracking-wider uppercase",
+                  "px-4 py-1.5 rounded transition-all duration-150 active:scale-[0.98]",
+                  active
+                    ? "bg-[#111520] border-[#2a3350] text-[#e8edf5]"
+                    : "bg-transparent border-[#1c2235] text-[#4a5568] hover:text-[#8892a4] hover:border-[#2a3350]"
+                )}
+              >
+                <span>{f}</span>
+                <span className="bg-[#1c2235] text-[#4a5568] font-mono text-[9px] px-1.5 rounded ml-1.5 tabular-nums">
+                  {counts}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {error && (
-          <div className="rounded-sm border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">
+          <div className="rounded-xl border border-[#ff3b5c]/20 bg-[#ff3b5c]/10 px-4 py-3 text-xs text-[#ff3b5c] font-mono animate-fadeInSoft">
             {error}
             <button
               type="button"
               onClick={() => void refresh()}
-              className="ml-3 underline"
+              className="ml-3 underline transition-colors duration-150 hover:text-[#e8edf5]"
             >
               Retry
             </button>
@@ -228,39 +215,25 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
 function SummaryStat({
   label,
   value,
-  color,
+  valueClass,
   hideMobile,
 }: {
   label: string;
   value: string;
-  color: string;
+  valueClass: string;
   hideMobile?: boolean;
 }) {
   return (
     <div
       className={cn(
-        "bg-[#080b11] px-4 py-4 sm:px-6 sm:py-5",
-        hideMobile && "hidden lg:block"
+        "flex flex-1 min-w-0 flex-col gap-1 px-5 py-4",
+        hideMobile && "hidden lg:flex"
       )}
     >
-      <div
-        className="font-mono uppercase"
-        style={{
-          fontSize: "9px",
-          letterSpacing: "0.32em",
-          color: "#5a6580",
-        }}
-      >
+      <div className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
         {label}
       </div>
-      <div
-        className="data-value tabular mt-2"
-        style={{
-          color,
-          fontSize: "clamp(20px, 2.6vw, 26px)",
-          lineHeight: 1,
-        }}
-      >
+      <div className={cn("font-mono text-xl font-bold tabular-nums", valueClass)}>
         {value}
       </div>
     </div>
@@ -277,37 +250,46 @@ function EmptyState({
   filter: Filter;
 }) {
   return (
-    <div className="rounded-lg border border-[#1a2030] bg-[#0c1018] py-16 px-6 flex flex-col items-center justify-center text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-[#080b11] border border-[#1a2030] mb-5">
+    <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] py-16 px-6 flex flex-col items-center justify-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#080a0f] border border-[#1c2235] mb-5">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
           <path
             d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"
-            stroke="#00e5b0"
+            stroke="#00ff88"
             strokeWidth="1.6"
           />
           <path
             d="M8 9h8M8 13h8M8 17h5"
-            stroke="#00e5b0"
+            stroke="#00ff88"
             strokeWidth="1.6"
             strokeLinecap="round"
           />
         </svg>
       </div>
-      <h3 className="font-heading text-2xl tracking-[0.06em] text-[#e8edf5]">
+      <h3 className="font-display text-2xl font-bold text-[#e8edf5]">
         {hasTrades
           ? `No ${filter.toLowerCase()} trades yet`
           : "Your journal is empty"}
       </h3>
-      <p className="mt-2 text-sm text-[#8892a4] font-sans max-w-sm leading-relaxed">
+      <p className="mt-2 font-body text-[13px] text-[#8892a4] max-w-sm leading-relaxed">
         {hasTrades
           ? "Switch filters or log a new trade in this market."
           : "Log your first trade to start building your edge. Every trade leaves a clue."}
       </p>
-      <div className="mt-6">
-        <Button onClick={onAdd}>
-          <PlusIcon /> Add Trade
-        </Button>
-      </div>
+      <button
+        type="button"
+        onClick={onAdd}
+        className={cn(
+          "mt-6 inline-flex items-center justify-center gap-2",
+          "bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px]",
+          "tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg",
+          "hover:bg-[#00ff88]/90 hover:shadow-[0_0_16px_rgba(0,255,136,0.25)]",
+          "transition-all duration-200 active:scale-[0.98]"
+        )}
+      >
+        <PlusIcon />
+        Add Trade
+      </button>
     </div>
   );
 }
