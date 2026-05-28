@@ -121,7 +121,7 @@ export function PropFirmClient({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-24 sm:pb-0">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div
           className="font-mono uppercase text-[#5a6580]"
@@ -135,7 +135,7 @@ export function PropFirmClient({
           type="button"
           onClick={openCreate}
           className={cn(
-            "bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px]",
+            "hidden sm:inline-flex bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px]",
             "tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg",
             "hover:bg-[#00ff88]/90 hover:shadow-[0_0_16px_rgba(0,255,136,0.25)]",
             "transition-all duration-200 active:scale-[0.98]"
@@ -169,6 +169,19 @@ export function PropFirmClient({
           ))}
         </div>
       )}
+
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#1c2235] bg-[#080a0f]/95 p-4 backdrop-blur-sm sm:hidden">
+        <button
+          type="button"
+          onClick={openCreate}
+          className={cn(
+            "w-full rounded-lg bg-[#00ff88] py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#080a0f]",
+            "transition-all duration-200 hover:bg-[#00ff88]/90 active:scale-[0.98]"
+          )}
+        >
+          + Add Account
+        </button>
+      </div>
 
       {modalOpen && (
         <PropFirmModal

@@ -63,7 +63,7 @@ export default async function AnalyticsPage() {
       </div>
 
       <div className="dashboard-page space-y-7">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <AnalyticsStatCard
             label="Avg Win"
             value={formatCurrency(stats.avgWin)}

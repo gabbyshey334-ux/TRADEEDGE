@@ -132,7 +132,7 @@ export function AiCoachClient({
           <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase mb-4">
             Select Mode
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             {MODES.map((m) => {
               const active = mode === m.id;
               return (
@@ -141,17 +141,17 @@ export function AiCoachClient({
                   type="button"
                   onClick={() => setMode(m.id)}
                   className={cn(
-                    "group relative text-left rounded-xl p-5 cursor-pointer",
+                    "group relative text-left rounded-xl p-4 sm:p-5 cursor-pointer",
                     "transition-all duration-200 active:scale-[0.99]",
                     active
                       ? "border border-[#00ff88]/40 bg-[#00ff88]/[0.04] shadow-[0_0_30px_rgba(0,255,136,0.08)]"
                       : "bg-[#0c0f17] border border-[#1c2235] hover:border-[#2a3350] hover:bg-[#111520]"
                   )}
                 >
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
                     <div
                       className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-lg border",
+                        "flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg border",
                         active
                           ? "border-[#00ff88]/30 bg-[#00ff88]/[0.06] text-[#00ff88]"
                           : "border-[#1c2235] bg-[#111520] text-[#8892a4]"
@@ -171,7 +171,7 @@ export function AiCoachClient({
                   <div className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase mb-1">
                     MODE
                   </div>
-                  <div className="font-display text-lg font-bold text-[#e8edf5]">
+                  <div className="font-display text-base sm:text-lg font-bold text-[#e8edf5]">
                     {m.title}
                   </div>
                   <div className="mt-2 font-body text-[13px] text-[#8892a4] leading-relaxed">

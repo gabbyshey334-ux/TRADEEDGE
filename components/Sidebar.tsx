@@ -80,14 +80,10 @@ export function Sidebar({
   user,
   open,
   onToggle,
-  mobileOpen = false,
-  onNavigate,
 }: {
   user: SidebarUser;
   open: boolean;
   onToggle: () => void;
-  mobileOpen?: boolean;
-  onNavigate?: () => void;
 }) {
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
@@ -99,8 +95,14 @@ export function Sidebar({
 
   const initials = initialsFor(user.name || user.email || "Trader");
   const pill = PLAN_PILL[user.plan];
-  const expanded = open || mobileOpen;
+  const expanded = open;
   const avatarTooltip = `${user.name} · ${pill.label}`;
+
+  function handleNavClick() {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      onToggle();
+    }
+  }
 
   async function handleUpgrade() {
     setBillingError(null);
@@ -143,12 +145,11 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-50 flex h-screen flex-col overflow-hidden",
-        "border-r border-[#1c2235] bg-[#080a0f]",
+        "fixed left-0 top-0 h-full flex flex-col overflow-hidden",
+        "bg-[#080a0f] border-r border-[#1c2235]",
         "transition-all duration-300 ease-in-out",
-        expanded ? "w-[240px] min-w-[240px]" : "w-[64px] min-w-[64px]",
-        "max-w-[85vw] lg:max-w-none",
-        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        "z-50 lg:z-30",
+        open ? "w-[240px] min-w-[240px]" : "w-0 min-w-0 lg:w-[64px] lg:min-w-[64px]"
       )}
     >
       {/* Logo block + collapse toggle */}
@@ -179,8 +180,8 @@ export function Sidebar({
         {expanded && (
           <Link
             href="/dashboard"
-            onClick={onNavigate}
-            className="block px-3 pr-12 transition-colors duration-150"
+            onClick={handleNavClick}
+            className="block px-3 pr-12 transition-all duration-200"
           >
             <div className="font-display font-bold text-[22px] leading-none tracking-tight">
               <span className="text-[#e8edf5]">TRADE</span>
@@ -228,7 +229,7 @@ export function Sidebar({
               key={href}
               href={href}
               title={expanded ? undefined : label}
-              onClick={onNavigate}
+              onClick={handleNavClick}
               className={cn(
                 "group relative flex items-center rounded-lg py-2",
                 "font-body text-[13px] transition-all duration-150",
@@ -397,16 +398,16 @@ export function Sidebar({
           <div className="mt-4 flex items-center justify-center gap-3 font-mono text-[9px] tracking-[0.24em] text-[#4a5568] uppercase">
             <Link
               href="/privacy"
-              onClick={onNavigate}
-              className="transition-colors duration-150 hover:text-[#8892a4]"
+              onClick={handleNavClick}
+              className="transition-all duration-200 hover:text-[#8892a4]"
             >
               Privacy
             </Link>
             <span aria-hidden>·</span>
             <Link
               href="/terms"
-              onClick={onNavigate}
-              className="transition-colors duration-150 hover:text-[#8892a4]"
+              onClick={handleNavClick}
+              className="transition-all duration-200 hover:text-[#8892a4]"
             >
               Terms
             </Link>

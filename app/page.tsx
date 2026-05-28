@@ -224,7 +224,7 @@ function PricingCard({
           className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#06080d] sm:text-[10px]"
           style={{ backgroundColor: badgeBg }}
         >
-          {plan.badge}
+          {plan.id === "pro" ? "MOST POPULAR" : plan.badge.toUpperCase()}
         </span>
       ) : null}
 
@@ -232,7 +232,7 @@ function PricingCard({
         <div className="font-display font-bold text-3xl sm:text-4xl" style={{ color: plan.nameColor }}>
           {plan.name}
         </div>
-        <div className="mt-1 font-mono text-xl font-bold text-[#e8edf5] sm:text-2xl">
+        <div className="mt-1 font-mono text-3xl sm:text-4xl font-bold text-[#e8edf5]">
           {plan.price}
           <span className="text-sm font-normal text-[#5a6580]">/mo</span>
         </div>
@@ -369,30 +369,14 @@ export default function LandingPage() {
               </a>
             ))}
           </nav>
-          <div className="hidden items-center gap-3 md:flex">
-            <Link href="/login" className="rounded-full px-4 py-2 text-sm text-[#a0afc0] transition-colors hover:text-[#e8edf5]">
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="hidden rounded-full px-4 py-2 text-sm text-[#a0afc0] transition-colors hover:text-[#e8edf5] md:inline-flex">
               Log in
             </Link>
-            <Link href="/signup" className="bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200">
+            <Link href="/signup" className="bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200 whitespace-nowrap">
               Start Free Trial
             </Link>
           </div>
-          <details className="mobile-menu relative md:hidden">
-            <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-xl border border-[#1a2030] text-[#e8edf5] [&::-webkit-details-marker]:hidden">
-              <span className="sr-only">Open menu</span>
-              <span className="h-0.5 w-5 bg-current shadow-[0_6px_0_current,0_-6px_0_current]" />
-            </summary>
-            <div className="mobile-panel absolute right-0 top-12 w-56 rounded-2xl border border-[#1a2030] bg-[#080b11] p-3 shadow-2xl">
-              {["Features", "Congress", "Pricing", "FAQ"].map((item) => (
-                <a key={item} href={`#${item.toLowerCase()}`} className="block rounded-xl px-3 py-3 text-sm text-[#a0afc0] hover:bg-[#0c1018] hover:text-[#e8edf5]">
-                  {item}
-                </a>
-              ))}
-              <Link href="/signup" className="mt-2 block rounded-xl bg-[#00e5b0] px-3 py-3 text-center text-sm font-bold text-[#06080d]">
-                Start free
-              </Link>
-            </div>
-          </details>
         </div>
       </header>
 
@@ -407,16 +391,16 @@ export default function LandingPage() {
             LIVE — AI COACHING ENGINE v2
           </div>
           <h1 className="mx-auto mt-8 font-display leading-[0.88] tracking-[0.055em] text-[#e8edf5]">
-            <span className="hero-line hero-line-1 block text-[52px] md:text-[88px]">TRADE SMARTER.</span>
-            <span className="hero-line hero-line-2 mt-1 block text-[44px] text-[#a0afc0] md:text-[72px]">WIN MORE.</span>
-            <span className="hero-line hero-line-3 mt-2 block text-[44px] md:text-[72px]">
+            <span className="hero-line hero-line-1 block text-3xl sm:text-4xl md:text-5xl lg:text-6xl">TRADE SMARTER.</span>
+            <span className="hero-line hero-line-2 mt-1 block text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#a0afc0]">WIN MORE.</span>
+            <span className="hero-line hero-line-3 mt-2 block text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
               POWERED BY <span className="text-[#00ff88]">AI</span>
             </span>
           </h1>
-          <p className="mx-auto mt-7 max-w-[520px] text-[18px] leading-8 text-[#5a6580]">
+          <p className="mx-auto mt-7 max-w-[520px] text-base sm:text-lg leading-8 text-[#5a6580]">
             A premium trading journal that turns your risk, psychology, and execution data into a daily operating system for better decisions.
           </p>
-          <div className="mt-9 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mx-auto sm:max-w-none sm:flex-row sm:items-center">
+          <div className="mt-9 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mx-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-4">
             <Link href="/signup" className="w-full bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200 text-center sm:w-auto">
               Start 14-day trial
             </Link>
@@ -443,7 +427,7 @@ export default function LandingPage() {
       <ScrollReveal id="features" className="px-5 py-24 md:px-8">
         <div className="mx-auto max-w-7xl">
           <SectionHeader eyebrow="Features" title="YOUR EDGE, ORGANIZED" body="Every card is built to answer the question serious traders ask after every session: what should I do differently tomorrow?" />
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
@@ -481,29 +465,30 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="overflow-hidden rounded-3xl border border-[#1a2030] bg-[#0c1018] shadow-[0_40px_120px_-70px_rgba(0,229,176,.35)]">
-            <div className="hidden border-b border-[#1a2030] bg-[#06080d] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.16em] text-[#5a6580] md:grid md:grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr]">
+            <div className="hidden border-b border-[#1a2030] bg-[#06080d] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.16em] text-[#5a6580] sm:grid sm:grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr]">
               <span>Date</span><span>Member</span><span>Party</span><span>Ticker</span><span>Type</span><span>Amount</span>
             </div>
             {congressRows.map(([date, member, party, ticker, type, amount]) => (
               <div key={`${member}-${ticker}`}>
-                <div className="space-y-3 border-b border-[#1a2030] p-4 last:border-b-0 md:hidden">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="font-semibold text-[#e8edf5]">{member}</div>
-                      <div className="mt-1 font-mono text-xs text-[#5a6580]">{date}</div>
-                    </div>
-                    <span className="font-mono text-lg font-bold text-[#e8edf5]">{ticker}</span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
-                    <span className="inline-flex items-center gap-2 text-[#a0afc0]">
-                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: party === "D" ? "#0066ff" : "#ff4d6d" }} />
-                      {party}
-                    </span>
-                    <span style={{ color: type === "Purchase" ? "#00e5b0" : "#ff4d6d" }}>{type}</span>
-                    <span className="text-[#a0afc0]">{amount}</span>
-                  </div>
+                <div className="flex items-center justify-between gap-3 border-b border-[#1a2030] p-4 last:border-b-0 sm:hidden">
+                  <span className="min-w-0 flex-1 truncate font-body text-[13px] font-medium text-[#e8edf5]">
+                    {member}
+                  </span>
+                  <span className="shrink-0 font-mono text-[13px] font-semibold text-[#e8edf5]">
+                    {ticker}
+                  </span>
+                  <span
+                    className="shrink-0 font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 rounded border"
+                    style={{
+                      color: type === "Purchase" ? "#00ff88" : "#ff3b5c",
+                      backgroundColor: type === "Purchase" ? "rgba(0,255,136,0.1)" : "rgba(255,59,92,0.1)",
+                      borderColor: type === "Purchase" ? "rgba(0,255,136,0.2)" : "rgba(255,59,92,0.2)",
+                    }}
+                  >
+                    {type}
+                  </span>
                 </div>
-                <div className="hidden grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr] items-center border-b border-[#1a2030] px-4 py-4 text-sm last:border-b-0 md:grid">
+                <div className="hidden grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr] items-center border-b border-[#1a2030] px-4 py-4 text-sm last:border-b-0 sm:grid">
                   <span className="font-mono text-[#5a6580]">{date}</span>
                   <span className="text-[#e8edf5]">{member}</span>
                   <span className="inline-flex items-center gap-2 font-mono text-[#a0afc0]">
@@ -546,7 +531,7 @@ export default function LandingPage() {
       <ScrollReveal id="pricing" className="px-5 py-24 md:px-8">
         <div className="mx-auto max-w-7xl">
           <SectionHeader eyebrow="Pricing" title="COMPARE EVERY FEATURE" body="Each plan is its own card — scan features at a glance and pick the edge that fits your trading." />
-          <div className="mt-12 grid grid-cols-1 items-stretch gap-6 lg:mt-16 lg:grid-cols-3 lg:gap-5">
+          <div className="mt-12 grid grid-cols-1 items-stretch gap-4 md:grid-cols-3 lg:mt-16">
             {plans.map((plan) => (
               <PricingCard key={plan.id} plan={plan} />
             ))}
@@ -560,7 +545,7 @@ export default function LandingPage() {
       <ScrollReveal id="testimonials" className="bg-[#080b11] px-5 py-24 md:px-8">
         <div className="mx-auto max-w-7xl">
           <SectionHeader eyebrow="Testimonials" title="TRADERS FEEL THE DIFFERENCE" />
-          <div className="mt-14 grid gap-5 md:grid-cols-3">
+          <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               ["TradeEdge showed me my worst trades all happened after I broke my session plan. That single insight paid for the year.", "Marcus T.", "Futures trader"],
               ["The AI reports feel like a coach reviewing tape. It does not flatter you. It tells you exactly where your discipline slipped.", "Sarah K.", "Prop firm trader"],

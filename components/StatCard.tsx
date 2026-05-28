@@ -115,7 +115,7 @@ export function StatCard({
     <div
       className={cn(
         "group relative overflow-hidden rounded-xl",
-        "bg-[#0c0f17] border border-[#1c2235] p-5",
+        "bg-[#0c0f17] border border-[#1c2235] p-4 sm:p-5",
         "hover:border-[#2a3350] transition-colors duration-200",
         className
       )}
@@ -138,7 +138,7 @@ export function StatCard({
 
         <div
           className={cn(
-            "mt-4 font-mono text-3xl font-bold tracking-tight leading-none break-words",
+            "mt-4 font-mono text-2xl sm:text-3xl font-bold tracking-tight leading-none break-words",
             valueColorClass(color),
             isPositivePnl && "glow-green-text"
           )}

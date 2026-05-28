@@ -15,18 +15,25 @@ export function DashboardShell({
   user: SidebarUser;
   children: React.ReactNode;
 }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const stored = localStorage.getItem("te_sidebar");
-    return stored === null ? true : stored === "true";
-  });
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [signingOut, startSignOut] = useTransition();
   const [, startSyncPlan] = useTransition();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const upgraded = searchParams.get("upgraded") === "true";
+
+  useEffect(() => {
+    const isMobile = window.innerWidth < 1024;
+    if (isMobile) {
+      setSidebarOpen(false);
+      return;
+    }
+    const stored = localStorage.getItem("te_sidebar");
+    if (stored !== null) {
+      setSidebarOpen(stored === "true");
+    }
+  }, []);
 
   useEffect(() => {
     if (!upgraded) return;
@@ -42,20 +49,34 @@ export function DashboardShell({
   }, [upgraded, pathname, router]);
 
   useEffect(() => {
-    setMenuOpen(false);
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   }, [pathname]);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const updateOverflow = () => {
+      if (!mq.matches && sidebarOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+    };
+    updateOverflow();
+    mq.addEventListener("change", updateOverflow);
     return () => {
       document.body.style.overflow = "";
+      mq.removeEventListener("change", updateOverflow);
     };
-  }, [menuOpen]);
+  }, [sidebarOpen]);
 
   function handleSidebarToggle() {
     setSidebarOpen((o) => {
       const next = !o;
-      localStorage.setItem("te_sidebar", String(next));
+      if (window.innerWidth >= 1024) {
+        localStorage.setItem("te_sidebar", String(next));
+      }
       return next;
     });
   }
@@ -64,22 +85,28 @@ export function DashboardShell({
     <div className="min-h-screen bg-[#06080d] text-[#e8edf5]">
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between",
-          "border-b border-[#1a2030] bg-[#080b11]/95 backdrop-blur-md px-4",
-          "lg:hidden"
+          "sticky top-0 z-20 flex h-14 items-center justify-between px-4 lg:hidden",
+          "border-b border-[#1c2235] bg-[#080a0f]"
         )}
       >
         <button
           type="button"
-          onClick={() => setMenuOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#1a2030] text-[#e8edf5] hover:bg-[#0c1018]"
+          onClick={() => setSidebarOpen(true)}
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-lg",
+            "border border-[#1c2235] text-[#e8edf5]",
+            "hover:bg-[#111520] transition-all duration-200"
+          )}
           aria-label="Open menu"
         >
           <MenuIcon />
         </button>
-        <Link href="/dashboard" className="font-heading text-xl tracking-[0.12em]">
+        <Link
+          href="/dashboard"
+          className="font-display font-bold text-base tracking-tight"
+        >
           <span className="text-[#e8edf5]">TRADE</span>
-          <span className="text-[#00e5b0]">EDGE</span>
+          <span className="text-[#00ff88]">EDGE</span>
         </Link>
         <button
           type="button"
@@ -91,9 +118,10 @@ export function DashboardShell({
             })
           }
           className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-lg border border-[#1a2030]",
-            "text-[#5a6580] hover:text-[#ff4d6d] hover:border-[#ff4d6d]/30 hover:bg-[#ff4d6d]/[0.04]",
-            "transition-colors disabled:opacity-50"
+            "flex h-10 w-10 items-center justify-center rounded-lg",
+            "border border-[#1c2235] text-[#8892a4]",
+            "hover:text-[#ff3b5c] hover:border-[#ff3b5c]/30 hover:bg-[#ff3b5c]/[0.04]",
+            "transition-all duration-200 disabled:opacity-50"
           )}
           aria-label={signingOut ? "Signing out" : "Sign out"}
         >
@@ -101,12 +129,11 @@ export function DashboardShell({
         </button>
       </header>
 
-      {menuOpen && (
-        <button
-          type="button"
+      {sidebarOpen && (
+        <div
           className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-          aria-label="Close menu"
-          onClick={() => setMenuOpen(false)}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden
         />
       )}
 
@@ -114,13 +141,12 @@ export function DashboardShell({
         user={user}
         open={sidebarOpen}
         onToggle={handleSidebarToggle}
-        mobileOpen={menuOpen}
-        onNavigate={() => setMenuOpen(false)}
       />
 
       <main
         className={cn(
-          "min-h-screen px-8 pt-14 lg:pt-8 transition-all duration-300 ease-in-out",
+          "min-w-0 min-h-screen px-4 sm:px-6 lg:px-8 pt-14 lg:pt-8",
+          "transition-all duration-300 ease-in-out",
           sidebarOpen ? "lg:ml-[240px]" : "lg:ml-[64px]"
         )}
       >

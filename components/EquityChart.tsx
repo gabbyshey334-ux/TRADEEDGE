@@ -16,9 +16,8 @@ export function EquityChart({ trades, height = 280 }: EquityChartProps) {
   if (series.length < 2) {
     return (
       <div
-        className="relative overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]"
+        className="relative overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] h-[200px] sm:h-[300px]"
         style={{
-          height,
           backgroundImage: `
             linear-gradient(rgba(28,34,53,0.5) 1px, transparent 1px),
             linear-gradient(90deg, rgba(28,34,53,0.5) 1px, transparent 1px)
@@ -211,12 +210,11 @@ function EquityCanvas({
     })();
 
   return (
-    <div className="relative w-full bg-[#0c0f17]">
+    <div className="relative h-[200px] sm:h-[300px] w-full bg-[#0c0f17]">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
-        className="block w-full"
-        style={{ height }}
+        className="block h-full w-full"
         onMouseMove={handleMove}
         onMouseLeave={() => setHover(null)}
       >

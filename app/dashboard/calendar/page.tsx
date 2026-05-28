@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAuthUser } from "@/lib/auth/server";
 import { getTradesForMonth } from "@/lib/data/trades";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -105,18 +105,25 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
 
       <div className="dashboard-page space-y-6">
         {/* Monthly summary bar */}
-        <div className="grid grid-cols-4 overflow-hidden border border-[#1c2235] rounded-xl bg-[#0c0f17] divide-x divide-[#1c2235]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 overflow-hidden border border-[#1c2235] rounded-xl bg-[#0c0f17]">
           <SummaryItem
             label="Net P&L"
             value={formatCurrency(monthlyTotal)}
             color={monthlyTotal >= 0 ? "#00ff88" : "#ff3b5c"}
+            className="border-b border-r border-[#1c2235] sm:border-b-0"
           />
           <SummaryItem
             label="Trading Days"
             value={String(tradingDays)}
             color="#e8edf5"
+            className="border-b border-[#1c2235] sm:border-b-0 sm:border-r"
           />
-          <SummaryItem label="Win Days" value={String(winDays)} color="#00ff88" />
+          <SummaryItem
+            label="Win Days"
+            value={String(winDays)}
+            color="#00ff88"
+            className="border-r border-[#1c2235]"
+          />
           <SummaryItem
             label="Loss Days"
             value={String(lossDays)}
@@ -284,14 +291,16 @@ function SummaryItem({
   label,
   value,
   color,
+  className,
 }: {
   label: string;
   value: string;
   color: string;
+  className?: string;
 }) {
   return (
-    <div className="px-5 py-4">
-      <div className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
+    <div className={cn("px-4 py-4 sm:px-5", className)}>
+      <div className="font-mono text-[8px] sm:text-[9px] tracking-[0.15em] sm:tracking-[0.2em] text-[#4a5568] uppercase">
         {label}
       </div>
       <div

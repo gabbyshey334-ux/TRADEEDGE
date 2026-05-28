@@ -115,29 +115,38 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
       />
 
       <div className="dashboard-page space-y-6">
-        <div className="flex overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] divide-x divide-[#1c2235]">
-          <SummaryStat label="Trades" value={String(totals.count)} valueClass="text-[#e8edf5]" />
+        <div className="flex overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
+          <SummaryStat
+            label="Trades"
+            value={String(totals.count)}
+            valueClass="text-[#e8edf5]"
+            className="flex-1 border-r border-[#1c2235]"
+          />
           <SummaryStat
             label="Net P&L"
             value={formatCurrency(totals.pnl)}
             valueClass={pnlClass}
+            className="flex-1 border-r border-[#1c2235]"
           />
           <SummaryStat
             label="Win Rate"
             value={`${totals.winRate.toFixed(1)}%`}
             valueClass="text-[#0ea5e9]"
+            className="flex-1 border-r border-[#1c2235] sm:border-r"
           />
           <SummaryStat
             label="Wins"
             value={String(totals.wins)}
             valueClass="text-[#00ff88]"
             hideMobile
+            className="hidden sm:block flex-1 border-r border-[#1c2235]"
           />
           <SummaryStat
             label="Losses"
             value={String(totals.losses)}
             valueClass="text-[#ff3b5c]"
             hideMobile
+            className="hidden sm:block flex-1"
           />
         </div>
 
@@ -217,17 +226,20 @@ function SummaryStat({
   value,
   valueClass,
   hideMobile,
+  className,
 }: {
   label: string;
   value: string;
   valueClass: string;
   hideMobile?: boolean;
+  className?: string;
 }) {
   return (
     <div
       className={cn(
-        "flex flex-1 min-w-0 flex-col gap-1 px-5 py-4",
-        hideMobile && "hidden lg:flex"
+        "flex min-w-0 flex-col gap-1 px-4 py-4",
+        hideMobile && "hidden sm:block",
+        className
       )}
     >
       <div className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">

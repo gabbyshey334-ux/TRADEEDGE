@@ -128,15 +128,15 @@ export function CongressTradesTable() {
               <SourcePill source={meta?.source ?? "empty"} />
             </div>
             {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-[#1c2235]/50">
+            <div className="sm:hidden divide-y divide-[#1c2235]">
               {visible.map((row) => (
                 <MobileRow key={row.id} row={row} />
               ))}
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full min-w-[680px] border-collapse">
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="hidden sm:table w-full min-w-[680px] border-collapse">
                 <thead>
                   <tr className="bg-[#080a0f] border-b border-[#1c2235]">
                     <Th>Date</Th>
@@ -329,35 +329,27 @@ function MobileRow({ row }: { row: CongressionalTrade }) {
   const date = row.trade_date ?? row.disclosure_date;
   return (
     <div className="px-4 py-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="font-mono text-[16px] font-bold text-[#e8edf5] tracking-[0.02em]">
-            {row.ticker}
-          </div>
-          <div className="mt-1 text-[13px] text-[#e8edf5] font-body truncate">
-            {row.member_name}
-          </div>
-        </div>
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <span className="font-body text-[13px] font-medium text-[#e8edf5] truncate">
+          {row.member_name}
+        </span>
         <TypePill type={row.trade_type} />
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-2 font-mono uppercase text-[9px] tracking-[0.22em] text-[#4a5568]">
-        <span>
-          <span className="block text-[#3a4560]">Date</span>
-          <span className="mt-0.5 block text-[#8892a4]">
-            {date ? formatDate(date) : "—"}
-          </span>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="font-mono text-[13px] font-semibold text-[#e8edf5]">
+          {row.ticker}
         </span>
-        <span>
-          <span className="block text-[#3a4560]">Party</span>
-          <span className="mt-0.5 block">
-            <PartyBadge party={row.party} />
-          </span>
+        <span className="font-mono text-[12px] text-[#f59e0b] shrink-0">
+          {row.amount_range || "—"}
         </span>
-        <span>
-          <span className="block text-[#3a4560]">Amount</span>
-          <span className="mt-0.5 block text-[#f59e0b] normal-case tracking-normal">
-            {row.amount_range || "—"}
-          </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <PartyBadge party={row.party} />
+        <span className="font-mono text-[10px] text-[#4a5568]">
+          {row.state || "—"}
+        </span>
+        <span className="ml-auto font-mono text-[10px] text-[#4a5568]">
+          {date ? formatDate(date) : "—"}
         </span>
       </div>
     </div>

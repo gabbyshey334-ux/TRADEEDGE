@@ -70,9 +70,9 @@ export default function RiskCalcPage() {
       </div>
 
       <div className="dashboard-page">
-        <div className="mx-auto w-full max-w-[640px] space-y-6">
-          <div className="flex justify-center">
-            <div className="inline-flex items-center gap-1 rounded-lg border border-[#1c2235] bg-[#0c0f17] p-1">
+        <div className="mx-auto w-full max-w-2xl space-y-6">
+          <div className="flex w-full justify-center">
+            <div className="flex w-full sm:w-auto sm:inline-flex items-center gap-1 rounded-lg border border-[#1c2235] bg-[#0c0f17] p-1">
               {(["Forex", "Futures"] as Mode[]).map((m) => {
                 const active = mode === m;
                 const isForex = m === "Forex";
@@ -82,7 +82,7 @@ export default function RiskCalcPage() {
                     type="button"
                     onClick={() => setMode(m)}
                     className={cn(
-                      "rounded-md px-6 py-2 font-mono text-[11px] tracking-[0.1em] uppercase",
+                      "flex-1 rounded-md px-4 sm:px-6 py-2 text-center font-mono text-[11px] tracking-[0.1em] uppercase",
                       "transition-all duration-150 active:scale-[0.98]",
                       active
                         ? isForex
@@ -99,7 +99,7 @@ export default function RiskCalcPage() {
           </div>
 
           {/* Input panel */}
-          <div className="overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
+          <div className="w-full max-w-2xl mx-auto overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
             <div className="flex items-center justify-between border-b border-[#1c2235] bg-[#080a0f] px-6 py-3">
               <span className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
                 INPUTS
@@ -185,7 +185,7 @@ export default function RiskCalcPage() {
             </div>
 
             <div className="px-6 py-5">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-4">
                 <ResultBox
                   label={calc.positionLabel}
                   value={formatNumber(calc.positionSize, 4)}
@@ -233,13 +233,13 @@ function TerminalInput({
   suffix?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div>
+    <div className="w-full min-w-0">
       <label className="mb-2 block font-mono text-[10px] tracking-[0.15em] text-[#4a5568] uppercase">
         {label}
       </label>
       <div
         className={cn(
-          "relative flex items-center rounded-lg border border-[#1c2235] bg-[#080a0f]",
+          "relative flex w-full min-w-0 items-center rounded-lg border border-[#1c2235] bg-[#080a0f]",
           "transition-all duration-150",
           "focus-within:border-[#2a3350] focus-within:shadow-[0_0_0_1px_rgba(0,255,136,0.1)]"
         )}
@@ -289,7 +289,7 @@ function ResultBox({
       </div>
       <div
         className={cn(
-          "font-mono text-3xl font-bold leading-none tabular-nums",
+          "font-mono text-2xl sm:text-3xl font-bold leading-none tabular-nums",
           isPosition ? "text-[#00ff88]" : "text-[#ff3b5c]"
         )}
         style={
