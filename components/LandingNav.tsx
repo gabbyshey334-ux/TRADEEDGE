@@ -8,7 +8,7 @@ function Logo() {
       <div
         className="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
         style={{
-          background: "linear-gradient(135deg, #00e5b0 0%, #0066ff 100%)",
+          background: "linear-gradient(135deg, #00ff88 0%, #0ea5e9 100%)",
         }}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -21,11 +21,8 @@ function Logo() {
           />
         </svg>
       </div>
-      <div
-        className="font-heading text-[20px] sm:text-[22px]"
-        style={{ letterSpacing: "0.08em", color: "#e8edf5" }}
-      >
-        TRADE<span style={{ color: "#00e5b0" }}>EDGE</span>
+      <div className="font-display font-bold text-[20px] sm:text-[22px] tracking-tight text-[#e8edf5]">
+        TRADE<span style={{ color: "#00ff88" }}>EDGE</span>
       </div>
     </div>
   );
@@ -62,7 +59,7 @@ export function LandingNav() {
             <a
               key={l.href}
               href={l.href}
-              className="text-[13px] text-muted hover:text-text font-sans transition-colors"
+              className="font-mono text-[11px] tracking-[0.1em] text-[#8892a4] uppercase hover:text-[#e8edf5] transition-colors duration-150"
             >
               {l.label}
             </a>
@@ -78,8 +75,7 @@ export function LandingNav() {
           </Link>
           <Link
             href="/signup"
-            className="inline-flex items-center px-3 sm:px-4 py-2 rounded-md font-sans text-[13px] sm:text-[14px] font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
-            style={{ backgroundColor: "#00e5b0", color: "#06080d" }}
+            className="inline-flex items-center bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200 whitespace-nowrap"
           >
             Start Free Trial
           </Link>

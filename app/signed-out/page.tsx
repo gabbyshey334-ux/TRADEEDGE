@@ -1,52 +1,36 @@
 import Link from "next/link";
 import { AuthShell } from "@/components/AuthShell";
 const primaryLink =
-  "inline-flex items-center justify-center w-full h-12 rounded-lg bg-[#00e5b0] text-[#06080d] font-mono font-bold uppercase tracking-[0.18em] text-xs transition-all duration-150 hover:brightness-110 hover:shadow-[0_0_16px_rgba(0,229,176,0.35)] active:scale-[0.98]";
+  "w-full bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px] tracking-[0.12em] uppercase py-3.5 rounded-lg hover:bg-[#00ff88]/90 hover:shadow-[0_0_20px_rgba(0,255,136,0.25)] transition-all duration-200 inline-flex items-center justify-center";
 
 const secondaryLink =
-  "inline-flex items-center justify-center w-full h-12 rounded-lg border border-[#1a2030] text-[#8892a4] font-mono font-bold uppercase tracking-[0.18em] text-xs transition-all duration-150 hover:text-[#e8edf5] hover:border-[#2a3050] hover:bg-[#0f1420] active:scale-[0.98]";
+  "w-full bg-transparent border border-[#1c2235] rounded-lg font-mono text-[11px] tracking-[0.1em] text-[#4a5568] uppercase py-3 mt-2 hover:border-[#2a3350] hover:text-[#8892a4] transition-all duration-200 inline-flex items-center justify-center";
 
 export default function SignedOutPage() {
   return (
     <AuthShell
-      title="You're signed out"
-      subtitle="Your session ended securely. See you on the next session."
+      title="You're Signed Out"
+      subtitle="Your session ended securely."
       footer={
-        <Link href="/" className="text-[#8892a4] hover:text-[#e8edf5] transition-colors">
+        <Link href="/" className="font-mono text-[10px] tracking-[0.1em] text-[#4a5568] hover:text-[#00ff88] transition-colors duration-150 uppercase">
           ← Return to TradeEdge home
         </Link>
       }
     >
       <div className="flex flex-col items-center text-center gap-6 animate-fadeIn">
-        <div className="relative">
-          <div
-            aria-hidden
-            className="absolute inset-0 rounded-2xl blur-2xl opacity-60"
-            style={{ background: "rgba(0, 229, 176, 0.25)" }}
-          />
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[#00e5b0]/40 bg-[#00e5b0]/10">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path
-                d="M9 12l2 2 4-4"
-                stroke="#00e5b0"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
-                stroke="#00e5b0"
-                strokeWidth="1.6"
-              />
-            </svg>
+        <div className="w-full bg-[#080a0f] border border-[#1c2235] rounded-lg px-5 py-4 mb-1 text-left">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00ff88]" />
+            <span className="font-mono text-[9px] tracking-[0.2em] text-[#00ff88] uppercase">
+              SESSION TERMINATED
+            </span>
           </div>
+          <p className="font-mono text-[11px] text-[#4a5568] mt-1">
+            Your journal data is saved and secured.
+          </p>
         </div>
 
-        <p className="text-sm text-[#8892a4] font-mono leading-relaxed max-w-xs">
-          Your journal data is saved. Sign back in anytime to pick up where you left off.
-        </p>
-
-        <div className="w-full flex flex-col gap-3">
+        <div className="w-full flex flex-col">
           <Link href="/login" className={primaryLink}>
             Sign In Again
           </Link>

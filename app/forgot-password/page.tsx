@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { resetPasswordForEmail } from "@/lib/auth/client";
 import { AuthShell } from "@/components/AuthShell";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 
 export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
@@ -27,57 +25,68 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       title="Reset Password"
-      subtitle="We'll email you a secure link to reset your password."
+      subtitle="Enter your email and we'll send a reset link."
       footer={
-        <Link href="/login" className="text-[#00e5b0] hover:underline">
-          ← Back to sign in
-        </Link>
+        <p className="font-body text-[13px] text-[#4a5568]">
+          <Link href="/login" className="text-[#00ff88] hover:text-[#00ff88]/80 transition-colors duration-150">
+            Back to sign in
+          </Link>
+        </p>
       }
     >
       {sent ? (
-        <div className="animate-fadeInSoft flex flex-col items-center text-center gap-4 py-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#00e5b0]/10 border border-[#00e5b0]/40">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M4 7l8 6 8-6M4 7v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M4 7l2-2h12l2 2"
-                stroke="#00e5b0"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+        <div className="bg-[#00ff88]/[0.06] border border-[#00ff88]/20 rounded-lg px-4 py-4 text-center animate-fadeInSoft">
+          <div className="font-mono text-[#00ff88] text-lg">✓</div>
+          <div className="font-mono text-[12px] tracking-[0.1em] text-[#00ff88] uppercase">
+            RESET LINK SENT
           </div>
-          <div>
-            <div className="font-heading text-2xl tracking-wide text-[#e8edf5]">
-              Check your inbox
-            </div>
-            <p className="mt-2 text-sm text-[#8892a4] font-mono">
-              We&apos;ve sent you a secure reset link.
-            </p>
-          </div>
+          <p className="font-body text-[13px] text-[#8892a4] mt-1">
+            Check your inbox and follow the instructions.
+          </p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            name="email"
-            type="email"
-            label="Email"
-            placeholder="you@example.com"
-            autoComplete="email"
-            required
-          />
+        <form onSubmit={handleSubmit}>
+          <Field label="Email">
+            <input
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
+              className="w-full bg-[#080a0f] border border-[#1c2235] rounded-lg px-4 py-3 font-mono text-[13px] text-[#e8edf5] placeholder:text-[#2a3350] outline-none focus:border-[#2a3350] focus:shadow-[0_0_0_1px_rgba(0,255,136,0.08)] transition-all duration-150"
+            />
+          </Field>
 
           {error && (
-            <div className="animate-fadeInSoft rounded-lg border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono">
+            <div className="bg-[#ff3b5c]/[0.06] border border-[#ff3b5c]/20 rounded-lg px-4 py-3 mb-4 font-mono text-[11px] text-[#ff3b5c]">
               {error}
             </div>
           )}
 
-          <Button type="submit" disabled={pending} fullWidth size="lg">
-            {pending ? "Sending…" : "Send Reset Link"}
-          </Button>
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px] tracking-[0.12em] uppercase py-3.5 rounded-lg mt-1 hover:bg-[#00ff88]/90 hover:shadow-[0_0_20px_rgba(0,255,136,0.25)] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {pending ? (
+              <span className="inline-block w-4 h-4 border-2 border-[#080a0f]/30 border-t-[#080a0f] rounded-full animate-spin" />
+            ) : (
+              "Send Reset Link"
+            )}
+          </button>
         </form>
       )}
     </AuthShell>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5 mb-4">
+      <label className="font-mono text-[10px] tracking-[0.15em] text-[#4a5568] uppercase">
+        {label}
+      </label>
+      {children}
+    </div>
   );
 }

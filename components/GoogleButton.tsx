@@ -22,15 +22,14 @@ export function GoogleButton({ label = "Continue with Google" }: GoogleButtonPro
         })
       }
       className={
-        "group w-full h-11 inline-flex items-center justify-center gap-3 rounded-lg " +
-        "border border-[#2a3050] bg-[#080b11] text-sm text-[#e8edf5] " +
-        "transition-all duration-150 ease-out " +
-        "hover:bg-[#0f1420] hover:border-[#3a4570] active:scale-[0.99] " +
-        "disabled:opacity-60 disabled:active:scale-100"
+        "w-full flex items-center justify-center gap-3 bg-[#111520] border border-[#1c2235] rounded-lg " +
+        "px-4 py-3 mb-5 font-mono text-[12px] tracking-[0.08em] text-[#8892a4] " +
+        "hover:border-[#2a3350] hover:text-[#e8edf5] hover:bg-[#161b27] transition-all duration-200 " +
+        "disabled:opacity-60 disabled:cursor-not-allowed"
       }
     >
       <GoogleIcon size={18} />
-      <span className="font-mono font-bold uppercase tracking-[0.18em] text-[11px]">
+      <span className="font-mono uppercase tracking-[0.08em] text-[12px]">
         {pending ? "Redirecting…" : label}
       </span>
     </button>

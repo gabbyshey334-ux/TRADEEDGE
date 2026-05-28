@@ -9,51 +9,41 @@ interface AuthShellProps {
 
 export function AuthShell({ title, subtitle, children, footer }: AuthShellProps) {
   return (
-    <main className="auth-vignette relative min-h-screen w-full flex items-center justify-center px-4 py-12">
-      <div className="absolute inset-0 grid-backdrop opacity-30 pointer-events-none" aria-hidden />
+    <main className="min-h-screen bg-[#080a0f] flex items-center justify-center relative overflow-hidden px-4">
+      <div
+        className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-[#00ff88]/[0.04] blur-[120px] pointer-events-none"
+        aria-hidden
+      />
+      <div
+        className="absolute -bottom-40 -right-40 w-80 h-80 rounded-full bg-[#0ea5e9]/[0.04] blur-[120px] pointer-events-none"
+        aria-hidden
+      />
 
-      <div className="relative w-full max-w-md animate-fadeIn">
-        <div
-          className="relative rounded-2xl border border-[#1a2030] bg-[#0c1018] p-6 sm:p-10 shadow-[0_24px_48px_rgba(0,0,0,0.5)] overflow-hidden"
-        >
-          <div
-            aria-hidden
-            className="absolute top-0 left-0 right-0 h-[2px]"
-            style={{
-              background:
-                "linear-gradient(to right, transparent, #00e5b0, transparent)",
-            }}
-          />
-
-          <Link href="/" className="block text-center mb-8 group">
-            <div className="font-heading text-3xl tracking-[0.14em] leading-none">
-              <span className="text-[#e8edf5]">TRADE</span>
-              <span className="text-[#00e5b0]">EDGE</span>
-            </div>
-            <div className="mt-2 text-[9px] uppercase tracking-[0.4em] text-[#5a6580] font-mono">
-              AI · Journal Suite
+      <div className="relative z-10 w-full max-w-[420px] bg-[#0c0f17] border border-[#1c2235] rounded-2xl px-8 py-10 shadow-[0_0_80px_rgba(0,0,0,0.6)] animate-fadeIn">
+        <div className="flex flex-col items-center mb-8">
+          <Link href="/" className="group">
+            <div className="font-display font-bold text-xl text-[#e8edf5] tracking-tight leading-none">
+              <span>TRADE</span>
+              <span className="text-[#00ff88]">EDGE</span>
             </div>
           </Link>
-
-          <div className="mb-7">
-            <h1 className="font-heading text-3xl tracking-wide text-[#e8edf5] leading-none">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="mt-3 text-sm text-[#8892a4] font-mono leading-relaxed">
-                {subtitle}
-              </p>
-            )}
+          <div className="font-mono text-[9px] tracking-[0.25em] text-[#4a5568] mt-1 uppercase">
+            AI · JOURNAL SUITE
           </div>
-
-          {children}
         </div>
 
-        {footer && (
-          <div className="mt-6 text-center text-sm text-[#8892a4] font-mono">
-            {footer}
-          </div>
-        )}
+        <div className="border-b border-[#1c2235] mb-8 -mx-8" />
+
+        <div className="mb-6">
+          <h1 className="font-display text-2xl font-bold text-[#e8edf5] mb-1">{title}</h1>
+          {subtitle && (
+            <p className="font-body text-[13px] text-[#8892a4]">{subtitle}</p>
+          )}
+        </div>
+
+        {children}
+
+        {footer && <div className="text-center mt-6">{footer}</div>}
       </div>
     </main>
   );

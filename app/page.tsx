@@ -143,14 +143,14 @@ const congressRows = [
 function Logo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[linear-gradient(135deg,#00e5b0,#0066ff)] shadow-[0_0_24px_rgba(0,229,176,0.25)]">
+      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[linear-gradient(135deg,#00ff88,#0ea5e9)] shadow-[0_0_24px_rgba(0,255,136,0.25)]">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M4 16.5 9 11l4 3.5L20 6" stroke="#06080d" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M4 20h16" stroke="#06080d" strokeWidth="2.6" strokeLinecap="round" />
         </svg>
       </div>
-      <span className="font-heading text-2xl tracking-[0.09em] text-[#e8edf5]">
-        TRADE<span className="text-[#00e5b0]">EDGE</span>
+      <span className="font-display font-bold text-2xl tracking-tight text-[#e8edf5]">
+        TRADE<span className="text-[#00ff88]">EDGE</span>
       </span>
     </div>
   );
@@ -214,9 +214,9 @@ function PricingCard({
     <div
       className={`relative flex flex-col rounded-3xl border p-5 sm:p-6 ${plan.badge ? "pt-8" : ""} ${plan.orderClass} ${plan.scaleClass ?? ""}`}
       style={{
-        borderColor: plan.borderColor,
+        borderColor: plan.id === "pro" ? "rgba(0,255,136,0.3)" : plan.borderColor,
         background: plan.bg,
-        boxShadow: plan.glow,
+        boxShadow: plan.id === "pro" ? "0 0 40px rgba(0,255,136,0.08)" : plan.glow,
       }}
     >
       {plan.badge ? (
@@ -229,7 +229,7 @@ function PricingCard({
       ) : null}
 
       <div className="text-center">
-        <div className="font-heading text-3xl sm:text-4xl" style={{ color: plan.nameColor }}>
+        <div className="font-display font-bold text-3xl sm:text-4xl" style={{ color: plan.nameColor }}>
           {plan.name}
         </div>
         <div className="mt-1 font-mono text-xl font-bold text-[#e8edf5] sm:text-2xl">
@@ -244,7 +244,7 @@ function PricingCard({
 
           return (
             <li key={feature} className="flex items-center justify-between gap-3">
-              <span className="min-w-0 flex-1 text-left text-[13px] leading-snug text-[#a0afc0] sm:text-sm">
+              <span className="min-w-0 flex-1 text-left font-body text-[13px] leading-snug text-[#8892a4]">
                 {feature}
               </span>
               <span className="shrink-0">
@@ -257,12 +257,12 @@ function PricingCard({
 
       <Link
         href="/signup"
-        className={`mt-6 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-bold transition-all ${
+        className={`mt-6 inline-flex w-full items-center justify-center rounded-lg px-5 py-2.5 transition-all duration-200 ${
           plan.cta === "green"
-            ? "bg-[#00e5b0] text-[#06080d] shadow-[0_0_26px_rgba(0,229,176,0.35)] hover:shadow-[0_0_38px_rgba(0,229,176,0.5)]"
+            ? "bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase hover:shadow-[0_0_16px_rgba(0,255,136,0.25)]"
             : plan.cta === "gold"
-              ? "bg-[#f0c040] text-[#06080d] hover:brightness-105"
-              : "border border-[#1a2030] text-[#e8edf5] hover:bg-[#080b11]"
+              ? "border border-[#1c2235] bg-transparent font-mono text-[11px] tracking-[0.1em] uppercase text-[#8892a4] hover:border-[#2a3350] hover:text-[#e8edf5]"
+              : "border border-[#1c2235] bg-transparent font-mono text-[11px] tracking-[0.1em] uppercase text-[#8892a4] hover:border-[#2a3350] hover:text-[#e8edf5]"
         }`}
       >
         Start trial
@@ -357,14 +357,14 @@ export default function LandingPage() {
     <main className="min-h-screen overflow-x-hidden bg-[#06080d] text-[#e8edf5]">
       <LandingStyles />
 
-      <header className="nav-shell fixed left-0 right-0 top-0 z-50 border-b border-[#1a2030]/80 bg-[#06080d]/72">
+      <header className="nav-shell fixed left-0 right-0 top-0 z-50 border-b border-[#1c2235]/80 bg-[#06080d]/72">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
           <Link href="/" aria-label="TradeEdge AI home">
             <Logo />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             {["Features", "Congress", "Pricing", "FAQ"].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-sm text-[#a0afc0] transition-colors hover:text-[#e8edf5]">
+              <a key={item} href={`#${item.toLowerCase()}`} className="font-mono text-[11px] tracking-[0.1em] text-[#8892a4] uppercase hover:text-[#e8edf5] transition-colors duration-150">
                 {item}
               </a>
             ))}
@@ -373,8 +373,8 @@ export default function LandingPage() {
             <Link href="/login" className="rounded-full px-4 py-2 text-sm text-[#a0afc0] transition-colors hover:text-[#e8edf5]">
               Log in
             </Link>
-            <Link href="/signup" className="rounded-full bg-[#00e5b0] px-5 py-2.5 text-sm font-bold text-[#06080d] shadow-[0_0_26px_rgba(0,229,176,0.28)] transition-shadow hover:shadow-[0_0_38px_rgba(0,229,176,0.45)]">
-              Start free
+            <Link href="/signup" className="bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200">
+              Start Free Trial
             </Link>
           </div>
           <details className="mobile-menu relative md:hidden">
@@ -406,21 +406,21 @@ export default function LandingPage() {
             <span className="hero-dot h-2 w-2 rounded-full bg-[#00e5b0]" />
             LIVE — AI COACHING ENGINE v2
           </div>
-          <h1 className="mx-auto mt-8 font-heading leading-[0.88] tracking-[0.055em] text-[#e8edf5]">
+          <h1 className="mx-auto mt-8 font-display leading-[0.88] tracking-[0.055em] text-[#e8edf5]">
             <span className="hero-line hero-line-1 block text-[52px] md:text-[88px]">TRADE SMARTER.</span>
             <span className="hero-line hero-line-2 mt-1 block text-[44px] text-[#a0afc0] md:text-[72px]">WIN MORE.</span>
             <span className="hero-line hero-line-3 mt-2 block text-[44px] md:text-[72px]">
-              POWERED BY <span className="text-[#00e5b0] [text-shadow:0_0_32px_rgba(0,229,176,.72)]">AI</span>
+              POWERED BY <span className="text-[#00ff88]">AI</span>
             </span>
           </h1>
           <p className="mx-auto mt-7 max-w-[520px] text-[18px] leading-8 text-[#5a6580]">
             A premium trading journal that turns your risk, psychology, and execution data into a daily operating system for better decisions.
           </p>
           <div className="mt-9 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mx-auto sm:max-w-none sm:flex-row sm:items-center">
-            <Link href="/signup" className="w-full rounded-full bg-[#00e5b0] px-7 py-4 text-center text-sm font-bold text-[#06080d] shadow-[0_0_34px_rgba(0,229,176,.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_0_52px_rgba(0,229,176,.55)] sm:w-auto">
+            <Link href="/signup" className="w-full bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200 text-center sm:w-auto">
               Start 14-day trial
             </Link>
-            <a href="#pricing" className="w-full rounded-full border border-[#1a2030] px-7 py-4 text-center text-sm font-bold text-[#e8edf5] transition-colors hover:bg-[#0c1018] sm:w-auto">
+            <a href="#pricing" className="w-full font-mono text-[11px] text-[#4a5568] hover:text-[#8892a4] tracking-[0.1em] uppercase transition-colors duration-150 px-7 py-4 text-center sm:w-auto">
               Compare plans
             </a>
           </div>
@@ -597,18 +597,18 @@ export default function LandingPage() {
         </Link>
       </ScrollReveal>
 
-      <footer className="border-t border-[#1a2030] bg-[#080b11] px-5 py-8 md:px-8">
+      <footer className="border-t border-[#1c2235] bg-[#080b11] px-5 py-8 md:px-8">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
           <Logo />
-          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[#5a6580]">
-            <a href="#features" className="transition-colors hover:text-[#e8edf5]">Features</a>
-            <a href="#pricing" className="transition-colors hover:text-[#e8edf5]">Pricing</a>
-            <a href="#faq" className="transition-colors hover:text-[#e8edf5]">FAQ</a>
-            <Link href="/login" className="transition-colors hover:text-[#e8edf5]">Log in</Link>
-            <Link href="/privacy" className="transition-colors hover:text-[#e8edf5]">Privacy</Link>
-            <Link href="/terms" className="transition-colors hover:text-[#e8edf5]">Terms</Link>
+          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 font-mono text-[10px] uppercase tracking-[0.1em] text-[#4a5568]">
+            <a href="#features" className="transition-colors hover:text-[#8892a4]">Features</a>
+            <a href="#pricing" className="transition-colors hover:text-[#8892a4]">Pricing</a>
+            <a href="#faq" className="transition-colors hover:text-[#8892a4]">FAQ</a>
+            <Link href="/login" className="transition-colors hover:text-[#8892a4]">Log in</Link>
+            <Link href="/privacy" className="transition-colors hover:text-[#8892a4]">Privacy</Link>
+            <Link href="/terms" className="transition-colors hover:text-[#8892a4]">Terms</Link>
           </nav>
-          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#5a6580]">
+          <div className="font-mono text-[10px] text-[#4a5568]">
             © 2026 TradeEdge AI.
           </div>
         </div>
