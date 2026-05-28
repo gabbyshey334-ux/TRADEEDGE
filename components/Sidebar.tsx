@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
+import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { signOutClient } from "@/lib/auth/client";
 import {
   createCheckoutSession,
@@ -77,10 +78,14 @@ const PLAN_PILL: Record<
 
 export function Sidebar({
   user,
+  open,
+  onToggle,
   mobileOpen = false,
   onNavigate,
 }: {
   user: SidebarUser;
+  open: boolean;
+  onToggle: () => void;
   mobileOpen?: boolean;
   onNavigate?: () => void;
 }) {
@@ -94,6 +99,8 @@ export function Sidebar({
 
   const initials = initialsFor(user.name || user.email || "Trader");
   const pill = PLAN_PILL[user.plan];
+  const expanded = open || mobileOpen;
+  const avatarTooltip = `${user.name} · ${pill.label}`;
 
   async function handleUpgrade() {
     setBillingError(null);
@@ -136,35 +143,75 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-50 flex h-screen w-[240px] max-w-[85vw] flex-col",
+        "fixed top-0 left-0 z-50 flex h-screen flex-col overflow-hidden",
         "border-r border-[#1c2235] bg-[#080a0f]",
-        "transition-transform duration-200 ease-out",
-        "lg:translate-x-0",
+        "transition-all duration-300 ease-in-out",
+        expanded ? "w-[240px] min-w-[240px]" : "w-[64px] min-w-[64px]",
+        "max-w-[85vw] lg:max-w-none",
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
-      {/* Logo block */}
-      <div className="px-3 pt-8 pb-4">
-        <Link href="/dashboard" className="block px-3 group transition-colors duration-150">
-          <div className="font-display font-bold text-[22px] leading-none tracking-tight">
-            <span className="text-[#e8edf5]">TRADE</span>
-            <span className="text-[#00ff88]">EDGE</span>
-          </div>
-          <div className="mt-2 font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
-            AI · JOURNAL SUITE
-          </div>
-          <hr className="mt-3 border-[#1c2235]" />
-        </Link>
+      {/* Logo block + collapse toggle */}
+      <div
+        className={cn(
+          "relative shrink-0 pb-4",
+          expanded ? "px-3 pt-8" : "px-2 pt-8 flex justify-center"
+        )}
+      >
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-lg",
+            "text-[#4a5568] hover:text-[#e8edf5] hover:bg-[#111520]",
+            "transition-all duration-150 cursor-pointer border-0 bg-transparent",
+            expanded ? "absolute right-3 top-8" : "relative"
+          )}
+        >
+          {open ? (
+            <PanelLeftClose size={16} strokeWidth={1.75} />
+          ) : (
+            <PanelLeftOpen size={16} strokeWidth={1.75} />
+          )}
+        </button>
+
+        {expanded && (
+          <Link
+            href="/dashboard"
+            onClick={onNavigate}
+            className="block px-3 pr-12 transition-colors duration-150"
+          >
+            <div className="font-display font-bold text-[22px] leading-none tracking-tight">
+              <span className="text-[#e8edf5]">TRADE</span>
+              <span className="text-[#00ff88]">EDGE</span>
+            </div>
+            <div className="mt-2 font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
+              AI · JOURNAL SUITE
+            </div>
+            <hr className="mt-3 border-[#1c2235]" />
+          </Link>
+        )}
       </div>
 
       {/* Section label */}
-      <div className="px-3 pb-1">
+      <div
+        className={cn(
+          "px-3 pb-1 shrink-0 transition-opacity duration-300",
+          expanded ? "opacity-100" : "opacity-0 h-0 overflow-hidden pb-0"
+        )}
+      >
         <div className="font-mono text-[9px] tracking-[0.25em] text-[#4a5568] uppercase mb-2 px-3">
           WORKSPACE
         </div>
       </div>
 
-      <nav className="flex-1 min-h-0 px-3 pb-5 flex flex-col gap-0.5 overflow-y-auto">
+      <nav
+        className={cn(
+          "flex-1 min-h-0 pb-5 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden",
+          expanded ? "px-3" : "px-2"
+        )}
+      >
         {NAV.map((item) => {
           const { href, label, icon: Icon } = item;
           const active =
@@ -172,23 +219,37 @@ export function Sidebar({
               ? pathname === "/dashboard"
               : pathname.startsWith(href);
           const showProBadge =
-            "proBadge" in item && item.proBadge && user.plan === "starter";
+            expanded &&
+            "proBadge" in item &&
+            item.proBadge &&
+            user.plan === "starter";
           return (
             <Link
               key={href}
               href={href}
+              title={expanded ? undefined : label}
               onClick={onNavigate}
               className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-3 py-2",
-                "font-body text-[13px]",
-                "transition-all duration-150",
+                "group relative flex items-center rounded-lg py-2",
+                "font-body text-[13px] transition-all duration-150",
+                expanded ? "gap-3 px-3 justify-start" : "px-0 justify-center",
                 active
-                  ? "bg-[#111520] text-[#e8edf5] border-l-2 border-[#00ff88] shadow-[inset_2px_0_8px_rgba(0,255,136,0.08)]"
+                  ? cn(
+                      "bg-[#111520] text-[#e8edf5]",
+                      expanded &&
+                        "border-l-2 border-[#00ff88] shadow-[inset_2px_0_8px_rgba(0,255,136,0.08)]"
+                    )
                   : "text-[#8892a4] hover:bg-[#111520] hover:text-[#e8edf5]"
               )}
             >
               <Icon active={active} />
-              <span className={cn("flex-1 min-w-0", active && "font-medium")}>
+              <span
+                className={cn(
+                  "min-w-0 truncate",
+                  expanded ? "flex-1 block" : "hidden",
+                  active && "font-medium"
+                )}
+              >
                 {label}
               </span>
               {showProBadge && (
@@ -201,31 +262,46 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* User section — pinned below scrollable nav on mobile */}
-      <div className="shrink-0 border-t border-[#1c2235] px-3 py-5">
-        <div className="flex items-center gap-3 px-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#00ff88] to-[#0ea5e9] text-[12px] font-mono font-bold text-[#080a0f]">
+      {/* User section */}
+      <div
+        className={cn(
+          "shrink-0 border-t border-[#1c2235] py-5",
+          expanded ? "px-3" : "px-2"
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-center",
+            expanded ? "gap-3 px-3" : "justify-center px-0"
+          )}
+        >
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#00ff88] to-[#0ea5e9] text-[12px] font-mono font-bold text-[#080a0f]"
+            title={expanded ? undefined : avatarTooltip}
+          >
             {initials}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate font-body font-medium text-[#e8edf5] text-[13px]">
-              {user.name}
+          {expanded && (
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-body font-medium text-[#e8edf5] text-[13px]">
+                {user.name}
+              </div>
+              <div className="truncate font-mono text-[10px] text-[#4a5568] mt-0.5">
+                {user.email}
+              </div>
+              <div className="mt-1.5">
+                <span
+                  className={cn("inline-flex items-center", pill.className)}
+                  style={pill.style}
+                >
+                  {pill.label}
+                </span>
+              </div>
             </div>
-            <div className="truncate font-mono text-[10px] text-[#4a5568] mt-0.5">
-              {user.email}
-            </div>
-            <div className="mt-1.5">
-              <span
-                className={cn("inline-flex items-center", pill.className)}
-                style={pill.style}
-              >
-                {pill.label}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
 
-        {user.plan === "starter" && (
+        {expanded && user.plan === "starter" && (
           <button
             type="button"
             onClick={handleUpgrade}
@@ -243,7 +319,7 @@ export function Sidebar({
           </button>
         )}
 
-        {(user.plan === "pro" || user.plan === "elite") && (
+        {expanded && (user.plan === "pro" || user.plan === "elite") && (
           <button
             type="button"
             onClick={handleBilling}
@@ -261,7 +337,7 @@ export function Sidebar({
           </button>
         )}
 
-        {paymentNotice && paymentNotice === MANUAL_BILLING_NOTICE && (
+        {expanded && paymentNotice && paymentNotice === MANUAL_BILLING_NOTICE && (
           <p
             className="mt-3 px-3 font-mono text-[10px] text-[#4a5568] italic leading-relaxed"
             role="status"
@@ -270,7 +346,7 @@ export function Sidebar({
           </p>
         )}
 
-        {paymentNotice && paymentNotice !== MANUAL_BILLING_NOTICE && (
+        {expanded && paymentNotice && paymentNotice !== MANUAL_BILLING_NOTICE && (
           <div
             className="mt-2 mx-3 rounded-xl border border-[#f59e0b]/20 bg-[#f59e0b]/10 px-3 py-2.5 text-[12px] text-[#f59e0b] font-body leading-relaxed"
             role="status"
@@ -279,7 +355,7 @@ export function Sidebar({
           </div>
         )}
 
-        {billingError && (
+        {expanded && billingError && (
           <div
             className="mt-2 mx-3 rounded-xl border border-[#ff3b5c]/20 bg-[#ff3b5c]/10 px-3 py-2.5 text-[12px] text-[#ff3b5c] font-body leading-relaxed"
             role="alert"
@@ -291,6 +367,7 @@ export function Sidebar({
         <button
           type="button"
           disabled={pending}
+          title={expanded ? undefined : "Sign Out"}
           onClick={() =>
             startTransition(async () => {
               await signOutClient();
@@ -298,34 +375,43 @@ export function Sidebar({
             })
           }
           className={cn(
-            "mt-2 w-full h-10 rounded-lg border border-transparent",
+            "mt-2 rounded-lg border border-transparent",
             "font-mono font-bold uppercase text-[#8892a4]",
             "transition-all duration-150",
             "hover:text-[#ff3b5c] hover:border-[#ff3b5c]/30 hover:bg-[#ff3b5c]/[0.04]",
-            "active:scale-[0.98] disabled:opacity-50"
+            "active:scale-[0.98] disabled:opacity-50",
+            expanded
+              ? "w-full h-10"
+              : "mx-auto flex h-10 w-10 items-center justify-center"
           )}
-          style={{ fontSize: "10px", letterSpacing: "0.22em" }}
+          style={expanded ? { fontSize: "10px", letterSpacing: "0.22em" } : undefined}
         >
-          {pending ? "Signing out…" : "Sign Out"}
+          {expanded ? (
+            pending ? "Signing out…" : "Sign Out"
+          ) : (
+            <LogOut size={16} strokeWidth={1.75} aria-hidden />
+          )}
         </button>
 
-        <div className="mt-4 flex items-center justify-center gap-3 font-mono text-[9px] tracking-[0.24em] text-[#4a5568] uppercase">
-          <Link
-            href="/privacy"
-            onClick={onNavigate}
-            className="transition-colors duration-150 hover:text-[#8892a4]"
-          >
-            Privacy
-          </Link>
-          <span aria-hidden>·</span>
-          <Link
-            href="/terms"
-            onClick={onNavigate}
-            className="transition-colors duration-150 hover:text-[#8892a4]"
-          >
-            Terms
-          </Link>
-        </div>
+        {expanded && (
+          <div className="mt-4 flex items-center justify-center gap-3 font-mono text-[9px] tracking-[0.24em] text-[#4a5568] uppercase">
+            <Link
+              href="/privacy"
+              onClick={onNavigate}
+              className="transition-colors duration-150 hover:text-[#8892a4]"
+            >
+              Privacy
+            </Link>
+            <span aria-hidden>·</span>
+            <Link
+              href="/terms"
+              onClick={onNavigate}
+              className="transition-colors duration-150 hover:text-[#8892a4]"
+            >
+              Terms
+            </Link>
+          </div>
+        )}
       </div>
     </aside>
   );

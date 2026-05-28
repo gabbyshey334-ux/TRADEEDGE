@@ -217,12 +217,12 @@ a {
 
 /* Shared dashboard page content padding — tighter, more intentional spacing */
 .dashboard-page {
-  padding: 20px 16px 40px;
+  padding: 0 0 40px;
 }
 
 @media (min-width: 768px) {
   .dashboard-page {
-    padding: 28px 32px 48px;
+    padding: 0 0 48px;
   }
 }
 

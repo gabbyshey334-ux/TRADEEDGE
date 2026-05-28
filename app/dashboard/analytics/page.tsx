@@ -1,10 +1,9 @@
-import { PageHeader } from "@/components/PageHeader";
 import { requireAuthUser } from "@/lib/auth/server";
 import { getTradesForUser } from "@/lib/data/trades";
-import { StatCard } from "@/components/StatCard";
 import {
   aggregatePnl,
   calcStats,
+  cn,
   formatCurrency,
   groupBy,
 } from "@/lib/utils";
@@ -36,6 +35,10 @@ export default async function AnalyticsPage() {
   const user = await requireAuthUser();
   const trades = await getTradesForUser(user.id);
   const stats = calcStats(trades);
+  const currentMonth = new Date().toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  }).toUpperCase();
 
   const bySetup = buildBars(trades, (t) => t.setup);
   const byEmotion = buildBars(trades, (t) => t.emotion);
@@ -44,29 +47,36 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="animate-fadeIn">
-      <PageHeader
-        title="Analytics"
-        eyebrow="Performance"
-        subtitle={`${stats.tradeCount} trades · ${stats.winRate.toFixed(1)}% win rate`}
-      />
+      <div className="border-b border-[#1c2235] pb-6 mb-6 flex items-end justify-between gap-4">
+        <div>
+          <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+            PERFORMANCE
+          </div>
+          <h1 className="mt-1 font-display text-3xl font-bold text-[#e8edf5]">
+            Analytics
+          </h1>
+          <div className="mt-2 font-mono text-[11px] text-[#4a5568] uppercase">
+            {stats.tradeCount} TRADES · {stats.winRate.toFixed(1)}% WIN RATE
+          </div>
+        </div>
+        <div className="font-mono text-[11px] text-[#4a5568]">{currentMonth}</div>
+      </div>
 
       <div className="dashboard-page space-y-7">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
+          <AnalyticsStatCard
             label="Avg Win"
             value={formatCurrency(stats.avgWin)}
             sub={`${stats.wins} winning trades`}
-            color="#00e5b0"
-            trend="up"
+            color="#00ff88"
           />
-          <StatCard
+          <AnalyticsStatCard
             label="Avg Loss"
             value={formatCurrency(stats.avgLoss)}
             sub={`${stats.losses} losing trades`}
-            color="#ff4d6d"
-            trend="down"
+            color="#ff3b5c"
           />
-          <StatCard
+          <AnalyticsStatCard
             label="Profit Factor"
             value={
               Number.isFinite(stats.profitFactor)
@@ -74,15 +84,13 @@ export default async function AnalyticsPage() {
                 : "∞"
             }
             sub={`${formatCurrency(stats.grossProfit)} / ${formatCurrency(stats.grossLoss)}`}
-            color="#b466ff"
-            trend={stats.profitFactor >= 1 ? "up" : "down"}
+            color="#a78bfa"
           />
-          <StatCard
+          <AnalyticsStatCard
             label="Max Drawdown"
             value={formatCurrency(stats.maxDrawdown)}
             sub="Peak-to-trough"
-            color="#f0c040"
-            trend="neutral"
+            color="#f59e0b"
           />
         </div>
 
@@ -109,30 +117,19 @@ function PanelShell({
   accent: string;
 }) {
   return (
-    <div className="relative rounded-lg border border-[#1a2030] bg-[#0c1018] overflow-hidden transition-colors duration-150 hover:border-[#2a3050]">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#1a2030]/60 bg-[#080b11]/50">
+    <div className="relative rounded-xl border border-[#1c2235] bg-[#0c0f17] overflow-hidden transition-colors duration-200 hover:border-[#2a3350]">
+      <div className="flex items-start justify-between px-5 pt-5 pb-3 border-b border-[#1c2235]">
         <div>
-          <div
-            className="font-mono uppercase"
-            style={{
-              fontSize: "9px",
-              letterSpacing: "0.32em",
-              color: accent,
-            }}
-          >
+          <div className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
             {eyebrow}
           </div>
-          <h2 className="section-heading mt-2">{title}</h2>
+          <h2 className="mt-2 font-display text-lg font-bold text-[#e8edf5]">
+            {title}
+          </h2>
         </div>
-        <span
-          className="h-2 w-2 rounded-full"
-          style={{
-            backgroundColor: accent,
-            boxShadow: `0 0 12px ${accent}88`,
-          }}
-        />
+        <span className="h-2 w-2 rounded-full animate-pulse" style={{ backgroundColor: accent }} />
       </div>
-      <div className="p-5">{children}</div>
+      <div className="px-5 py-4">{children}</div>
     </div>
   );
 }
@@ -149,44 +146,37 @@ function emptyHint(text: string) {
 function SetupPanel({ rows }: { rows: BarRow[] }) {
   const max = Math.max(...rows.map((r) => Math.abs(r.pnl)), 1);
   return (
-    <PanelShell eyebrow="By Setup" title="Setup Performance" accent="#00e5b0">
+    <PanelShell eyebrow="By Setup" title="Setup Performance" accent="#00ff88">
       {rows.length === 0
         ? emptyHint("Tag your trades with setups to see what works.")
         : (
           <ul className="flex flex-col gap-3">
             {rows.map((row) => {
               const positive = row.pnl >= 0;
-              const color = positive ? "#00e5b0" : "#ff4d6d";
+              const color = positive ? "#00ff88" : "#ff3b5c";
               const width = (Math.abs(row.pnl) / max) * 100;
               return (
-                <li
-                  key={row.label}
-                  className="grid grid-cols-[100px_minmax(0,1fr)_110px] items-center gap-4"
-                >
-                  <span
-                    className="font-mono text-[12px] text-[#e8edf5] truncate"
-                    title={row.label}
-                  >
-                    {row.label}
-                  </span>
-                  <div className="relative h-3 bg-[#080b11] overflow-hidden">
+                <li key={row.label} className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-body text-[13px] text-[#e8edf5] truncate" title={row.label}>
+                      {row.label}
+                    </span>
+                    <span className="font-mono text-[13px] text-[#00ff88] font-medium tabular-nums">
+                      {formatCurrency(row.pnl)}
+                    </span>
+                  </div>
+                  <div className="relative h-1.5 bg-[#1c2235] rounded-full overflow-hidden">
                     <div
-                      className="h-full transition-[width] duration-300"
+                      className="h-full bg-[#00ff88] transition-[width] duration-300 rounded-full"
                       style={{
                         width: `${width}%`,
-                        background: color,
-                        borderTopRightRadius: 999,
-                        borderBottomRightRadius: 999,
-                        boxShadow: `0 0 10px ${color}55`,
+                        boxShadow: "0 0 8px rgba(0,255,136,0.3)",
                       }}
                     />
                   </div>
-                  <span
-                    className="data-value tabular text-right"
-                    style={{ color, fontSize: "13px" }}
-                  >
-                    {formatCurrency(row.pnl)}
-                  </span>
+                  <div className="font-mono text-[10px] text-[#4a5568]">
+                    {row.count} trades · {row.winRate.toFixed(0)}% win
+                  </div>
                 </li>
               );
             })}
@@ -200,21 +190,21 @@ function SetupPanel({ rows }: { rows: BarRow[] }) {
 function EmotionPanel({ rows }: { rows: BarRow[] }) {
   const max = Math.max(...rows.map((r) => Math.abs(r.pnl)), 1);
   return (
-    <PanelShell eyebrow="Psychology" title="Emotion vs P&L" accent="#b466ff">
+    <PanelShell eyebrow="Psychology" title="Emotion vs P&L" accent="#a78bfa">
       {rows.length === 0
         ? emptyHint("Log emotions to spot psychological patterns.")
         : (
           <div className="space-y-5">
             <div className="relative h-[140px] overflow-hidden">
               {/* Center axis */}
-              <div className="absolute left-0 right-0 top-1/2 h-px bg-[#1a2030]" />
+              <div className="absolute left-0 right-0 top-1/2 h-px bg-[#1c2235]" />
               <div
-                className="absolute left-1/2 top-0 bottom-0 w-px border-l border-dashed border-[#2a3050]"
+                className="absolute left-1/2 top-0 bottom-0 w-px border-l border-dashed border-[#1c2235]"
                 aria-hidden
               />
               {rows.map((row, i) => {
                 const positive = row.pnl >= 0;
-                const color = positive ? "#00e5b0" : "#ff4d6d";
+                const color = positive ? "#00ff88" : "#ff3b5c";
                 // Map -max..max to 0..100 along X
                 const xPct = 50 + (row.pnl / max) * 45;
                 // Spread vertically using count as a secondary axis
@@ -240,7 +230,7 @@ function EmotionPanel({ rows }: { rows: BarRow[] }) {
                     <span
                       className="mt-1.5 font-mono uppercase text-[#e8edf5]"
                       style={{
-                        fontSize: "10px",
+                        fontSize: "9px",
                         letterSpacing: "0.16em",
                       }}
                     >
@@ -250,7 +240,7 @@ function EmotionPanel({ rows }: { rows: BarRow[] }) {
                 );
               })}
             </div>
-            <div className="flex items-center justify-between font-mono uppercase text-[9px] tracking-[0.24em] text-[#3a4560]">
+            <div className="flex items-center justify-between font-mono uppercase text-[9px] tracking-widest text-[#4a5568]">
               <span>Loss</span>
               <span>Neutral</span>
               <span>Win</span>
@@ -268,7 +258,7 @@ function SessionPanel({ rows }: { rows: BarRow[] }) {
     <PanelShell
       eyebrow="Time of Day"
       title="Session Performance"
-      accent="#0066ff"
+      accent="#0ea5e9"
     >
       {rows.length === 0
         ? emptyHint("Tag your trades with sessions for time-of-day insights.")
@@ -277,44 +267,21 @@ function SessionPanel({ rows }: { rows: BarRow[] }) {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {rows.map((row) => {
                 const positive = row.pnl >= 0;
-                const intensity = Math.max(0.1, Math.abs(row.pnl) / max);
-                const rgb = positive ? "0,229,176" : "255,77,109";
                 return (
                   <div
                     key={row.label}
-                    className="rounded-sm p-3.5 border transition-colors duration-150"
-                    style={{
-                      background: `rgba(${rgb}, ${0.06 + intensity * 0.15})`,
-                      borderColor: `rgba(${rgb}, ${0.2 + intensity * 0.3})`,
-                    }}
+                    className="rounded-lg p-3 border border-[#1c2235] bg-[#111520] transition-colors duration-150"
                   >
-                    <div
-                      className="font-mono uppercase"
-                      style={{
-                        fontSize: "10px",
-                        letterSpacing: "0.24em",
-                        color: "#a0afc0",
-                      }}
-                    >
+                    <div className="font-mono text-[10px] tracking-widest text-[#4a5568] uppercase">
                       {row.label}
                     </div>
-                    <div
-                      className="data-value tabular mt-2"
-                      style={{
-                        color: positive ? "#00e5b0" : "#ff4d6d",
-                        fontSize: "20px",
-                      }}
-                    >
+                    <div className={cn(
+                      "font-mono text-xl font-bold tabular-nums mt-2",
+                      positive ? "text-[#00ff88]" : "text-[#ff3b5c]"
+                    )}>
                       {formatCurrency(row.pnl)}
                     </div>
-                    <div
-                      className="mt-2 font-mono uppercase"
-                      style={{
-                        fontSize: "9px",
-                        letterSpacing: "0.24em",
-                        color: "#3a4560",
-                      }}
-                    >
+                    <div className="mt-2 font-mono text-[10px] text-[#4a5568]">
                       {row.count} trades · {row.winRate.toFixed(0)}% win
                     </div>
                   </div>
@@ -331,9 +298,9 @@ function SessionPanel({ rows }: { rows: BarRow[] }) {
 function MarketPanel({ rows }: { rows: BarRow[] }) {
   const max = Math.max(...rows.map((r) => Math.abs(r.pnl)), 1);
   const colorFor = (label: string) =>
-    label === "Forex" ? "#00e5b0" : label === "Futures" ? "#0066ff" : "#f0c040";
+    label === "Forex" ? "#0ea5e9" : label === "Futures" ? "#a78bfa" : "#f59e0b";
   return (
-    <PanelShell eyebrow="By Market" title="Market Breakdown" accent="#f0c040">
+    <PanelShell eyebrow="By Market" title="Market Breakdown" accent="#f59e0b">
       {rows.length === 0
         ? emptyHint("Trade Forex and Futures to compare markets.")
         : (
@@ -341,48 +308,33 @@ function MarketPanel({ rows }: { rows: BarRow[] }) {
             {rows.map((row) => {
               const color = colorFor(row.label);
               const width = (Math.abs(row.pnl) / max) * 100;
-              const pnlColor = row.pnl >= 0 ? "#00e5b0" : "#ff4d6d";
+              const pnlColor = row.pnl >= 0 ? "#00ff88" : "#ff3b5c";
               return (
                 <div
                   key={row.label}
-                  className="rounded-sm border border-[#1a2030] bg-[#080b11] p-4"
+                  className="rounded-xl border border-[#1c2235] bg-[#080a0f] p-4"
                 >
                   <div className="flex items-center justify-between">
-                    <span
-                      className="font-mono uppercase font-bold"
-                      style={{
-                        fontSize: "11px",
-                        letterSpacing: "0.28em",
-                        color,
-                      }}
-                    >
+                    <span className="font-mono text-[11px] tracking-widest text-[#8892a4] uppercase">
                       {row.label}
                     </span>
-                    <span
-                      className="data-value tabular"
-                      style={{ color: pnlColor, fontSize: "18px" }}
-                    >
+                    <span className={cn(
+                      "font-mono text-[13px] font-semibold tabular-nums",
+                      row.pnl >= 0 ? "text-[#00ff88]" : "text-[#ff3b5c]"
+                    )}>
                       {formatCurrency(row.pnl)}
                     </span>
                   </div>
-                  <div className="mt-3 h-2 bg-[#06080d] overflow-hidden">
+                  <div className="mt-3 h-2 bg-[#1c2235] overflow-hidden rounded-full">
                     <div
-                      className="h-full"
+                      className="h-full rounded-full"
                       style={{
                         width: `${width}%`,
                         background: color,
-                        boxShadow: `0 0 12px ${color}55`,
                       }}
                     />
                   </div>
-                  <div
-                    className="mt-2 flex items-center justify-between font-mono uppercase"
-                    style={{
-                      fontSize: "9px",
-                      letterSpacing: "0.24em",
-                      color: "#5a6580",
-                    }}
-                  >
+                  <div className="mt-2 flex items-center justify-between font-mono text-[10px] text-[#4a5568]">
                     <span>{row.count} trades</span>
                     <span>{row.winRate.toFixed(0)}% win rate</span>
                   </div>
@@ -392,5 +344,31 @@ function MarketPanel({ rows }: { rows: BarRow[] }) {
           </div>
         )}
     </PanelShell>
+  );
+}
+
+function AnalyticsStatCard({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  color: string;
+}) {
+  return (
+    <div className="bg-[#0c0f17] border border-[#1c2235] rounded-xl p-5 hover:border-[#2a3350] transition-colors duration-200">
+      <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+        {label}
+      </div>
+      <div className="mt-4 font-mono text-3xl font-bold tracking-tight tabular-nums" style={{ color }}>
+        {value}
+      </div>
+      <div className="mt-2 pt-2 border-t border-[#1c2235] font-mono text-[11px] text-[#4a5568]">
+        {sub}
+      </div>
+    </div>
   );
 }

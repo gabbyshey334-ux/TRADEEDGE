@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
-import { Input } from "@/components/ui/Input";
 import { cn, formatCurrency, formatNumber } from "@/lib/utils";
 
 type Mode = "Forex" | "Futures";
@@ -29,7 +27,7 @@ export default function RiskCalcPage() {
         riskAmount,
         positionSize: lotSize,
         positionLabel: "Lot Size",
-        unit: "lots",
+        unit: "LOTS",
       };
     }
 
@@ -40,7 +38,7 @@ export default function RiskCalcPage() {
       riskAmount,
       positionSize: contracts,
       positionLabel: "Contracts",
-      unit: "contracts",
+      unit: "CONTRACTS",
     };
   }, [
     mode,
@@ -52,34 +50,46 @@ export default function RiskCalcPage() {
     stopLossTicks,
   ]);
 
+  const formulaText =
+    mode === "Forex"
+      ? "Lots = (Account × Risk%) / (Stop Loss pips × Pip Value)"
+      : "Contracts = (Account × Risk%) / (Stop Loss ticks × Tick Value)";
+
   return (
     <div className="animate-fadeIn">
-      <PageHeader
-        title="Risk Calculator"
-        eyebrow="Position Sizing"
-        subtitle="Size your positions with precision"
-      />
+      <div className="border-b border-[#1c2235] pb-6 mb-6">
+        <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+          POSITION SIZING
+        </div>
+        <h1 className="font-display text-3xl font-bold text-[#e8edf5] mt-1">
+          Risk Calculator
+        </h1>
+        <p className="font-body text-[13px] text-[#8892a4] mt-2">
+          Size your positions with precision
+        </p>
+      </div>
 
       <div className="dashboard-page">
         <div className="mx-auto w-full max-w-[640px] space-y-6">
           <div className="flex justify-center">
-            <div className="inline-flex items-center rounded-sm border border-[#1a2030] bg-[#080b11] p-1">
+            <div className="inline-flex items-center gap-1 rounded-lg border border-[#1c2235] bg-[#0c0f17] p-1">
               {(["Forex", "Futures"] as Mode[]).map((m) => {
                 const active = mode === m;
+                const isForex = m === "Forex";
                 return (
                   <button
                     key={m}
                     type="button"
                     onClick={() => setMode(m)}
                     className={cn(
-                      "h-10 px-7 rounded-sm",
-                      "font-mono font-bold uppercase",
+                      "rounded-md px-6 py-2 font-mono text-[11px] tracking-[0.1em] uppercase",
                       "transition-all duration-150 active:scale-[0.98]",
                       active
-                        ? "bg-[#00e5b0] text-[#06080d] shadow-[0_0_18px_rgba(0,229,176,0.35)]"
-                        : "text-[#8892a4] hover:text-[#e8edf5]"
+                        ? isForex
+                          ? "border border-[#0ea5e9]/20 bg-[#0ea5e9]/10 text-[#0ea5e9]"
+                          : "border border-[#a78bfa]/20 bg-[#a78bfa]/10 text-[#a78bfa]"
+                        : "border border-transparent text-[#4a5568] hover:bg-[#111520] hover:text-[#e8edf5]"
                     )}
-                    style={{ fontSize: "10px", letterSpacing: "0.28em" }}
                   >
                     {m}
                   </button>
@@ -88,14 +98,24 @@ export default function RiskCalcPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#1a2030] bg-[#0c1018] overflow-hidden">
-            <div className="px-5 sm:px-8 py-5 border-b border-[#1a2030]/60 bg-[#080b11]/50">
-              <div className="section-label">Inputs</div>
-              <h2 className="section-heading mt-3">Position Sizing</h2>
+          {/* Input panel */}
+          <div className="overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
+            <div className="flex items-center justify-between border-b border-[#1c2235] bg-[#080a0f] px-6 py-3">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
+                INPUTS
+              </span>
+              <span
+                className={cn(
+                  "font-mono text-[9px] tracking-[0.15em] uppercase",
+                  mode === "Forex" ? "text-[#0ea5e9]" : "text-[#a78bfa]"
+                )}
+              >
+                {mode === "Forex" ? "FOREX MODE" : "FUTURES MODE"}
+              </span>
             </div>
 
-            <div className="px-5 sm:px-8 py-6 space-y-4">
-              <Input
+            <div className="space-y-5 px-6 py-5">
+              <TerminalInput
                 label="Account Size"
                 type="number"
                 step="0.01"
@@ -103,7 +123,7 @@ export default function RiskCalcPage() {
                 onChange={(e) => setAccountSize(e.target.value)}
                 prefix="$"
               />
-              <Input
+              <TerminalInput
                 label="Risk Per Trade"
                 type="number"
                 step="0.01"
@@ -114,15 +134,15 @@ export default function RiskCalcPage() {
 
               {mode === "Forex" ? (
                 <>
-                  <Input
+                  <TerminalInput
                     label="Stop Loss"
                     type="number"
                     step="0.1"
                     value={stopLossPips}
                     onChange={(e) => setStopLossPips(e.target.value)}
-                    suffix="pips"
+                    suffix="PIPS"
                   />
-                  <Input
+                  <TerminalInput
                     label="Pip Value per Lot"
                     type="number"
                     step="0.01"
@@ -134,15 +154,15 @@ export default function RiskCalcPage() {
                 </>
               ) : (
                 <>
-                  <Input
+                  <TerminalInput
                     label="Stop Loss"
                     type="number"
                     step="1"
                     value={stopLossTicks}
                     onChange={(e) => setStopLossTicks(e.target.value)}
-                    suffix="ticks"
+                    suffix="TICKS"
                   />
-                  <Input
+                  <TerminalInput
                     label="Tick Value"
                     type="number"
                     step="0.01"
@@ -154,46 +174,42 @@ export default function RiskCalcPage() {
                 </>
               )}
             </div>
+          </div>
 
-            <div className="px-5 sm:px-8 py-5 border-y border-[#1a2030]/60 bg-[#080b11]/50">
-              <div className="section-label">Output</div>
-              <h2 className="section-heading mt-3">Results</h2>
+          {/* Results panel */}
+          <div className="mt-4 overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
+            <div className="border-b border-[#1c2235] bg-[#080a0f] px-6 py-3">
+              <span className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
+                OUTPUT
+              </span>
             </div>
 
-            <div className="px-5 sm:px-8 py-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="px-6 py-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <ResultBox
                   label={calc.positionLabel}
                   value={formatNumber(calc.positionSize, 4)}
                   hint={calc.unit}
-                  accent="#00e5b0"
+                  variant="position"
                 />
                 <ResultBox
                   label="Risk Amount"
                   value={formatCurrency(calc.riskAmount)}
-                  hint="max loss per trade"
-                  accent="#0066ff"
+                  hint="MAX LOSS PER TRADE"
+                  variant="risk"
                 />
               </div>
+            </div>
 
-              <div
-                className="rounded-sm border border-[#1a2030] bg-[#080b11] px-4 py-3 font-mono text-[#8892a4] leading-relaxed"
-                style={{ fontSize: "11px" }}
-              >
-                <span
-                  className="font-bold uppercase"
-                  style={{
-                    fontSize: "10px",
-                    letterSpacing: "0.28em",
-                    color: "#00e5b0",
-                  }}
-                >
-                  Formula
-                </span>{" "}
-                <span className="text-[#5a6580] mx-1">›</span>{" "}
-                {mode === "Forex"
-                  ? "Lots = (Account × Risk%) / (Stop Loss pips × Pip Value)"
-                  : "Contracts = (Account × Risk%) / (Stop Loss ticks × Tick Value)"}
+            <div className="overflow-x-auto border-t border-[#1c2235] bg-[#080a0f] px-6 py-3">
+              <div className="flex min-w-0 items-center whitespace-nowrap">
+                <span className="font-mono text-[9px] tracking-widest text-[#4a5568] uppercase shrink-0">
+                  FORMULA
+                </span>
+                <span className="mx-2 shrink-0 text-[#2a3350]">›</span>
+                <span className="font-mono text-[11px] text-[#8892a4]">
+                  {formulaText}
+                </span>
               </div>
             </div>
           </div>
@@ -203,50 +219,88 @@ export default function RiskCalcPage() {
   );
 }
 
+function TerminalInput({
+  label,
+  hint,
+  prefix,
+  suffix,
+  className,
+  ...props
+}: {
+  label: string;
+  hint?: string;
+  prefix?: string;
+  suffix?: string;
+} & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div>
+      <label className="mb-2 block font-mono text-[10px] tracking-[0.15em] text-[#4a5568] uppercase">
+        {label}
+      </label>
+      <div
+        className={cn(
+          "relative flex items-center rounded-lg border border-[#1c2235] bg-[#080a0f]",
+          "transition-all duration-150",
+          "focus-within:border-[#2a3350] focus-within:shadow-[0_0_0_1px_rgba(0,255,136,0.1)]"
+        )}
+      >
+        {prefix && (
+          <span className="select-none border-r border-[#1c2235] px-3 py-3 font-mono text-[13px] text-[#4a5568]">
+            {prefix}
+          </span>
+        )}
+        <input
+          className={cn(
+            "flex-1 bg-transparent px-3 py-3 font-mono text-[14px] text-[#e8edf5] outline-none placeholder:text-[#4a5568]",
+            className
+          )}
+          {...props}
+        />
+        {suffix && (
+          <span className="select-none border-l border-[#1c2235] px-3 py-3 font-mono text-[11px] text-[#4a5568] uppercase">
+            {suffix}
+          </span>
+        )}
+      </div>
+      {hint && (
+        <p className="mt-1.5 font-body text-[11px] text-[#4a5568] italic">{hint}</p>
+      )}
+    </div>
+  );
+}
+
 function ResultBox({
   label,
   value,
   hint,
-  accent,
+  variant,
 }: {
   label: string;
   value: string;
   hint: string;
-  accent: string;
+  variant: "position" | "risk";
 }) {
+  const isPosition = variant === "position";
+
   return (
-    <div
-      className="rounded-sm border-l-2 border border-[#1a2030] p-5 overflow-hidden transition-colors duration-150"
-      style={{
-        borderLeftColor: accent,
-        backgroundColor: "#0c1018",
-        backgroundImage: `linear-gradient(180deg, ${accent}10 0%, transparent 80%)`,
-      }}
-    >
-      <div
-        className="font-mono uppercase"
-        style={{
-          fontSize: "9px",
-          letterSpacing: "0.32em",
-          color: "#5a6580",
-        }}
-      >
+    <div className="rounded-xl border border-[#1c2235] bg-[#080a0f] p-5">
+      <div className="mb-2 font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
         {label}
       </div>
       <div
-        className="data-value tabular mt-3 leading-none"
-        style={{ color: accent, fontSize: "clamp(28px, 4vw, 36px)" }}
+        className={cn(
+          "font-mono text-3xl font-bold leading-none tabular-nums",
+          isPosition ? "text-[#00ff88]" : "text-[#ff3b5c]"
+        )}
+        style={
+          isPosition
+            ? { textShadow: "0 0 20px rgba(0, 255, 136, 0.3)" }
+            : undefined
+        }
       >
         {value}
       </div>
-      <div
-        className="mt-3 font-mono uppercase"
-        style={{
-          fontSize: "10px",
-          letterSpacing: "0.24em",
-          color: "#3a4560",
-        }}
-      >
+      <div className="mt-2 font-mono text-[10px] text-[#4a5568] uppercase tracking-[0.12em]">
         {hint}
       </div>
     </div>

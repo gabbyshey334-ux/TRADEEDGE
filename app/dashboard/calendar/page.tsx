@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
 import { requireAuthUser } from "@/lib/auth/server";
 import { getTradesForMonth } from "@/lib/data/trades";
 import { formatCurrency } from "@/lib/utils";
@@ -76,69 +75,62 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
 
   return (
     <div className="animate-fadeIn">
-      <PageHeader
-        title="Calendar"
-        eyebrow="Monthly View"
-        subtitle={`${monthlyCount} trades · ${formatCurrency(monthlyTotal)} net this month`}
-        actions={
-          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end">
-            <NavArrow
-              href={`/dashboard/calendar?month=${prevMonth}&year=${prevYear}`}
-              direction="prev"
-            />
-            <div
-              className="h-9 sm:h-10 flex-1 sm:flex-none px-3 sm:px-5 rounded-sm border border-[#1a2030] bg-[#080b11] inline-flex items-center justify-center min-w-0 sm:min-w-[180px] truncate font-mono font-bold uppercase text-[#e8edf5]"
-              style={{
-                fontSize: "11px",
-                letterSpacing: "0.28em",
-              }}
-            >
-              {monthName}
-            </div>
-            <NavArrow
-              href={`/dashboard/calendar?month=${nextMonth}&year=${nextYear}`}
-              direction="next"
-            />
+      <div className="border-b border-[#1c2235] pb-6 mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">
+            MONTHLY VIEW
           </div>
-        }
-      />
+          <h1 className="mt-1 font-display text-3xl font-bold text-[#e8edf5]">
+            Calendar
+          </h1>
+          <p className="mt-2 font-mono text-[11px] text-[#4a5568] uppercase">
+            {monthlyCount} TRADES · {formatCurrency(monthlyTotal)} NET THIS MONTH
+          </p>
+        </div>
+
+        <div className="inline-flex items-center gap-1 border border-[#1c2235] rounded-lg bg-[#0c0f17] p-1">
+          <NavArrow
+            href={`/dashboard/calendar?month=${prevMonth}&year=${prevYear}`}
+            direction="prev"
+          />
+          <div className="px-6 py-2 font-mono text-[13px] font-medium text-[#e8edf5] tracking-[0.05em] min-w-[120px] text-center uppercase">
+            {monthName}
+          </div>
+          <NavArrow
+            href={`/dashboard/calendar?month=${nextMonth}&year=${nextYear}`}
+            direction="next"
+          />
+        </div>
+      </div>
 
       <div className="dashboard-page space-y-6">
         {/* Monthly summary bar */}
-        <div
-          className="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden border-y border-[#1a2030] bg-[#1a2030]"
-          style={{ marginLeft: "-1px", marginRight: "-1px" }}
-        >
+        <div className="grid grid-cols-4 overflow-hidden border border-[#1c2235] rounded-xl bg-[#0c0f17] divide-x divide-[#1c2235]">
           <SummaryItem
             label="Net P&L"
             value={formatCurrency(monthlyTotal)}
-            color={monthlyTotal >= 0 ? "#00e5b0" : "#ff4d6d"}
+            color={monthlyTotal >= 0 ? "#00ff88" : "#ff3b5c"}
           />
           <SummaryItem
             label="Trading Days"
             value={String(tradingDays)}
             color="#e8edf5"
           />
-          <SummaryItem label="Win Days" value={String(winDays)} color="#00e5b0" />
+          <SummaryItem label="Win Days" value={String(winDays)} color="#00ff88" />
           <SummaryItem
             label="Loss Days"
             value={String(lossDays)}
-            color="#ff4d6d"
+            color="#ff3b5c"
           />
         </div>
 
-        <div className="rounded-lg border border-[#1a2030] bg-[#0c1018] overflow-hidden">
-          <div className="hidden sm:block px-5 py-4 border-b border-[#1a2030]/60 bg-[#080b11]/60">
-            <div className="grid grid-cols-7 gap-2">
+        <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] overflow-hidden">
+          <div className="hidden sm:block border-b border-[#1c2235] bg-[#080a0f]">
+            <div className="grid grid-cols-7">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
                 <div
                   key={d}
-                  className="font-mono uppercase text-center"
-                  style={{
-                    fontSize: "9px",
-                    letterSpacing: "0.32em",
-                    color: "#5a6580",
-                  }}
+                  className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase text-center py-3"
                 >
                   {d}
                 </div>
@@ -146,13 +138,13 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
             </div>
           </div>
 
-          <div className="hidden sm:grid grid-cols-7 gap-1.5 p-4 sm:gap-2 sm:p-5">
+          <div className="hidden sm:grid grid-cols-7">
             {cells.map(({ date, key }) => {
               if (!date) {
                 return (
                   <div
                     key={key}
-                    className="aspect-square rounded-sm border border-dashed border-[#1a2030]/40 bg-transparent"
+                    className="min-h-[100px] p-2 border-r border-b border-[#1c2235] [&:nth-child(7n)]:border-r-0"
                   />
                 );
               }
@@ -162,63 +154,68 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                 date.toISOString().slice(0, 10) ===
                 new Date().toISOString().slice(0, 10);
 
-              let bg = "#080b11";
-              let borderColor = "rgba(26,32,48,0.6)";
-              let textColor = "#5a6580";
+              const hasTrades = Boolean(dayData);
+              const isWin = Boolean(dayData && dayData.pnl > 0);
+              const isLoss = Boolean(dayData && dayData.pnl < 0);
+              const isFlat = Boolean(dayData && dayData.pnl === 0);
+
+              let bg = "transparent";
+              let dateColor = "#2a3350";
+              let dateWeight = "400";
+              let pnlColor = "#8892a4";
+              let badgeClass = "bg-[#1c2235] text-[#4a5568]";
+
               if (dayData) {
-                const intensity = Math.min(
-                  0.55,
-                  0.14 + (Math.abs(dayData.pnl) / maxAbsPnl) * 0.42
-                );
-                const color = dayData.pnl >= 0 ? "0,229,176" : "255,77,109";
-                bg = `rgba(${color}, ${intensity})`;
-                borderColor = `rgba(${color}, ${Math.min(0.6, intensity + 0.18)})`;
-                textColor = "#e8edf5";
-              }
-              if (isToday) {
-                borderColor = "#00e5b0";
+                if (isWin) {
+                  bg = "rgba(0,255,136,0.06)";
+                  dateColor = "#00ff88";
+                  dateWeight = "600";
+                  pnlColor = "#00ff88";
+                  badgeClass = "bg-[#00ff88]/20 text-[#00ff88]";
+                } else if (isLoss) {
+                  bg = "rgba(255,59,92,0.06)";
+                  dateColor = "#ff3b5c";
+                  dateWeight = "600";
+                  pnlColor = "#ff3b5c";
+                  badgeClass = "bg-[#ff3b5c]/20 text-[#ff3b5c]";
+                } else if (isFlat) {
+                  bg = "#111520";
+                  dateColor = "#8892a4";
+                  pnlColor = "#8892a4";
+                  badgeClass = "bg-[#1c2235] text-[#4a5568]";
+                }
               }
 
               return (
                 <div
                   key={key}
-                  className="aspect-square rounded-sm p-2 sm:p-2.5 flex flex-col border transition-all duration-150 hover:-translate-y-[1px] cursor-default"
-                  style={{ background: bg, borderColor }}
+                  className="min-h-[100px] p-2 relative border-r border-b border-[#1c2235] [&:nth-child(7n)]:border-r-0"
+                  style={{
+                    background: bg,
+                    boxShadow: isToday && !hasTrades ? "inset 0 0 0 1px #2a3350" : undefined,
+                  }}
                 >
                   <div className="flex items-start justify-between">
                     <div
-                      className="font-mono"
+                      className="font-mono text-[12px]"
                       style={{
-                        fontSize: "11px",
-                        color: isToday ? "#00e5b0" : textColor,
-                        fontWeight: isToday || dayData ? 700 : 400,
+                        color: isToday && !hasTrades ? "#e8edf5" : dateColor,
+                        fontWeight: dateWeight,
                       }}
                     >
                       {date.getUTCDate()}
                     </div>
                     {dayData && (
                       <span
-                        className="inline-flex items-center bg-[#06080d]/50 px-1.5 py-0.5 font-mono uppercase text-[#e8edf5]"
-                        style={{
-                          fontSize: "8px",
-                          letterSpacing: "0.22em",
-                          borderRadius: "2px",
-                        }}
+                        className={`absolute top-2 right-2 font-mono text-[9px] px-1.5 rounded-full ${badgeClass}`}
                       >
                         {dayData.count}
                       </span>
                     )}
                   </div>
                   {dayData && (
-                    <div className="mt-auto">
-                      <div
-                        className="data-value tabular"
-                        style={{
-                          color: dayData.pnl >= 0 ? "#00e5b0" : "#ff4d6d",
-                          fontSize: "13px",
-                          lineHeight: 1,
-                        }}
-                      >
+                    <div className="absolute bottom-2 left-2">
+                      <div className="font-mono text-[12px] font-bold tabular-nums" style={{ color: pnlColor }}>
                         {formatCurrency(dayData.pnl, 0)}
                       </div>
                     </div>
@@ -229,7 +226,7 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
           </div>
 
           {/* Mobile list */}
-          <div className="sm:hidden flex flex-col divide-y divide-[#1a2030]/60">
+          <div className="sm:hidden flex flex-col divide-y divide-[#1c2235]/60">
             {cells
               .filter((c) => c.date)
               .map(({ date, key }) => {
@@ -257,9 +254,9 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                       </span>
                     </div>
                     <div
-                      className="data-value tabular"
+                      className="font-mono font-bold tabular-nums"
                       style={{
-                        color: dayData.pnl >= 0 ? "#00e5b0" : "#ff4d6d",
+                        color: dayData.pnl >= 0 ? "#00ff88" : "#ff3b5c",
                         fontSize: "15px",
                       }}
                     >
@@ -270,7 +267,7 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
               })}
             {tradingDays === 0 && (
               <p
-                className="text-center font-mono uppercase py-8 text-[#5a6580]"
+                className="text-center font-mono uppercase py-8 text-[#4a5568]"
                 style={{ fontSize: "10px", letterSpacing: "0.24em" }}
               >
                 No trades this month yet.
@@ -293,23 +290,14 @@ function SummaryItem({
   color: string;
 }) {
   return (
-    <div className="bg-[#080b11] px-5 py-5">
-      <div
-        className="font-mono uppercase"
-        style={{
-          fontSize: "9px",
-          letterSpacing: "0.32em",
-          color: "#5a6580",
-        }}
-      >
+    <div className="px-5 py-4">
+      <div className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase">
         {label}
       </div>
       <div
-        className="data-value tabular mt-2"
+        className="font-mono text-xl font-bold tabular-nums mt-1"
         style={{
           color,
-          fontSize: "clamp(20px, 2.6vw, 26px)",
-          lineHeight: 1,
         }}
       >
         {value}
@@ -329,7 +317,7 @@ function NavArrow({
   return (
     <Link
       href={href}
-      className="flex h-10 w-10 items-center justify-center rounded-sm border border-[#1a2030] text-[#8892a4] hover:text-[#e8edf5] hover:border-[#2a3050] hover:bg-[#0f1420] active:scale-[0.98] transition-all"
+      className="w-8 h-8 flex items-center justify-center text-[#4a5568] hover:text-[#e8edf5] hover:bg-[#111520] rounded-md transition-all duration-150"
       aria-label={isPrev ? "Previous month" : "Next month"}
     >
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

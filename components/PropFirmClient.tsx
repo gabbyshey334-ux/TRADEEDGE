@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
+import { Pencil, Trash2 } from "lucide-react";
 import { PropFirmModal } from "@/components/PropFirmModal";
 import {
   createPropFirmAccount,
@@ -13,7 +13,7 @@ import {
   type NewPropFirmAccount,
   type PropFirmAccount,
 } from "@/lib/prop-firms";
-import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 interface PropFirmClientProps {
   initialAccounts: PropFirmAccount[];
@@ -25,34 +25,34 @@ const PHASE_STYLES: Record<
   { color: string; bg: string; border: string; label?: string }
 > = {
   Evaluation: {
-    color: "#f0c040",
-    bg: "rgba(240,192,64,0.1)",
-    border: "rgba(240,192,64,0.4)",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.1)",
+    border: "rgba(245,158,11,0.2)",
   },
   "Phase 1": {
-    color: "#0066ff",
-    bg: "rgba(0,102,255,0.12)",
-    border: "rgba(0,102,255,0.4)",
+    color: "#0ea5e9",
+    bg: "rgba(14,165,233,0.1)",
+    border: "rgba(14,165,233,0.2)",
   },
   "Phase 2": {
-    color: "#b466ff",
-    bg: "rgba(180,102,255,0.12)",
-    border: "rgba(180,102,255,0.4)",
+    color: "#a78bfa",
+    bg: "rgba(167,139,250,0.1)",
+    border: "rgba(167,139,250,0.2)",
   },
   Funded: {
-    color: "#00e5b0",
-    bg: "rgba(0,229,176,0.12)",
-    border: "rgba(0,229,176,0.4)",
+    color: "#00ff88",
+    bg: "rgba(0,255,136,0.1)",
+    border: "rgba(0,255,136,0.2)",
   },
   Failed: {
-    color: "#ff4d6d",
-    bg: "rgba(255,77,109,0.12)",
-    border: "rgba(255,77,109,0.4)",
+    color: "#ff3b5c",
+    bg: "rgba(255,59,92,0.1)",
+    border: "rgba(255,59,92,0.2)",
   },
   Passed: {
-    color: "#00e5b0",
-    bg: "rgba(0,229,176,0.12)",
-    border: "rgba(0,229,176,0.4)",
+    color: "#0ea5e9",
+    bg: "rgba(14,165,233,0.1)",
+    border: "rgba(14,165,233,0.2)",
   },
 };
 
@@ -131,14 +131,23 @@ export function PropFirmClient({
             ? "No accounts tracked yet"
             : `${accounts.length} account${accounts.length === 1 ? "" : "s"}`}
         </div>
-        <Button onClick={openCreate} size="md">
+        <button
+          type="button"
+          onClick={openCreate}
+          className={cn(
+            "bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px]",
+            "tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg",
+            "hover:bg-[#00ff88]/90 hover:shadow-[0_0_16px_rgba(0,255,136,0.25)]",
+            "transition-all duration-200 active:scale-[0.98]"
+          )}
+        >
           + Add Account
-        </Button>
+        </button>
       </div>
 
       {error && (
         <div
-          className="rounded-sm border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-[12px] text-[#ff4d6d] font-sans leading-relaxed"
+          className="rounded-xl border border-[#ff3b5c]/20 bg-[#ff3b5c]/10 px-4 py-3 text-[12px] text-[#ff3b5c] font-body leading-relaxed"
           role="alert"
         >
           {error}
@@ -198,11 +207,7 @@ function AccountCard({
 
   return (
     <article
-      className="relative flex flex-col gap-5 rounded-lg border border-[#1a2030] bg-[#0c1018] p-5 sm:p-6 overflow-hidden"
-      style={{
-        backgroundImage:
-          "linear-gradient(180deg, rgba(255,255,255,0.012) 0%, transparent 60%)",
-      }}
+      className="group relative flex flex-col gap-5 rounded-xl border border-[#1c2235] bg-[#0c0f17] p-5 sm:p-6 overflow-hidden hover:border-[#2a3350] transition-colors duration-200"
     >
       <div
         aria-hidden
@@ -215,16 +220,12 @@ function AccountCard({
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3
-            className="font-heading text-[#e8edf5] leading-none truncate"
-            style={{ fontSize: "28px", letterSpacing: "0.05em" }}
+          className="font-display text-lg font-bold text-[#e8edf5] leading-none truncate"
           >
             {account.firm_name}
           </h3>
-          <p
-            className="mt-2 font-mono uppercase text-[#5a6580]"
-            style={{ fontSize: "10px", letterSpacing: "0.28em" }}
-          >
-            {formatCurrency(Number(account.account_size), 0)} account
+          <p className="mt-3 font-mono text-2xl font-bold text-[#e8edf5] tabular-nums">
+            {formatCurrency(Number(account.account_size), 0)}
           </p>
         </div>
         <PhaseBadge phase={account.challenge_phase} />
@@ -234,9 +235,9 @@ function AccountCard({
 
       <DrawdownGrid account={account} />
 
-      <footer className="flex items-center justify-between gap-3 border-t border-[#1a2030] pt-4">
+      <footer className="flex items-center justify-between gap-3 border-t border-[#1c2235] pt-4">
         <span
-          className="font-mono uppercase text-[#5a6580]"
+          className="font-mono uppercase text-[#4a5568]"
           style={{ fontSize: "10px", letterSpacing: "0.24em" }}
         >
           {daysSinceStart === null
@@ -245,23 +246,23 @@ function AccountCard({
               ? "Started today"
               : `${daysSinceStart} day${daysSinceStart === 1 ? "" : "s"} in`}
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
           <button
             type="button"
             onClick={() => onEdit(account)}
-            className="font-mono uppercase text-[#8892a4] hover:text-[#00e5b0] active:scale-[0.98] transition-colors"
-            style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+            className="h-8 w-8 rounded-md grid place-items-center text-[#4a5568] hover:text-[#e8edf5] transition-colors duration-150"
+            aria-label="Edit account"
           >
-            Edit
+            <Pencil className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => onDelete(account)}
             disabled={deleting}
-            className="font-mono uppercase text-[#8892a4] hover:text-[#ff4d6d] active:scale-[0.98] disabled:opacity-50 transition-colors"
-            style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+            className="h-8 w-8 rounded-md grid place-items-center text-[#4a5568] hover:text-[#ff3b5c] disabled:opacity-50 transition-colors duration-150"
+            aria-label="Delete account"
           >
-            {deleting ? "…" : "Delete"}
+            {deleting ? "…" : <Trash2 className="h-4 w-4" />}
           </button>
         </div>
       </footer>
@@ -273,14 +274,11 @@ function PhaseBadge({ phase }: { phase: ChallengePhase }) {
   const styles = PHASE_STYLES[phase];
   return (
     <span
-      className="shrink-0 inline-flex items-center rounded-sm font-mono font-bold uppercase"
+      className="shrink-0 inline-flex items-center rounded font-mono text-[9px] tracking-widest px-2 py-0.5 uppercase border"
       style={{
-        fontSize: "9px",
-        letterSpacing: "0.24em",
-        padding: "4px 10px",
         color: styles.color,
         backgroundColor: styles.bg,
-        border: `1px solid ${styles.border}`,
+        borderColor: styles.border,
       }}
     >
       {phase}
@@ -359,9 +357,9 @@ function computeProgress(account: PropFirmAccount): Progress {
 function ProgressBar({ progress }: { progress: Progress }) {
   const accent =
     progress.state === "ahead"
-      ? "#00e5b0"
+      ? "#00ff88"
       : progress.state === "behind"
-        ? "#ff4d6d"
+        ? "#ff3b5c"
         : "#5a6580";
 
   return (
@@ -390,22 +388,22 @@ function ProgressBar({ progress }: { progress: Progress }) {
         )}
       </div>
 
-      <div className="h-2 rounded-full bg-[#080b11] border border-[#1a2030] overflow-hidden">
+      <div className="h-1.5 rounded-full bg-[#1c2235] overflow-hidden">
         <div
           className="h-full rounded-full transition-[width] duration-500 ease-out"
           style={{
             width: progress.hasData ? `${progress.pct}%` : "0%",
             background:
               progress.state === "ahead"
-                ? "linear-gradient(90deg, #00e5b0, #0066ff)"
+                ? "#00ff88"
                 : progress.state === "behind"
-                  ? "linear-gradient(90deg, #ff4d6d, #b466ff)"
-                  : "#1a2030",
+                  ? "#ff3b5c"
+                  : "#f59e0b",
             boxShadow:
               progress.state === "ahead"
-                ? "0 0 14px rgba(0,229,176,0.45)"
+                ? "0 0 8px rgba(0,255,136,0.3)"
                 : progress.state === "behind"
-                  ? "0 0 14px rgba(255,77,109,0.35)"
+                  ? "0 0 8px rgba(255,59,92,0.3)"
                   : undefined,
           }}
         />
@@ -441,6 +439,11 @@ function ProgressBar({ progress }: { progress: Progress }) {
 function DrawdownGrid({ account }: { account: PropFirmAccount }) {
   const items: Array<{ label: string; value: string }> = [
     {
+      label: "Profit Target",
+      value:
+        account.profit_target != null ? `${Number(account.profit_target)}%` : "—",
+    },
+    {
       label: "Max DD",
       value: account.max_drawdown != null ? `${Number(account.max_drawdown)}%` : "—",
     },
@@ -449,35 +452,23 @@ function DrawdownGrid({ account }: { account: PropFirmAccount }) {
       value:
         account.daily_drawdown != null ? `${Number(account.daily_drawdown)}%` : "—",
     },
-    {
-      label: "Target",
-      value:
-        account.profit_target != null ? `${Number(account.profit_target)}%` : "—",
-    },
-    {
-      label: "Start",
-      value: account.start_date ? formatDate(account.start_date) : "—",
-    },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="grid grid-cols-3 gap-3">
       {items.map((item) => (
         <div
           key={item.label}
-          className="rounded-sm border border-[#1a2030] bg-[#080b11] px-3 py-2.5"
+          className="rounded-lg border border-[#1c2235] bg-[#111520] px-3 py-3"
         >
           <div
-            className="font-mono uppercase text-[#3a4560]"
+            className="font-mono text-[9px] text-[#4a5568] tracking-widest uppercase"
             style={{ fontSize: "9px", letterSpacing: "0.24em" }}
           >
             {item.label}
           </div>
           <div
-            className={cn(
-              "mt-1 font-mono text-[#e8edf5] tabular truncate",
-              "text-[13px] font-bold"
-            )}
+            className={cn("mt-1 font-mono text-[13px] text-[#8892a4] tabular-nums truncate")}
           >
             {item.value}
           </div>
@@ -489,31 +480,28 @@ function DrawdownGrid({ account }: { account: PropFirmAccount }) {
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
-    <div className="rounded-lg border border-dashed border-[#1a2030] bg-[#0c1018] p-10 sm:p-14 text-center">
-      <div className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-full bg-[#080b11] border border-[#1a2030]">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <rect x="3" y="7" width="18" height="13" rx="2" stroke="#00e5b0" strokeWidth="1.6" />
-          <path
-            d="M8 7V5a4 4 0 0 1 8 0v2M12 12v4M10 14h4"
-            stroke="#00e5b0"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      <h3
-        className="font-heading text-[#e8edf5]"
-        style={{ fontSize: "26px", letterSpacing: "0.05em" }}
-      >
-        Track your first prop firm account
+    <div className="bg-[#0c0f17] border border-dashed border-[#1c2235] rounded-xl py-20 px-6 flex flex-col items-center text-center">
+      <span className="font-mono text-4xl text-[#2a3350]">&gt;</span>
+      <h3 className="font-display text-xl font-bold text-[#e8edf5] mt-6">
+        Track Your First Prop Firm Account
       </h3>
-      <p className="mx-auto mt-3 max-w-md text-[13px] text-[#a0afc0] font-sans leading-relaxed">
+      <p className="mx-auto mt-2 max-w-sm text-[13px] text-[#8892a4] font-body leading-relaxed">
         Add your evaluation or funded account to monitor profit targets, drawdown
         rules, and current balance in one place.
       </p>
       <div className="mt-6">
-        <Button onClick={onAdd}>+ Add First Account</Button>
+        <button
+          type="button"
+          onClick={onAdd}
+          className={cn(
+            "bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[12px]",
+            "tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg",
+            "hover:bg-[#00ff88]/90 hover:shadow-[0_0_16px_rgba(0,255,136,0.25)]",
+            "transition-all duration-200 active:scale-[0.98]"
+          )}
+        >
+          + Add First Account
+        </button>
       </div>
     </div>
   );

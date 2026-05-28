@@ -16,6 +16,11 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("te_sidebar");
+    return stored === null ? true : stored === "true";
+  });
   const [signingOut, startSignOut] = useTransition();
   const [, startSyncPlan] = useTransition();
   const pathname = usePathname();
@@ -46,6 +51,14 @@ export function DashboardShell({
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  function handleSidebarToggle() {
+    setSidebarOpen((o) => {
+      const next = !o;
+      localStorage.setItem("te_sidebar", String(next));
+      return next;
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[#06080d] text-[#e8edf5]">
@@ -99,11 +112,20 @@ export function DashboardShell({
 
       <Sidebar
         user={user}
+        open={sidebarOpen}
+        onToggle={handleSidebarToggle}
         mobileOpen={menuOpen}
         onNavigate={() => setMenuOpen(false)}
       />
 
-      <main className="min-h-screen pt-14 lg:pt-0 lg:ml-[240px]">{children}</main>
+      <main
+        className={cn(
+          "min-h-screen px-8 pt-14 lg:pt-8 transition-all duration-300 ease-in-out",
+          sidebarOpen ? "lg:ml-[240px]" : "lg:ml-[64px]"
+        )}
+      >
+        {children}
+      </main>
     </div>
   );
 }

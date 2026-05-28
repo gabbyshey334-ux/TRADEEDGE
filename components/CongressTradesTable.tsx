@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Search, TriangleAlert } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import type {
   CongressionalTrade,
@@ -90,19 +91,24 @@ export function CongressTradesTable() {
     <div className="space-y-4">
       {meta?.error && (
         <div
-          className="rounded-sm border border-[#f0c040]/40 bg-[#f0c040]/[0.06] px-4 py-3 text-[12px] text-[#f0c040] font-sans leading-relaxed"
+          className="rounded-lg bg-[#f59e0b]/[0.06] border border-[#f59e0b]/20 px-4 py-3"
           role="status"
         >
-          {meta.error}
+          <div className="flex items-center gap-2">
+            <TriangleAlert className="w-4 h-4 text-[#f59e0b] shrink-0" />
+            <p className="font-mono text-[11px] text-[#f59e0b]">
+              QUIVER_API_KEY not configured - live feed disabled. Add to Vercel
+              environment variables to enable.
+            </p>
+          </div>
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
           <SearchInput value={search} onChange={setSearch} />
           <TypeFilter value={typeFilter} onChange={setTypeFilter} />
         </div>
-        <SourcePill source={meta?.source ?? "empty"} fetchedAt={meta?.fetched_at} />
       </div>
 
       {filtered.length === 0 ? (
@@ -117,9 +123,12 @@ export function CongressTradesTable() {
         />
       ) : (
         <>
-          <div className="rounded-sm border border-[#1a2030] bg-[#0c1018] overflow-hidden">
+          <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] overflow-hidden">
+            <div className="px-4 py-2 border-b border-[#1c2235] bg-[#080a0f] flex justify-end">
+              <SourcePill source={meta?.source ?? "empty"} />
+            </div>
             {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-[#1a2030]/60">
+            <div className="md:hidden divide-y divide-[#1c2235]/50">
               {visible.map((row) => (
                 <MobileRow key={row.id} row={row} />
               ))}
@@ -129,13 +138,14 @@ export function CongressTradesTable() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full min-w-[680px] border-collapse">
                 <thead>
-                  <tr className="bg-[#080b11] border-b border-[#1a2030]">
+                  <tr className="bg-[#080a0f] border-b border-[#1c2235]">
                     <Th>Date</Th>
                     <Th>Member</Th>
                     <Th>Party</Th>
                     <Th>Ticker</Th>
                     <Th>Type</Th>
                     <Th>Amount</Th>
+                    <Th>State</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -167,25 +177,21 @@ function SearchInput({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="relative w-full sm:w-[260px]">
-      <span
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5a6580]"
-        aria-hidden
-      >
-        <SearchIcon />
-      </span>
+    <div className="w-full sm:w-[300px]">
+      <div className="bg-[#0c0f17] border border-[#1c2235] rounded-lg px-3 py-2.5 flex items-center gap-2 focus-within:border-[#2a3350] focus-within:shadow-[0_0_0_1px_rgba(0,255,136,0.08)] transition-all duration-150">
+        <Search className="text-[#4a5568] w-4 h-4" />
       <input
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search ticker or member"
         className={cn(
-          "w-full h-10 rounded-sm bg-[#080b11] border border-[#1a2030]",
-          "pl-9 pr-3 text-[13px] text-[#e8edf5] font-mono",
-          "placeholder:text-[#3a4560] focus:outline-none",
-          "focus:border-[#00e5b0] focus:ring-1 focus:ring-[#00e5b0]/20"
+          "flex-1 bg-transparent outline-none",
+          "font-mono text-[13px] text-[#e8edf5]",
+          "placeholder:text-[#4a5568]"
         )}
       />
+      </div>
     </div>
   );
 }
@@ -198,27 +204,24 @@ function TypeFilter({
   onChange: (v: TradeTypeFilter) => void;
 }) {
   return (
-    <div className="inline-flex rounded-sm border border-[#1a2030] bg-[#080b11] p-1">
+    <div className="inline-flex gap-2">
       {(["all", "Purchase", "Sale"] as const).map((opt) => {
         const active = value === opt;
-        const color =
-          opt === "Purchase" ? "#00e5b0" : opt === "Sale" ? "#ff4d6d" : "#e8edf5";
         return (
           <button
             key={opt}
             type="button"
             onClick={() => onChange(opt)}
             className={cn(
-              "h-8 px-3 rounded-sm font-mono font-bold uppercase transition-colors duration-150",
+              "px-4 py-1.5 rounded font-mono text-[11px] tracking-wider uppercase border transition-all duration-150",
               active
-                ? "bg-[#0c1018] border border-[#1a2030]"
-                : "border border-transparent text-[#5a6580] hover:text-[#e8edf5]"
+                ? opt === "all"
+                  ? "bg-[#111520] border-[#2a3350] text-[#e8edf5]"
+                  : opt === "Purchase"
+                    ? "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88]"
+                    : "bg-[#ff3b5c]/10 border-[#ff3b5c]/20 text-[#ff3b5c]"
+                : "border-[#1c2235] bg-transparent text-[#4a5568] hover:text-[#e8edf5] hover:border-[#2a3350]"
             )}
-            style={{
-              fontSize: "10px",
-              letterSpacing: "0.22em",
-              color: active ? color : undefined,
-            }}
           >
             {opt === "all" ? "All" : opt}
           </button>
@@ -230,64 +233,44 @@ function TypeFilter({
 
 function SourcePill({
   source,
-  fetchedAt,
 }: {
   source: CongressionalTradesResponse["source"];
-  fetchedAt?: string;
 }) {
   if (source === "empty") return null;
 
-  const dotColor = source === "live" ? "#00e5b0" : "#f0c040";
-  const label =
-    source === "live"
-      ? "Live"
-      : fetchedAt
-        ? `Cached as of ${formatDate(fetchedAt)}`
-        : "Cached";
+  const dotColor = source === "live" ? "#00ff88" : "#f59e0b";
+  const label = source === "live" ? "LIVE" : "CACHED";
 
   return (
-    <div
-      className="flex items-center gap-2 self-start sm:self-auto"
-      role="status"
-      aria-label={label}
-    >
+    <div className="flex items-center gap-2 self-start sm:self-auto" role="status" aria-label={label}>
       <span
-        className="h-2 w-2 shrink-0 rounded-full"
-        style={{
-          backgroundColor: dotColor,
-          boxShadow: `0 0 10px ${dotColor}`,
-        }}
+        className={cn("h-2 w-2 shrink-0 rounded-full", source === "live" && "animate-pulse")}
+        style={{ backgroundColor: dotColor }}
       />
-      <span
-        className="font-mono uppercase"
-        style={{ fontSize: "10px", letterSpacing: "0.24em", color: dotColor }}
-      >
+      <span className="font-mono text-[9px] tracking-widest uppercase" style={{ color: dotColor }}>
         {label}
       </span>
     </div>
   );
 }
 
-function PartyDot({ party }: { party: string | null }) {
+function PartyBadge({ party }: { party: string | null }) {
   if (party === "D") {
     return (
-      <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#a0afc0]">
-        <span className="h-2 w-2 rounded-full bg-[#0066ff] shadow-[0_0_8px_rgba(0,102,255,0.5)]" />
-        D
+      <span className="inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border bg-[#0ea5e9]/10 text-[#0ea5e9] border-[#0ea5e9]/20 uppercase">
+        DEM
       </span>
     );
   }
   if (party === "R") {
     return (
-      <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#a0afc0]">
-        <span className="h-2 w-2 rounded-full bg-[#ff4d6d] shadow-[0_0_8px_rgba(255,77,109,0.5)]" />
-        R
+      <span className="inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border bg-[#ff3b5c]/10 text-[#ff3b5c] border-[#ff3b5c]/20 uppercase">
+        REP
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#a0afc0]">
-      <span className="h-2 w-2 rounded-full bg-[#5a6580]" />
+    <span className="inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border bg-[#1c2235] text-[#4a5568] border-[#1c2235] uppercase">
       {party || "—"}
     </span>
   );
@@ -295,19 +278,14 @@ function PartyDot({ party }: { party: string | null }) {
 
 function TypePill({ type }: { type: string }) {
   const isPurchase = type === "Purchase";
-  const color = isPurchase ? "#00e5b0" : "#ff4d6d";
-  const bg = isPurchase ? "rgba(0,229,176,0.1)" : "rgba(255,77,109,0.1)";
   return (
     <span
-      className="inline-flex items-center font-mono font-bold uppercase"
-      style={{
-        fontSize: "9px",
-        letterSpacing: "0.22em",
-        padding: "3px 8px",
-        borderRadius: "3px",
-        backgroundColor: bg,
-        color,
-      }}
+      className={cn(
+        "inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border uppercase",
+        isPurchase
+          ? "bg-[#00ff88]/10 text-[#00ff88] border-[#00ff88]/20"
+          : "bg-[#ff3b5c]/10 text-[#ff3b5c] border-[#ff3b5c]/20"
+      )}
     >
       {type}
     </span>
@@ -325,15 +303,15 @@ function DesktopRow({
   return (
     <tr
       className={cn(
-        "border-b border-[#1a2030]/60 last:border-b-0 transition-colors",
-        zebra ? "bg-[#0c1018]" : "bg-transparent",
-        "hover:bg-[#0f1420]"
+        "border-b border-[#1c2235]/50 last:border-b-0 transition-colors duration-100",
+        zebra ? "bg-[#0c0f17]" : "bg-transparent",
+        "hover:bg-[#111520]"
       )}
     >
-      <Td className="text-[#5a6580]">{date ? formatDate(date) : "—"}</Td>
-      <Td className="text-[#e8edf5]">{row.member_name}</Td>
+      <Td className="text-[#4a5568]">{date ? formatDate(date) : "—"}</Td>
+      <Td className="text-[#e8edf5] font-body text-[13px] font-medium">{row.member_name}</Td>
       <Td>
-        <PartyDot party={row.party} />
+        <PartyBadge party={row.party} />
       </Td>
       <Td className="text-[#e8edf5] font-semibold tracking-[0.02em]">
         {row.ticker}
@@ -341,7 +319,8 @@ function DesktopRow({
       <Td>
         <TypePill type={row.trade_type} />
       </Td>
-      <Td className="text-[#8892a4]">{row.amount_range || "—"}</Td>
+      <Td className="text-[#f59e0b]">{row.amount_range || "—"}</Td>
+      <Td className="text-[#4a5568] text-[11px]">{row.state || "—"}</Td>
     </tr>
   );
 }
@@ -355,13 +334,13 @@ function MobileRow({ row }: { row: CongressionalTrade }) {
           <div className="font-mono text-[16px] font-bold text-[#e8edf5] tracking-[0.02em]">
             {row.ticker}
           </div>
-          <div className="mt-1 text-[13px] text-[#e8edf5] font-sans truncate">
+          <div className="mt-1 text-[13px] text-[#e8edf5] font-body truncate">
             {row.member_name}
           </div>
         </div>
         <TypePill type={row.trade_type} />
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-2 font-mono uppercase text-[9px] tracking-[0.22em] text-[#5a6580]">
+      <div className="mt-3 grid grid-cols-3 gap-2 font-mono uppercase text-[9px] tracking-[0.22em] text-[#4a5568]">
         <span>
           <span className="block text-[#3a4560]">Date</span>
           <span className="mt-0.5 block text-[#8892a4]">
@@ -371,12 +350,12 @@ function MobileRow({ row }: { row: CongressionalTrade }) {
         <span>
           <span className="block text-[#3a4560]">Party</span>
           <span className="mt-0.5 block">
-            <PartyDot party={row.party} />
+            <PartyBadge party={row.party} />
           </span>
         </span>
         <span>
           <span className="block text-[#3a4560]">Amount</span>
-          <span className="mt-0.5 block text-[#8892a4] normal-case tracking-normal">
+          <span className="mt-0.5 block text-[#f59e0b] normal-case tracking-normal">
             {row.amount_range || "—"}
           </span>
         </span>
@@ -401,7 +380,7 @@ function Pagination({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div
-        className="font-mono uppercase text-[#5a6580]"
+      className="font-mono uppercase text-[#4a5568]"
         style={{ fontSize: "10px", letterSpacing: "0.24em" }}
       >
         Showing {start}–{end} of {totalRows}
@@ -443,7 +422,7 @@ function PageButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "h-8 px-3 rounded-sm border border-[#1a2030] bg-[#080b11]",
+        "h-8 px-3 rounded border border-[#1c2235] bg-[#080a0f]",
         "font-mono font-bold uppercase text-[#8892a4]",
         "transition-colors duration-150",
         "hover:text-[#e8edf5] hover:border-[#2a3050]",
@@ -459,13 +438,13 @@ function PageButton({
 function EmptyState({ message }: { message: string }) {
   return (
     <div
-      className="rounded-sm border border-[#1a2030] bg-[#0c1018] p-10 sm:p-14 text-center"
+      className="rounded-xl border border-[#1c2235] bg-[#0c0f17] p-10 sm:p-14 text-center"
     >
-      <div className="mx-auto mb-4 grid h-10 w-10 place-items-center rounded-full bg-[#080b11] border border-[#1a2030]">
+      <div className="mx-auto mb-4 grid h-10 w-10 place-items-center rounded-full bg-[#080a0f] border border-[#1c2235]">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
           <path
             d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 11h6M9 15h6"
-            stroke="#5a6580"
+            stroke="#4a5568"
             strokeWidth="1.6"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -473,7 +452,7 @@ function EmptyState({ message }: { message: string }) {
         </svg>
       </div>
       <p
-        className="font-mono uppercase text-[#5a6580] max-w-md mx-auto leading-relaxed"
+        className="font-mono uppercase text-[#4a5568] max-w-md mx-auto leading-relaxed"
         style={{ fontSize: "11px", letterSpacing: "0.24em" }}
       >
         {message}
@@ -489,11 +468,11 @@ function TableSkeleton() {
         <div className="skeleton h-10 w-full sm:w-[260px] rounded-sm" />
         <div className="skeleton h-10 w-[180px] hidden sm:block rounded-sm" />
       </div>
-      <div className="rounded-sm border border-[#1a2030] bg-[#0c1018] overflow-hidden">
-        <div className="bg-[#080b11] border-b border-[#1a2030] px-5 py-3">
+      <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] overflow-hidden">
+        <div className="bg-[#080a0f] border-b border-[#1c2235] px-5 py-3">
           <div className="skeleton h-3 w-32 rounded-sm" />
         </div>
-        <div className="divide-y divide-[#1a2030]/60">
+        <div className="divide-y divide-[#1c2235]/60">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="flex items-center gap-4 px-5 py-4">
               <div className="skeleton h-3 w-16 rounded-sm" />
@@ -509,28 +488,12 @@ function TableSkeleton() {
   );
 }
 
-function SearchIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M20 20l-3.5-3.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function Th({ children }: { children: React.ReactNode }) {
   return (
     <th
-      className="font-mono uppercase font-medium px-3 lg:px-4 py-3.5 first:pl-5 lg:first:pl-6 last:pr-5 lg:last:pr-6 text-left"
+      className="font-mono text-[9px] tracking-[0.2em] text-[#4a5568] uppercase font-medium px-4 py-3 text-left"
       style={{
         fontSize: "9px",
-        letterSpacing: "0.32em",
-        color: "#5a6580",
       }}
     >
       {children}
@@ -548,8 +511,8 @@ function Td({
   return (
     <td
       className={cn(
-        "px-3 lg:px-4 py-3.5 first:pl-5 lg:first:pl-6 last:pr-5 lg:last:pr-6",
-        "font-mono text-[13px]",
+        "px-4 py-3",
+        "font-mono text-[12px] text-[#8892a4]",
         className
       )}
     >
