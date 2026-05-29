@@ -116,7 +116,7 @@ const plans: Array<{
     bg: "linear-gradient(180deg, rgba(0,229,176,0.06) 0%, #0c1018 55%)",
     glow: "0 0 40px rgba(0,229,176,0.18), 0 0 0 1px rgba(0,229,176,0.25)",
     cta: "green",
-    orderClass: "order-first lg:order-2",
+    orderClass: "lg:order-2",
     scaleClass: "lg:scale-[1.04] lg:-my-2",
   },
   {
