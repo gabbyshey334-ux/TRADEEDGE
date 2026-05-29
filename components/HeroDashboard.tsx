@@ -104,8 +104,8 @@ export function HeroDashboard() {
   }, []);
 
   return (
-    <div className="hero-dashboard-wrap mx-auto mt-10 w-full max-w-full overflow-hidden rounded-xl px-0 sm:mt-16 md:max-w-6xl">
-      <div className="hero-dashboard rounded-[22px] border border-[#1a2030] bg-[#0c1018] shadow-[0_60px_140px_-60px_rgba(0,0,0,0.95)]">
+    <div className="hero-dashboard-wrap mx-auto mt-10 w-full max-w-full overflow-hidden px-0 sm:mt-16">
+      <div className="hero-dashboard w-full max-w-full overflow-hidden rounded-xl border border-[#1a2030] bg-[#0c1018] shadow-[0_60px_140px_-60px_rgba(0,0,0,0.95)]">
         <div className="flex items-center gap-3 border-b border-[#1a2030] px-4 py-3">
           <div className="flex gap-1.5" aria-hidden="true">
             <span className="h-3 w-3 rounded-full bg-[#ff4d6d]" />

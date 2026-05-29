@@ -44,7 +44,7 @@ export function FaqAccordion() {
               aria-expanded={open}
               onClick={() => setOpenIndex(open ? -1 : index)}
             >
-              <span className="font-body text-[15px] sm:text-base font-medium text-[#e8edf5]">
+              <span className="min-w-0 flex-1 font-body text-[15px] font-medium text-[#e8edf5] sm:text-base">
                 {item.q}
               </span>
               <span
