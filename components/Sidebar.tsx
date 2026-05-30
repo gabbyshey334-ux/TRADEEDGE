@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { CreditCard, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { signOutClient } from "@/lib/auth/client";
 import { createCheckoutSession } from "@/lib/actions/billing";
 import {
@@ -44,7 +44,6 @@ const NAV = [
     icon: PropFirmIcon,
     proBadge: true,
   },
-  { href: "/dashboard/billing", label: "Billing", icon: BillingIcon },
 ] as const;
 
 function initialsFor(name: string): string {
@@ -375,6 +374,23 @@ export function Sidebar({
           </div>
         )}
 
+        <Link
+          href="/dashboard/billing"
+          title={open ? undefined : "Billing"}
+          onClick={handleNavClick}
+          className={cn(
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px]",
+            "font-body transition-all duration-150",
+            !open && "justify-center px-0 w-10 mx-auto",
+            pathname === "/dashboard/billing"
+              ? "bg-[#111520] text-[#e8edf5] border-l-2 border-[#00ff88] shadow-[inset_2px_0_8px_rgba(0,255,136,0.08)]"
+              : "text-[#8892a4] hover:bg-[#111520] hover:text-[#e8edf5]"
+          )}
+        >
+          <CreditCard className="w-4 h-4 shrink-0" strokeWidth={1.75} />
+          {open && <span>Billing</span>}
+        </Link>
+
         <button
           type="button"
           disabled={pending}
@@ -534,20 +550,6 @@ function CongressIcon({ active }: { active: boolean }) {
       />
       <path
         d="M9 11h6M9 15h6"
-        stroke={c}
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-function BillingIcon({ active }: { active: boolean }) {
-  const c = active ? "#00ff88" : "#8892a4";
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="3" y="6" width="18" height="14" rx="2" stroke={c} strokeWidth="1.6" />
-      <path
-        d="M3 10h18M7 15h4"
         stroke={c}
         strokeWidth="1.6"
         strokeLinecap="round"

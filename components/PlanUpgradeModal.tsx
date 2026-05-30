@@ -183,7 +183,7 @@ export function PlanUpgradeModal({
 
           <p className="text-center mt-3">
             <Link
-              href="/#pricing"
+              href="/dashboard/billing"
               className="font-mono text-[10px] text-[#4a5568] tracking-[0.05em] hover:text-[#8892a4] transition-all duration-200"
             >
               Compare all plans
