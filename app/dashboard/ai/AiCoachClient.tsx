@@ -3,7 +3,9 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { EliteBadge } from "@/components/EliteBadge";
 import { PageHeader } from "@/components/PageHeader";
+import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
 import { createCheckoutSession } from "@/lib/actions/billing";
 import {
   handleBillingActionResult,
@@ -75,6 +77,7 @@ export function AiCoachClient({
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
   const [upgrading, setUpgrading] = useState(false);
   const [reportAt, setReportAt] = useState<Date | null>(null);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const isLocked = plan === "starter";
   const reachedLimit = monthlyLimit !== null && reportsThisMonth >= monthlyLimit;
@@ -228,28 +231,35 @@ export function AiCoachClient({
             )}
           </div>
 
-          <p
-            className={cn(
-              "mt-2 font-mono text-[11px] text-[#4a5568] uppercase tracking-[0.08em]",
-              reachedLimit && plan === "pro" && "text-[#ff3b5c]"
-            )}
-          >
+          <p className="mt-2 font-mono text-[11px] text-[#4a5568] uppercase tracking-[0.08em]">
             {usageLabel(plan, reportsThisMonth, monthlyLimit)}
           </p>
 
           {!isLocked && plan === "pro" && reachedLimit && (
-            <button
-              type="button"
-              onClick={() => startUpgrade("elite")}
-              disabled={upgrading}
-              className={cn(
-                "mt-3 h-8 px-3 rounded-lg font-mono font-bold uppercase text-[#080a0f] text-[10px] tracking-[0.22em]",
-                "bg-gradient-to-r from-[#a78bfa] to-[#f59e0b] transition-all duration-200",
-                "active:scale-[0.98] disabled:opacity-60"
-              )}
-            >
-              {upgrading ? "…" : "Upgrade to Elite"}
-            </button>
+            <div className="w-full bg-[#f59e0b]/[0.04] border border-[#f59e0b]/20 rounded-xl p-5 mt-4">
+              <div className="flex items-center gap-2">
+                <EliteBadge />
+                <span className="font-mono text-[11px] text-[#f59e0b] tracking-[0.05em]">
+                  MONTHLY LIMIT REACHED
+                </span>
+              </div>
+              <p className="font-body text-[13px] text-[#8892a4] mt-2">
+                You&apos;ve used all 10 Pro reports this month. Upgrade to Elite
+                for unlimited AI coaching.
+              </p>
+              <button
+                type="button"
+                onClick={() => setUpgradeModalOpen(true)}
+                className={cn(
+                  "mt-4 w-full sm:w-auto px-6 py-3 rounded-lg font-mono font-bold text-[12px] tracking-[0.1em] uppercase",
+                  "bg-[#f59e0b] text-[#080a0f] hover:bg-[#f59e0b]/90",
+                  "hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] transition-all duration-200",
+                  "active:scale-[0.98]"
+                )}
+              >
+                ★ UPGRADE TO ELITE
+              </button>
+            </div>
           )}
 
           {tradeCount === 0 && (
@@ -326,6 +336,15 @@ export function AiCoachClient({
           </div>
         </div>
       </div>
+
+      <PlanUpgradeModal
+        open={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        currentPlan={plan}
+        targetPlan="elite"
+        featureName="Unlimited AI Reports"
+        featureDescription="Generate as many coaching reports as you need, every month, with no limits."
+      />
     </div>
   );
 }

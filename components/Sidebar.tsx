@@ -5,14 +5,12 @@ import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { signOutClient } from "@/lib/auth/client";
-import {
-  createCheckoutSession,
-  createPortalSession,
-} from "@/lib/actions/billing";
+import { createCheckoutSession } from "@/lib/actions/billing";
 import {
   handleBillingActionResult,
   PAYMENT_COMING_SOON_MESSAGE,
 } from "@/lib/billing-client";
+import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
 import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/types";
 
@@ -46,6 +44,7 @@ const NAV = [
     icon: PropFirmIcon,
     proBadge: true,
   },
+  { href: "/dashboard/billing", label: "Billing", icon: BillingIcon },
 ] as const;
 
 function initialsFor(name: string): string {
@@ -87,11 +86,20 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
-  const [billingPending, setBillingPending] = useState<"checkout" | "portal" | null>(
-    null
-  );
+  const [billingPending, setBillingPending] = useState<"checkout" | null>(null);
   const [billingError, setBillingError] = useState<string | null>(null);
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
+  const [upgradeModal, setUpgradeModal] = useState<{
+    open: boolean;
+    targetPlan: "pro" | "elite";
+    featureName: string;
+    featureDescription: string;
+  }>({
+    open: false,
+    targetPlan: "pro",
+    featureName: "",
+    featureDescription: "",
+  });
 
   const initials = initialsFor(user.name || user.email || "Trader");
   const pill = PLAN_PILL[user.plan];
@@ -119,27 +127,24 @@ export function Sidebar({
     if (!result.ok) setBillingPending(null);
   }
 
-  async function handleBilling() {
-    setBillingError(null);
-    setPaymentNotice(null);
-    setBillingPending("portal");
-    try {
-      const result = await createPortalSession();
-      handleBillingActionResult(result, {
-        onSuccess: (url) => {
-          setBillingPending(null);
-          window.location.href = url;
-        },
-        onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
-        onManualPlan: () => setPaymentNotice(MANUAL_BILLING_NOTICE),
-        onError: (msg) =>
-          setBillingError(msg || "Failed to open billing portal."),
-      });
-      if (!result.ok) setBillingPending(null);
-    } catch {
-      setBillingError("Failed to open billing portal. Please try again.");
-      setBillingPending(null);
-    }
+  function openProUpgradeModal() {
+    setUpgradeModal({
+      open: true,
+      targetPlan: "pro",
+      featureName: "Unlock Pro Features",
+      featureDescription:
+        "Get unlimited trades, AI coaching, Congressional Trades, and Prop Firm Tracker.",
+    });
+  }
+
+  function openEliteUpgradeModal() {
+    setUpgradeModal({
+      open: true,
+      targetPlan: "elite",
+      featureName: "Unlock Elite Features",
+      featureDescription:
+        "Get unlimited AI reports plus exclusive Elite-only intelligence tools.",
+    });
   }
 
   return (
@@ -291,12 +296,35 @@ export function Sidebar({
                 {user.email}
               </div>
               <div className="mt-1.5">
-                <span
-                  className={cn("inline-flex items-center", pill.className)}
-                  style={pill.style}
-                >
-                  {pill.label}
-                </span>
+                {user.plan === "elite" ? (
+                  <span
+                    className={cn("inline-flex items-center", pill.className)}
+                    style={pill.style}
+                    title="✓ MAX PLAN"
+                  >
+                    {pill.label}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={
+                      user.plan === "starter"
+                        ? openProUpgradeModal
+                        : openEliteUpgradeModal
+                    }
+                    className={cn(
+                      "inline-flex items-center border-0 bg-transparent p-0 cursor-pointer",
+                      pill.className,
+                      user.plan === "starter" &&
+                        "hover:border-[#00ff88]/40 transition-colors duration-150",
+                      user.plan === "pro" &&
+                        "hover:border-[#f59e0b]/40 transition-colors duration-150"
+                    )}
+                    style={pill.style}
+                  >
+                    {pill.label}
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -317,24 +345,6 @@ export function Sidebar({
             style={{ fontSize: "10px", letterSpacing: "0.22em" }}
           >
             {billingPending === "checkout" ? "Loading…" : "Upgrade to Pro →"}
-          </button>
-        )}
-
-        {expanded && (user.plan === "pro" || user.plan === "elite") && (
-          <button
-            type="button"
-            onClick={handleBilling}
-            disabled={billingPending !== null}
-            className={cn(
-              "mt-4 w-full h-10 rounded-lg border border-[#1c2235]",
-              "font-mono font-bold uppercase text-[#8892a4]",
-              "transition-all duration-150",
-              "hover:text-[#00ff88] hover:border-[#00ff88]/40 hover:bg-[#00ff88]/[0.04]",
-              "active:scale-[0.98] disabled:opacity-60"
-            )}
-            style={{ fontSize: "10px", letterSpacing: "0.22em" }}
-          >
-            {billingPending === "portal" ? "Loading…" : "Billing"}
           </button>
         )}
 
@@ -414,6 +424,15 @@ export function Sidebar({
           </div>
         )}
       </div>
+
+      <PlanUpgradeModal
+        open={upgradeModal.open}
+        onClose={() => setUpgradeModal((m) => ({ ...m, open: false }))}
+        currentPlan={user.plan}
+        targetPlan={upgradeModal.targetPlan}
+        featureName={upgradeModal.featureName}
+        featureDescription={upgradeModal.featureDescription}
+      />
     </aside>
   );
 }
@@ -515,6 +534,20 @@ function CongressIcon({ active }: { active: boolean }) {
       />
       <path
         d="M9 11h6M9 15h6"
+        stroke={c}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function BillingIcon({ active }: { active: boolean }) {
+  const c = active ? "#00ff88" : "#8892a4";
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="3" y="6" width="18" height="14" rx="2" stroke={c} strokeWidth="1.6" />
+      <path
+        d="M3 10h18M7 15h4"
         stroke={c}
         strokeWidth="1.6"
         strokeLinecap="round"
