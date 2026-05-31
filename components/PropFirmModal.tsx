@@ -13,6 +13,108 @@ import {
   type PropFirmAccount,
 } from "@/lib/prop-firms";
 
+const PROP_FIRM_DATA = {
+  FTMO: {
+    challenges: [
+      "10K Challenge",
+      "25K Challenge",
+      "50K Challenge",
+      "100K Challenge",
+    ],
+    accountSizes: {
+      "10K Challenge": 10000,
+      "25K Challenge": 25000,
+      "50K Challenge": 50000,
+      "100K Challenge": 100000,
+    },
+    rules: {
+      profit_target: 10,
+      daily_drawdown: 5,
+      max_drawdown: 10,
+      min_trading_days: 10,
+    },
+  },
+  "Apex Trader Funding": {
+    challenges: [
+      "25K Full",
+      "50K Full",
+      "100K Full",
+      "150K Full",
+    ],
+    accountSizes: {
+      "25K Full": 25000,
+      "50K Full": 50000,
+      "100K Full": 100000,
+      "150K Full": 150000,
+    },
+    rules: {
+      profit_target: 6,
+      daily_drawdown: 3,
+      max_drawdown: 6,
+      min_trading_days: 0,
+    },
+  },
+  TopStep: {
+    challenges: [
+      "50K Express",
+      "100K Express",
+      "150K Express",
+    ],
+    accountSizes: {
+      "50K Express": 50000,
+      "100K Express": 100000,
+      "150K Express": 150000,
+    },
+    rules: {
+      profit_target: 6,
+      daily_drawdown: 2,
+      max_drawdown: 4,
+      min_trading_days: 0,
+    },
+  },
+  "The Funded Trader": {
+    challenges: [
+      "25K Standard",
+      "50K Standard",
+      "100K Standard",
+      "200K Standard",
+    ],
+    accountSizes: {
+      "25K Standard": 25000,
+      "50K Standard": 50000,
+      "100K Standard": 100000,
+      "200K Standard": 200000,
+    },
+    rules: {
+      profit_target: 10,
+      daily_drawdown: 5,
+      max_drawdown: 10,
+      min_trading_days: 5,
+    },
+  },
+  "E8 Funding": {
+    challenges: [
+      "25K E8",
+      "50K E8",
+      "100K E8",
+    ],
+    accountSizes: {
+      "25K E8": 25000,
+      "50K E8": 50000,
+      "100K E8": 100000,
+    },
+    rules: {
+      profit_target: 8,
+      daily_drawdown: 5,
+      max_drawdown: 8,
+      min_trading_days: 0,
+    },
+  },
+} as const;
+
+type FirmName = keyof typeof PROP_FIRM_DATA;
+const FIRM_NAMES = Object.keys(PROP_FIRM_DATA) as FirmName[];
+
 interface PropFirmModalProps {
   account: PropFirmAccount | null;
   onClose: () => void;
@@ -23,6 +125,8 @@ interface PropFirmModalProps {
 }
 
 interface FormState {
+  selected_firm: FirmName | "";
+  selected_challenge: string;
   firm_name: string;
   account_size: string;
   challenge_phase: ChallengePhase;
@@ -36,6 +140,8 @@ interface FormState {
 
 function emptyState(): FormState {
   return {
+    selected_firm: "",
+    selected_challenge: "",
     firm_name: "",
     account_size: "",
     challenge_phase: "Evaluation",
@@ -49,16 +155,32 @@ function emptyState(): FormState {
 }
 
 function fromAccount(a: PropFirmAccount): FormState {
+  let selectedChallenge = "";
+  let userNotes = a.notes ?? "";
+
+  if (a.notes?.startsWith("challenge:")) {
+    const parts = a.notes.replace("challenge:", "").split("|");
+    selectedChallenge = parts[0]?.trim() ?? "";
+    userNotes = parts.slice(1).join("|").trim();
+  }
+
+  const firmName = FIRM_NAMES.includes(a.firm_name as FirmName)
+    ? (a.firm_name as FirmName)
+    : "";
+
   return {
+    selected_firm: firmName,
+    selected_challenge: selectedChallenge,
     firm_name: a.firm_name,
     account_size: String(a.account_size ?? ""),
     challenge_phase: a.challenge_phase,
     profit_target: a.profit_target != null ? String(a.profit_target) : "",
     max_drawdown: a.max_drawdown != null ? String(a.max_drawdown) : "",
     daily_drawdown: a.daily_drawdown != null ? String(a.daily_drawdown) : "",
-    current_balance: a.current_balance != null ? String(a.current_balance) : "",
+    current_balance:
+      a.current_balance != null ? String(a.current_balance) : "",
     start_date: a.start_date ? a.start_date.slice(0, 10) : "",
-    notes: a.notes ?? "",
+    notes: userNotes,
   };
 }
 
@@ -90,12 +212,56 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  function handleFirmChange(firm: FirmName | "") {
+    if (!firm) {
+      setForm((f) => ({
+        ...f,
+        selected_firm: "",
+        selected_challenge: "",
+        account_size: "",
+        profit_target: "",
+        max_drawdown: "",
+        daily_drawdown: "",
+      }));
+      return;
+    }
+    setForm((f) => ({
+      ...f,
+      selected_firm: firm,
+      selected_challenge: "",
+      account_size: "",
+      profit_target: "",
+      max_drawdown: "",
+      daily_drawdown: "",
+    }));
+  }
+
+  function handleChallengeChange(challenge: string) {
+    if (!challenge || !form.selected_firm) return;
+    const firm = PROP_FIRM_DATA[form.selected_firm];
+    const rules = firm.rules;
+    const size =
+      firm.accountSizes[challenge as keyof typeof firm.accountSizes];
+    setForm((f) => ({
+      ...f,
+      selected_challenge: challenge,
+      account_size: String(size ?? ""),
+      profit_target: String(rules.profit_target),
+      max_drawdown: String(rules.max_drawdown),
+      daily_drawdown: String(rules.daily_drawdown),
+    }));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (!form.firm_name.trim()) {
-      setError("Firm name is required.");
+    if (!form.selected_firm) {
+      setError("Please select a prop firm.");
+      return;
+    }
+    if (!form.selected_challenge) {
+      setError("Please select a challenge type.");
       return;
     }
 
@@ -112,7 +278,7 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
     };
 
     const payload: NewPropFirmAccount = {
-      firm_name: form.firm_name.trim(),
+      firm_name: form.selected_firm,
       account_size: accountSize,
       challenge_phase: form.challenge_phase,
       profit_target: numOrNull(form.profit_target),
@@ -120,7 +286,11 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
       daily_drawdown: numOrNull(form.daily_drawdown),
       current_balance: numOrNull(form.current_balance),
       start_date: form.start_date || null,
-      notes: form.notes.trim() || null,
+      notes: form.selected_challenge
+        ? `challenge:${form.selected_challenge}${
+            form.notes.trim() ? `|${form.notes.trim()}` : ""
+          }`
+        : form.notes.trim() || null,
     };
 
     setSaving(true);
@@ -191,27 +361,132 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
           <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 space-y-6 sm:space-y-8">
             <section className="space-y-4">
               <FormSectionLabel accent="#00e5b0">Account</FormSectionLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-4">
-                <Input
-                  label="Firm Name"
-                  name="firm_name"
-                  placeholder="FTMO · Topstep · MFF"
-                  value={form.firm_name}
-                  onChange={(e) => update("firm_name", e.target.value)}
+              <div className="flex flex-col gap-1.5">
+                <label className="font-mono text-[10px] tracking-[0.18em] text-[#5a6580] uppercase">
+                  Firm Name
+                </label>
+                <select
+                  value={form.selected_firm}
+                  onChange={(e) =>
+                    handleFirmChange(e.target.value as FirmName | "")
+                  }
                   required
-                />
-                <Input
-                  label="Account Size"
-                  name="account_size"
-                  type="number"
-                  step="100"
-                  placeholder="50000"
-                  prefix="$"
-                  value={form.account_size}
-                  onChange={(e) => update("account_size", e.target.value)}
-                  required
-                />
+                  className="w-full rounded-lg bg-[#080b11] border border-[#1a2030] px-4 py-3 font-mono text-[13px] text-[#e8edf5] focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20 transition-colors duration-150 appearance-none cursor-pointer"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 16px center",
+                    paddingRight: "40px",
+                  }}
+                >
+                  <option value="" disabled className="text-[#4a5568]">
+                    Select a prop firm...
+                  </option>
+                  {FIRM_NAMES.map((firm) => (
+                    <option key={firm} value={firm} className="bg-[#0c0f17]">
+                      {firm}
+                    </option>
+                  ))}
+                </select>
               </div>
+
+              {form.selected_firm && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-mono text-[10px] tracking-[0.18em] text-[#5a6580] uppercase">
+                    Challenge Type
+                  </label>
+                  <select
+                    value={form.selected_challenge}
+                    onChange={(e) => handleChallengeChange(e.target.value)}
+                    required
+                    className="w-full rounded-lg bg-[#080b11] border border-[#1a2030] px-4 py-3 font-mono text-[13px] text-[#e8edf5] focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20 transition-colors duration-150 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 16px center",
+                      paddingRight: "40px",
+                    }}
+                  >
+                    <option value="" disabled className="text-[#4a5568]">
+                      Select a challenge...
+                    </option>
+                    {PROP_FIRM_DATA[form.selected_firm].challenges.map(
+                      (ch) => (
+                        <option key={ch} value={ch} className="bg-[#0c0f17]">
+                          {ch}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
+              )}
+
+              {form.selected_firm && form.selected_challenge && (
+                <div className="rounded-xl border border-[#00ff88]/20 bg-[#00ff88]/[0.03] px-5 py-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse" />
+                    <span className="font-mono text-[9px] tracking-[0.2em] text-[#00ff88] uppercase">
+                      Auto-populated challenge rules
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="rounded-lg border border-[#1c2235] bg-[#080a0f] px-3 py-3">
+                      <div className="font-mono text-[9px] tracking-widest text-[#4a5568] uppercase mb-1">
+                        Profit Target
+                      </div>
+                      <div className="font-mono text-[15px] font-bold text-[#00ff88]">
+                        {form.profit_target}%
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border border-[#1c2235] bg-[#080a0f] px-3 py-3">
+                      <div className="font-mono text-[9px] tracking-widest text-[#4a5568] uppercase mb-1">
+                        Daily Loss Limit
+                      </div>
+                      <div className="font-mono text-[15px] font-bold text-[#ff3b5c]">
+                        {form.daily_drawdown}%
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border border-[#1c2235] bg-[#080a0f] px-3 py-3">
+                      <div className="font-mono text-[9px] tracking-widest text-[#4a5568] uppercase mb-1">
+                        Max Drawdown
+                      </div>
+                      <div className="font-mono text-[15px] font-bold text-[#f59e0b]">
+                        {form.max_drawdown}%
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border border-[#1c2235] bg-[#080a0f] px-3 py-3">
+                      <div className="font-mono text-[9px] tracking-widest text-[#4a5568] uppercase mb-1">
+                        Min Trading Days
+                      </div>
+                      <div className="font-mono text-[15px] font-bold text-[#e8edf5]">
+                        {PROP_FIRM_DATA[form.selected_firm].rules
+                          .min_trading_days === 0
+                          ? "None"
+                          : `${PROP_FIRM_DATA[form.selected_firm].rules.min_trading_days} days`}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-1 border-t border-[#1c2235] flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-[#4a5568] tracking-wider uppercase">
+                      Account Size
+                    </span>
+                    <span className="font-mono text-[13px] font-bold text-[#e8edf5]">
+                      ${Number(form.account_size).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <p className="font-mono text-[9px] text-[#4a5568] tracking-[0.1em]">
+                    These rules are set by {form.selected_firm} and cannot be
+                    modified.
+                  </p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Select
                   label="Challenge Phase"
@@ -231,42 +506,6 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
                   type="date"
                   value={form.start_date}
                   onChange={(e) => update("start_date", e.target.value)}
-                />
-              </div>
-            </section>
-
-            <section className="space-y-4">
-              <FormSectionLabel accent="#f0c040">Risk Rules</FormSectionLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Input
-                  label="Profit Target"
-                  name="profit_target"
-                  type="number"
-                  step="0.1"
-                  placeholder="10"
-                  suffix="%"
-                  value={form.profit_target}
-                  onChange={(e) => update("profit_target", e.target.value)}
-                />
-                <Input
-                  label="Max Drawdown"
-                  name="max_drawdown"
-                  type="number"
-                  step="0.1"
-                  placeholder="10"
-                  suffix="%"
-                  value={form.max_drawdown}
-                  onChange={(e) => update("max_drawdown", e.target.value)}
-                />
-                <Input
-                  label="Daily Drawdown"
-                  name="daily_drawdown"
-                  type="number"
-                  step="0.1"
-                  placeholder="5"
-                  suffix="%"
-                  value={form.daily_drawdown}
-                  onChange={(e) => update("daily_drawdown", e.target.value)}
                 />
               </div>
             </section>
@@ -301,7 +540,7 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
                   rows={3}
                   value={form.notes}
                   onChange={(e) => update("notes", e.target.value)}
-                  placeholder="Payout schedule, scaling plan, broker, etc."
+                  placeholder="Payout schedule, scaling plan, broker notes..."
                   className={cn(
                     "w-full rounded-lg bg-[#080b11] border border-[#1a2030] px-4 py-3",
                     "text-sm text-[#e8edf5] font-sans leading-relaxed placeholder:text-[#3a4560]",
