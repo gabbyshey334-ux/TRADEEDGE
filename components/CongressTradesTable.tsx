@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, TriangleAlert } from "lucide-react";
+import { normalizeTradeType } from "@/lib/congressional-trades";
 import { cn, formatDate } from "@/lib/utils";
 import type {
   CongressionalTrade,
@@ -33,7 +34,14 @@ export function CongressTradesTable() {
         });
         const json = (await res.json()) as CongressionalTradesResponse;
         if (cancelled) return;
-        setRows(Array.isArray(json.data) ? json.data : []);
+        setRows(
+          Array.isArray(json.data)
+            ? json.data.map((r) => ({
+                ...r,
+                trade_type: normalizeTradeType(r.trade_type),
+              }))
+            : []
+        );
         setMeta({
           source: json.source,
           error: json.error,
@@ -63,7 +71,9 @@ export function CongressTradesTable() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return rows.filter((r) => {
-      if (typeFilter !== "all" && r.trade_type !== typeFilter) return false;
+      if (typeFilter !== "all" && normalizeTradeType(r.trade_type) !== typeFilter) {
+        return false;
+      }
       if (!q) return true;
       return (
         r.ticker.toLowerCase().includes(q) ||
@@ -123,7 +133,12 @@ export function CongressTradesTable() {
       ) : (
         <>
           <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] overflow-hidden">
-            <div className="px-4 py-2 border-b border-[#1c2235] bg-[#080a0f] flex justify-end">
+            <div className="px-4 py-2 border-b border-[#1c2235] bg-[#080a0f] flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
+              {meta?.fetched_at && (
+                <span className="font-mono text-[9px] text-[#4a5568] tracking-wide">
+                  Refreshed {formatDate(meta.fetched_at)}
+                </span>
+              )}
               <SourcePill source={meta?.source ?? "empty"} />
             </div>
             {/* Mobile card list */}
@@ -254,14 +269,15 @@ function SourcePill({
 }
 
 function PartyBadge({ party }: { party: string | null }) {
-  if (party === "D") {
+  const p = party === "N/A" ? null : party;
+  if (p === "D") {
     return (
       <span className="inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border bg-[#0ea5e9]/10 text-[#0ea5e9] border-[#0ea5e9]/20 uppercase">
         DEM
       </span>
     );
   }
-  if (party === "R") {
+  if (p === "R") {
     return (
       <span className="inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border bg-[#ff3b5c]/10 text-[#ff3b5c] border-[#ff3b5c]/20 uppercase">
         REP
@@ -270,7 +286,7 @@ function PartyBadge({ party }: { party: string | null }) {
   }
   return (
     <span className="inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border bg-[#1c2235] text-[#4a5568] border-[#1c2235] uppercase">
-      {party || "—"}
+      {p || "—"}
     </span>
   );
 }
@@ -316,7 +332,7 @@ function DesktopRow({
         {row.ticker}
       </Td>
       <Td>
-        <TypePill type={row.trade_type} />
+        <TypePill type={normalizeTradeType(row.trade_type)} />
       </Td>
       <Td className="text-[#f59e0b]">{row.amount_range || "—"}</Td>
       <Td className="text-[#4a5568] text-[11px]">{row.state || "—"}</Td>
@@ -332,7 +348,7 @@ function MobileRow({ row }: { row: CongressionalTrade }) {
         <span className="font-body text-[13px] font-medium text-[#e8edf5] truncate">
           {row.member_name}
         </span>
-        <TypePill type={row.trade_type} />
+        <TypePill type={normalizeTradeType(row.trade_type)} />
       </div>
       <div className="mb-2 flex items-center justify-between gap-3">
         <span className="font-mono text-[13px] font-semibold text-[#e8edf5]">

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getServiceClient } from "@/lib/supabase/service";
+import {
+  dedupeTrades,
+  normalizeTradeType,
+  tradeStableId,
+} from "@/lib/congressional-trades";
 import { PLAN_LIMITS } from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
 
@@ -14,6 +19,7 @@ const CACHE_SECONDS = 60 * 60; // 1 hour
 const MAX_ROWS = 200; // cap upstream rows we keep in the table
 const LIVE_ROW_LIMIT = 100;
 const FMP_PAGE_LIMIT = 250; // max per FMP stable docs
+const FMP_MAX_PAGES = 5; // paginate to surface newest filings (per FMP how-to)
 const FMP_HOUSE_URL = "https://financialmodelingprep.com/stable/house-latest";
 const FMP_SENATE_URL = "https://financialmodelingprep.com/stable/senate-latest";
 
@@ -29,27 +35,42 @@ async function fetchFmpChamber(
   baseUrl: string,
   apiKey: string
 ): Promise<{ rows: Record<string, string>[]; error: string | null }> {
-  const url = `${baseUrl}?page=0&limit=${FMP_PAGE_LIMIT}&apikey=${encodeURIComponent(apiKey)}`;
+  const allRows: Record<string, string>[] = [];
+
   try {
-    const res = await fetch(url, { next: { revalidate: CACHE_SECONDS } });
-    const body: unknown = await res.json();
-    const errMsg = fmpErrorMessage(body);
-    if (errMsg) return { rows: [], error: errMsg };
-    if (!res.ok) return { rows: [], error: `HTTP ${res.status}` };
-    if (!Array.isArray(body)) return { rows: [], error: "Unexpected response format" };
-    return { rows: body as Record<string, string>[], error: null };
+    for (let page = 0; page < FMP_MAX_PAGES; page++) {
+      const url = `${baseUrl}?page=${page}&limit=${FMP_PAGE_LIMIT}&apikey=${encodeURIComponent(apiKey)}`;
+      const res = await fetch(url, {
+        cache: "no-store",
+        next: { revalidate: CACHE_SECONDS },
+      });
+      const body: unknown = await res.json();
+      const errMsg = fmpErrorMessage(body);
+      if (errMsg) {
+        if (page === 0) return { rows: [], error: errMsg };
+        break;
+      }
+      if (!res.ok) {
+        if (page === 0) return { rows: [], error: `HTTP ${res.status}` };
+        break;
+      }
+      if (!Array.isArray(body)) {
+        if (page === 0) return { rows: [], error: "Unexpected response format" };
+        break;
+      }
+      const rows = body as Record<string, string>[];
+      if (!rows.length) break;
+      allRows.push(...rows);
+      if (rows.length < FMP_PAGE_LIMIT) break;
+    }
+
+    return { rows: allRows, error: null };
   } catch (e) {
     return {
       rows: [],
       error: e instanceof Error ? e.message : "Request failed",
     };
   }
-}
-
-function normalizeTradeType(type: string | undefined): string {
-  const v = (type ?? "").toLowerCase();
-  if (v.includes("purchase") || v.includes("receive")) return "Purchase";
-  return "Sale";
 }
 
 function memberNameFrom(item: Record<string, string>, chamber: "House" | "Senate"): string {
@@ -75,21 +96,31 @@ function normalizeTrade(
   const memberName = memberNameFrom(item, chamber);
   const ticker = tickerFrom(item);
   const tradeDate = item.transactionDate ?? null;
+  const amountRange = item.amount ?? null;
   const tradeType = normalizeTradeType(item.type);
 
-  return {
-    id: `${ticker}-${tradeDate ?? ""}-${memberName}`.replace(/\s+/g, "-"),
+  const trade: CongressionalTrade = {
+    id: "",
     member_name: memberName,
-    party: "N/A",
+    party: null,
     state: chamber === "House" ? (item.district ?? "House") : "Senate",
     ticker,
     trade_type: tradeType,
-    amount_range: item.amount ?? null,
+    amount_range: amountRange,
     trade_date: tradeDate,
     disclosure_date: item.disclosureDate ?? null,
     description:
       (item.assetDescription ?? item.asset_description ?? "").trim() || null,
   };
+  trade.id = tradeStableId(trade);
+  return trade;
+}
+
+function normalizeCachedTrade(row: CongressionalTrade): CongressionalTrade {
+  const trade_type = normalizeTradeType(row.trade_type);
+  const trade = { ...row, trade_type, id: "" };
+  trade.id = tradeStableId(trade);
+  return trade;
 }
 
 export interface CongressionalTrade {
@@ -215,11 +246,12 @@ export async function GET() {
       throw new Error(details || "FMP API request failed");
     }
 
-    const mapped = [
-      ...houseResult.rows.map((item) => normalizeTrade(item, "House")),
-      ...senateResult.rows.map((item) => normalizeTrade(item, "Senate")),
-    ]
-      .filter((t) => t.ticker && t.trade_date)
+    const mapped = dedupeTrades(
+      [
+        ...houseResult.rows.map((item) => normalizeTrade(item, "House")),
+        ...senateResult.rows.map((item) => normalizeTrade(item, "Senate")),
+      ].filter((t) => t.ticker && t.trade_date)
+    )
       .sort(
         (a, b) =>
           new Date(b.trade_date ?? 0).getTime() - new Date(a.trade_date ?? 0).getTime()
