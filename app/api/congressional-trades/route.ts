@@ -12,6 +12,85 @@ export const dynamic = "force-dynamic";
 
 const CACHE_SECONDS = 60 * 60; // 1 hour
 const MAX_ROWS = 200; // cap upstream rows we keep in the table
+const LIVE_ROW_LIMIT = 100;
+const FMP_PAGE_LIMIT = 250; // max per FMP stable docs
+const FMP_HOUSE_URL = "https://financialmodelingprep.com/stable/house-latest";
+const FMP_SENATE_URL = "https://financialmodelingprep.com/stable/senate-latest";
+
+function fmpErrorMessage(body: unknown): string | null {
+  if (body && typeof body === "object" && "Error Message" in body) {
+    const msg = (body as { "Error Message": unknown })["Error Message"];
+    return typeof msg === "string" ? msg : null;
+  }
+  return null;
+}
+
+async function fetchFmpChamber(
+  baseUrl: string,
+  apiKey: string
+): Promise<{ rows: Record<string, string>[]; error: string | null }> {
+  const url = `${baseUrl}?page=0&limit=${FMP_PAGE_LIMIT}&apikey=${encodeURIComponent(apiKey)}`;
+  try {
+    const res = await fetch(url, { next: { revalidate: CACHE_SECONDS } });
+    const body: unknown = await res.json();
+    const errMsg = fmpErrorMessage(body);
+    if (errMsg) return { rows: [], error: errMsg };
+    if (!res.ok) return { rows: [], error: `HTTP ${res.status}` };
+    if (!Array.isArray(body)) return { rows: [], error: "Unexpected response format" };
+    return { rows: body as Record<string, string>[], error: null };
+  } catch (e) {
+    return {
+      rows: [],
+      error: e instanceof Error ? e.message : "Request failed",
+    };
+  }
+}
+
+function normalizeTradeType(type: string | undefined): string {
+  const v = (type ?? "").toLowerCase();
+  if (v.includes("purchase") || v.includes("receive")) return "Purchase";
+  return "Sale";
+}
+
+function memberNameFrom(item: Record<string, string>, chamber: "House" | "Senate"): string {
+  const named =
+    chamber === "House"
+      ? (item.representative ?? "").trim()
+      : (item.senator ?? "").trim();
+  if (named) return named;
+  const first = (item.firstName ?? "").trim();
+  const last = (item.lastName ?? "").trim();
+  const combined = `${first} ${last}`.trim();
+  return combined || "Unknown";
+}
+
+function tickerFrom(item: Record<string, string>): string {
+  return (item.symbol ?? item.ticker ?? "").trim().toUpperCase();
+}
+
+function normalizeTrade(
+  item: Record<string, string>,
+  chamber: "House" | "Senate"
+): CongressionalTrade {
+  const memberName = memberNameFrom(item, chamber);
+  const ticker = tickerFrom(item);
+  const tradeDate = item.transactionDate ?? null;
+  const tradeType = normalizeTradeType(item.type);
+
+  return {
+    id: `${ticker}-${tradeDate ?? ""}-${memberName}`.replace(/\s+/g, "-"),
+    member_name: memberName,
+    party: "N/A",
+    state: chamber === "House" ? (item.district ?? "House") : "Senate",
+    ticker,
+    trade_type: tradeType,
+    amount_range: item.amount ?? null,
+    trade_date: tradeDate,
+    disclosure_date: item.disclosureDate ?? null,
+    description:
+      (item.assetDescription ?? item.asset_description ?? "").trim() || null,
+  };
+}
 
 export interface CongressionalTrade {
   id: string;
@@ -113,7 +192,7 @@ export async function GET() {
     );
   }
 
-  const apiKey = process.env.FMP_API_KEY;
+  const apiKey = process.env.FMP_API_KEY?.trim();
   if (!apiKey) {
     const cached = await readFromCache();
     return NextResponse.json<CongressionalTradesResponse>({
@@ -126,84 +205,26 @@ export async function GET() {
   }
 
   try {
-    const [houseRes, senateRes] = await Promise.all([
-      fetch(
-        `https://financialmodelingprep.com/api/v4/house-disclosure?page=0&apikey=${apiKey}`,
-        { next: { revalidate: CACHE_SECONDS } }
-      ),
-      fetch(
-        `https://financialmodelingprep.com/api/v4/senate-disclosure-rss-feed?page=0&apikey=${apiKey}`,
-        { next: { revalidate: CACHE_SECONDS } }
-      ),
+    const [houseResult, senateResult] = await Promise.all([
+      fetchFmpChamber(FMP_HOUSE_URL, apiKey),
+      fetchFmpChamber(FMP_SENATE_URL, apiKey),
     ]);
 
-    if (!houseRes.ok && !senateRes.ok) {
-      throw new Error("FMP API request failed");
+    if (!houseResult.rows.length && !senateResult.rows.length) {
+      const details = [houseResult.error, senateResult.error].filter(Boolean).join("; ");
+      throw new Error(details || "FMP API request failed");
     }
 
-    const houseData = houseRes.ok ? await houseRes.json() : [];
-    const senateData = senateRes.ok ? await senateRes.json() : [];
-
-    function normalizeTrade(
-      item: Record<string, string>,
-      chamber: "House" | "Senate"
-    ): CongressionalTrade {
-      const tradeType = (item.type ?? "").toLowerCase().includes("purchase")
-        ? "Purchase"
-        : "Sale";
-
-      if (chamber === "House") {
-        const memberName = item.representative ?? "Unknown";
-        return {
-          id: `${item.ticker ?? ""}-${item.transactionDate ?? ""}-${memberName}`.replace(
-            /\s+/g,
-            "-"
-          ),
-          member_name: memberName,
-          party: "N/A",
-          state: item.district ?? "House",
-          ticker: item.ticker ?? "",
-          trade_type: tradeType,
-          amount_range: item.amount ?? null,
-          trade_date: item.transactionDate ?? null,
-          disclosure_date: item.disclosureDate ?? null,
-          description: item.assetDescription ?? null,
-        };
-      }
-
-      const memberName = item.senator ?? "Unknown";
-      return {
-        id: `${item.ticker ?? ""}-${item.transactionDate ?? ""}-${memberName}`.replace(
-          /\s+/g,
-          "-"
-        ),
-        member_name: memberName,
-        party: "N/A",
-        state: "Senate",
-        ticker: item.ticker ?? "",
-        trade_type: tradeType,
-        amount_range: item.amount ?? null,
-        trade_date: item.transactionDate ?? null,
-        disclosure_date: item.disclosureDate ?? null,
-        description: item.assetDescription ?? null,
-      };
-    }
-
-    const houseTrades = Array.isArray(houseData)
-      ? houseData.map((item: Record<string, string>) => normalizeTrade(item, "House"))
-      : [];
-
-    const senateTrades = Array.isArray(senateData)
-      ? senateData.map((item: Record<string, string>) => normalizeTrade(item, "Senate"))
-      : [];
-
-    const mapped = [...houseTrades, ...senateTrades]
+    const mapped = [
+      ...houseResult.rows.map((item) => normalizeTrade(item, "House")),
+      ...senateResult.rows.map((item) => normalizeTrade(item, "Senate")),
+    ]
       .filter((t) => t.ticker && t.trade_date)
       .sort(
         (a, b) =>
           new Date(b.trade_date ?? 0).getTime() - new Date(a.trade_date ?? 0).getTime()
       )
-      .slice(0, 100);
+      .slice(0, LIVE_ROW_LIMIT);
 
     if (mapped.length) {
       // Fire-and-forget cache write; do not block the response.
