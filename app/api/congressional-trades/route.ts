@@ -5,12 +5,11 @@ import { PLAN_LIMITS } from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
 
 export const runtime = "nodejs";
-// We rely on Next's fetch cache (revalidate: 3600) to bound Quiver calls to
+// We rely on Next's fetch cache (revalidate: 3600) to bound FMP calls to
 // once per hour. The route handler itself stays dynamic so each user request
 // still goes through auth + plan checks.
 export const dynamic = "force-dynamic";
 
-const QUIVER_ENDPOINT = "https://api.quiverquant.com/beta/live/congresstrading";
 const CACHE_SECONDS = 60 * 60; // 1 hour
 const MAX_ROWS = 200; // cap upstream rows we keep in the table
 
@@ -32,79 +31,6 @@ export interface CongressionalTradesResponse {
   source: "live" | "cache" | "empty";
   error: string | null;
   fetched_at: string;
-}
-
-interface QuiverRow {
-  Representative?: string;
-  Senator?: string;
-  Name?: string;
-  Party?: string;
-  State?: string;
-  Ticker?: string;
-  Transaction?: string;
-  TransactionType?: string;
-  Type?: string;
-  Range?: string;
-  Amount?: string;
-  TradeDate?: string;
-  Traded?: string;
-  ReportDate?: string;
-  Filed?: string;
-  Description?: string;
-}
-
-function normalizeParty(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const v = value.trim().toUpperCase();
-  if (v.startsWith("D")) return "D";
-  if (v.startsWith("R")) return "R";
-  if (v.startsWith("I")) return "I";
-  return v.slice(0, 1) || null;
-}
-
-function normalizeTradeType(value: string | null | undefined): string {
-  if (!value) return "Purchase";
-  const v = value.trim().toLowerCase();
-  if (v.includes("sale") || v.includes("sell")) return "Sale";
-  if (v.includes("exchange")) return "Exchange";
-  return "Purchase";
-}
-
-function toDateOnly(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
-  const d = new Date(trimmed);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toISOString().slice(0, 10);
-}
-
-function mapQuiverRow(row: QuiverRow): CongressionalTrade | null {
-  const memberName =
-    row.Representative?.trim() ||
-    row.Senator?.trim() ||
-    row.Name?.trim() ||
-    "";
-  const ticker = (row.Ticker ?? "").trim().toUpperCase();
-  if (!memberName || !ticker) return null;
-
-  const tradeType = normalizeTradeType(
-    row.Transaction ?? row.TransactionType ?? row.Type
-  );
-
-  return {
-    id: `${memberName}|${ticker}|${row.Traded ?? row.TradeDate ?? ""}|${tradeType}|${row.Range ?? row.Amount ?? ""}`,
-    member_name: memberName,
-    party: normalizeParty(row.Party),
-    state: row.State ? row.State.trim() : null,
-    ticker,
-    trade_type: tradeType,
-    amount_range: (row.Range ?? row.Amount ?? "").trim() || null,
-    trade_date: toDateOnly(row.Traded ?? row.TradeDate),
-    disclosure_date: toDateOnly(row.ReportDate ?? row.Filed),
-    description: row.Description?.trim() || null,
-  };
 }
 
 async function readFromCache(): Promise<CongressionalTrade[]> {
@@ -187,38 +113,82 @@ export async function GET() {
     );
   }
 
-  const apiKey = process.env.QUIVER_API_KEY;
+  const apiKey = process.env.FMP_API_KEY;
   if (!apiKey) {
     const cached = await readFromCache();
     return NextResponse.json<CongressionalTradesResponse>({
       data: cached,
       source: cached.length ? "cache" : "empty",
       error:
-        "QUIVER_API_KEY is not configured. Add it to your environment to enable the live feed.",
+        "FMP_API_KEY is not configured. Add it to your Vercel environment variables to enable the live feed.",
       fetched_at: new Date().toISOString(),
     });
   }
 
   try {
-    const upstream = await fetch(QUIVER_ENDPOINT, {
-      headers: {
-        Authorization: `Token ${apiKey}`,
-        Accept: "application/json",
-      },
-      // Next.js fetch cache — refresh once per hour.
-      next: { revalidate: CACHE_SECONDS, tags: ["congressional-trades"] },
-    });
+    const [houseRes, senateRes] = await Promise.all([
+      fetch(
+        `https://financialmodelingprep.com/stable/house-trades?apikey=${apiKey}`,
+        { next: { revalidate: CACHE_SECONDS } }
+      ),
+      fetch(
+        `https://financialmodelingprep.com/stable/senate-trades?apikey=${apiKey}`,
+        { next: { revalidate: CACHE_SECONDS } }
+      ),
+    ]);
 
-    if (!upstream.ok) {
-      throw new Error(`Quiver responded ${upstream.status}`);
+    if (!houseRes.ok && !senateRes.ok) {
+      throw new Error("FMP API request failed");
     }
 
-    const raw = (await upstream.json()) as QuiverRow[] | unknown;
-    const rows = Array.isArray(raw) ? raw : [];
-    const mapped = rows
-      .map(mapQuiverRow)
-      .filter((r): r is CongressionalTrade => r !== null)
-      .slice(0, MAX_ROWS);
+    const houseData = houseRes.ok ? await houseRes.json() : [];
+    const senateData = senateRes.ok ? await senateRes.json() : [];
+
+    function normalizeTrade(
+      item: Record<string, string>,
+      chamber: "House" | "Senate"
+    ): CongressionalTrade {
+      const memberName =
+        chamber === "House"
+          ? (item.representative ?? "Unknown")
+          : (item.senator ?? "Unknown");
+
+      const tradeType = (item.type ?? "").toLowerCase().includes("purchase")
+        ? "Purchase"
+        : "Sale";
+
+      return {
+        id: `${item.ticker ?? ""}-${item.transactionDate ?? ""}-${memberName}`.replace(
+          /\s+/g,
+          "-"
+        ),
+        member_name: memberName,
+        party: "N/A",
+        state: chamber === "House" ? (item.district ?? "House") : "Senate",
+        ticker: item.ticker ?? "",
+        trade_type: tradeType,
+        amount_range: item.amount ?? null,
+        trade_date: item.transactionDate ?? null,
+        disclosure_date: item.disclosureDate ?? null,
+        description: item.assetDescription ?? null,
+      };
+    }
+
+    const houseTrades = Array.isArray(houseData)
+      ? houseData.map((item: Record<string, string>) => normalizeTrade(item, "House"))
+      : [];
+
+    const senateTrades = Array.isArray(senateData)
+      ? senateData.map((item: Record<string, string>) => normalizeTrade(item, "Senate"))
+      : [];
+
+    const mapped = [...houseTrades, ...senateTrades]
+      .filter((t) => t.ticker && t.trade_date)
+      .sort(
+        (a, b) =>
+          new Date(b.trade_date ?? 0).getTime() - new Date(a.trade_date ?? 0).getTime()
+      )
+      .slice(0, 100);
 
     if (mapped.length) {
       // Fire-and-forget cache write; do not block the response.
