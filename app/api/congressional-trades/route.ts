@@ -114,24 +114,23 @@ export async function GET() {
   }
 
   try {
-    // Fetch from public government-sourced data
-    const [senateRes, houseRes] = await Promise.all([
+    const [houseRes, senateRes] = await Promise.all([
       fetch(
-        "https://senate-stock-watcher-data.s3-us-east-2.amazonaws.com/aggregate/all_transactions.json",
+        "https://raw.githubusercontent.com/leftmove/wallstreetlocal/main/backend/files/house.json",
         { next: { revalidate: CACHE_SECONDS } }
       ),
       fetch(
-        "https://house-stock-watcher-data.s3-us-east-2.amazonaws.com/data/all_transactions_for_year_2025.json",
+        "https://raw.githubusercontent.com/leftmove/wallstreetlocal/main/backend/files/senate.json",
         { next: { revalidate: CACHE_SECONDS } }
       ),
     ]);
 
-    if (!senateRes.ok && !houseRes.ok) {
-      throw new Error("Government disclosure data unavailable");
+    if (!houseRes.ok && !senateRes.ok) {
+      throw new Error("Congressional disclosure data unavailable");
     }
 
-    const senateRaw = senateRes.ok ? await senateRes.json() : [];
     const houseRaw = houseRes.ok ? await houseRes.json() : [];
+    const senateRaw = senateRes.ok ? await senateRes.json() : [];
 
     function normalizeSenate(
       item: Record<string, string>
