@@ -97,8 +97,7 @@ export function CongressTradesTable() {
           <div className="flex items-center gap-2">
             <TriangleAlert className="w-4 h-4 text-[#f59e0b] shrink-0" />
             <p className="font-mono text-[11px] text-[#f59e0b]">
-              QUIVER_API_KEY not configured - live feed disabled. Add to Vercel
-              environment variables to enable.
+              {meta.error}
             </p>
           </div>
         </div>
