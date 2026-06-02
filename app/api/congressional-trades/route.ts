@@ -5,9 +5,9 @@ import { PLAN_LIMITS } from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
 
 export const runtime = "nodejs";
-// We rely on Next's fetch cache (revalidate: 3600) to bound FMP calls to
-// once per hour. The route handler itself stays dynamic so each user request
-// still goes through auth + plan checks.
+// We rely on Next's fetch cache (revalidate: 3600) to bound government-source
+// fetches to once per hour. The route handler itself stays dynamic so each user
+// request still goes through auth + plan checks.
 export const dynamic = "force-dynamic";
 
 const CACHE_SECONDS = 60 * 60; // 1 hour
@@ -113,80 +113,94 @@ export async function GET() {
     );
   }
 
-  const apiKey = process.env.FMP_API_KEY;
-  if (!apiKey) {
-    const cached = await readFromCache();
-    return NextResponse.json<CongressionalTradesResponse>({
-      data: cached,
-      source: cached.length ? "cache" : "empty",
-      error:
-        "FMP_API_KEY is not configured. Add it to your Vercel environment variables to enable the live feed.",
-      fetched_at: new Date().toISOString(),
-    });
-  }
-
   try {
-    const [houseRes, senateRes] = await Promise.all([
+    // Fetch from public government-sourced data
+    const [senateRes, houseRes] = await Promise.all([
       fetch(
-        `https://financialmodelingprep.com/stable/house-trades?apikey=${apiKey}`,
+        "https://senate-stock-watcher-data.s3-us-east-2.amazonaws.com/aggregate/all_transactions.json",
         { next: { revalidate: CACHE_SECONDS } }
       ),
       fetch(
-        `https://financialmodelingprep.com/stable/senate-trades?apikey=${apiKey}`,
+        "https://house-stock-watcher-data.s3-us-east-2.amazonaws.com/data/all_transactions_for_year_2025.json",
         { next: { revalidate: CACHE_SECONDS } }
       ),
     ]);
 
-    if (!houseRes.ok && !senateRes.ok) {
-      throw new Error("FMP API request failed");
+    if (!senateRes.ok && !houseRes.ok) {
+      throw new Error("Government disclosure data unavailable");
     }
 
-    const houseData = houseRes.ok ? await houseRes.json() : [];
-    const senateData = senateRes.ok ? await senateRes.json() : [];
+    const senateRaw = senateRes.ok ? await senateRes.json() : [];
+    const houseRaw = houseRes.ok ? await houseRes.json() : [];
 
-    function normalizeTrade(
-      item: Record<string, string>,
-      chamber: "House" | "Senate"
+    function normalizeSenate(
+      item: Record<string, string>
     ): CongressionalTrade {
-      const memberName =
-        chamber === "House"
-          ? (item.representative ?? "Unknown")
-          : (item.senator ?? "Unknown");
-
-      const tradeType = (item.type ?? "").toLowerCase().includes("purchase")
+      const tradeType = (item.type ?? "")
+        .toLowerCase()
+        .includes("purchase")
         ? "Purchase"
         : "Sale";
 
       return {
-        id: `${item.ticker ?? ""}-${item.transactionDate ?? ""}-${memberName}`.replace(
-          /\s+/g,
-          "-"
-        ),
-        member_name: memberName,
-        party: "N/A",
-        state: chamber === "House" ? (item.district ?? "House") : "Senate",
+        id: `S-${item.ticker ?? ""}-${item.transaction_date ?? ""}-${item.last_name ?? ""}`.replace(/\s+/g, "-"),
+        member_name: `${item.first_name ?? ""} ${item.last_name ?? ""}`.trim(),
+        party: null,
+        state: "Senate",
         ticker: item.ticker ?? "",
         trade_type: tradeType,
         amount_range: item.amount ?? null,
-        trade_date: item.transactionDate ?? null,
-        disclosure_date: item.disclosureDate ?? null,
-        description: item.assetDescription ?? null,
+        trade_date: item.transaction_date ?? null,
+        disclosure_date: item.date_received ?? null,
+        description: item.asset_description ?? null,
       };
     }
 
-    const houseTrades = Array.isArray(houseData)
-      ? houseData.map((item: Record<string, string>) => normalizeTrade(item, "House"))
+    function normalizeHouse(
+      item: Record<string, string>
+    ): CongressionalTrade {
+      const tradeType = (item.type ?? "")
+        .toLowerCase()
+        .includes("purchase")
+        ? "Purchase"
+        : "Sale";
+
+      return {
+        id: `H-${item.ticker ?? ""}-${item.transaction_date ?? ""}-${item.representative ?? ""}`.replace(/\s+/g, "-"),
+        member_name: item.representative ?? "Unknown",
+        party: null,
+        state: item.district ?? "House",
+        ticker: item.ticker ?? "",
+        trade_type: tradeType,
+        amount_range: item.amount ?? null,
+        trade_date: item.transaction_date ?? null,
+        disclosure_date: item.disclosure_date ?? null,
+        description: item.asset_description ?? null,
+      };
+    }
+
+    const senateTrades = Array.isArray(senateRaw)
+      ? senateRaw
+          .filter((i: Record<string, string>) =>
+            i.ticker && i.ticker !== "--" && i.asset_type === "Stock"
+          )
+          .map(normalizeSenate)
       : [];
 
-    const senateTrades = Array.isArray(senateData)
-      ? senateData.map((item: Record<string, string>) => normalizeTrade(item, "Senate"))
+    const houseTrades = Array.isArray(houseRaw)
+      ? houseRaw
+          .filter((i: Record<string, string>) =>
+            i.ticker && i.ticker !== "--"
+          )
+          .map(normalizeHouse)
       : [];
 
-    const mapped = [...houseTrades, ...senateTrades]
+    const mapped = [...senateTrades, ...houseTrades]
       .filter((t) => t.ticker && t.trade_date)
       .sort(
         (a, b) =>
-          new Date(b.trade_date ?? 0).getTime() - new Date(a.trade_date ?? 0).getTime()
+          new Date(b.trade_date ?? 0).getTime() -
+          new Date(a.trade_date ?? 0).getTime()
       )
       .slice(0, 100);
 
