@@ -8,14 +8,34 @@ import {
 } from "@/lib/billing-client";
 import { cn } from "@/lib/utils";
 
-export function LockedFeaturePanel({ message }: { message: string }) {
+type LockedFeaturePanelProps =
+  | { message: string }
+  | {
+      targetPlan: "pro" | "elite";
+      featureName: string;
+      featureDescription: string;
+    };
+
+function isLegacyProps(
+  props: LockedFeaturePanelProps
+): props is { message: string } {
+  return "message" in props;
+}
+
+export function LockedFeaturePanel(props: LockedFeaturePanelProps) {
   const [pending, setPending] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
+
+  const targetPlan = isLegacyProps(props) ? "pro" : props.targetPlan;
+  const headline = isLegacyProps(props) ? props.message : props.featureName;
+  const description = isLegacyProps(props) ? null : props.featureDescription;
+  const upgradeLabel =
+    targetPlan === "elite" ? "Upgrade to Elite" : "Upgrade to Pro";
 
   async function handleUpgrade() {
     setPaymentNotice(null);
     setPending(true);
-    const result = await createCheckoutSession("pro");
+    const result = await createCheckoutSession(targetPlan);
     handleBillingActionResult(result, {
       onSuccess: (url) => window.location.assign(url),
       onNotConfigured: () => setPaymentNotice(PAYMENT_COMING_SOON_MESSAGE),
@@ -37,8 +57,13 @@ export function LockedFeaturePanel({ message }: { message: string }) {
         className="max-w-md font-mono font-bold uppercase text-[#8892a4]"
         style={{ fontSize: "10px", letterSpacing: "0.24em" }}
       >
-        {message}
+        {headline}
       </p>
+      {description ? (
+        <p className="max-w-md font-body text-[13px] leading-relaxed text-[#4a5568]">
+          {description}
+        </p>
+      ) : null}
 
       {paymentNotice ? (
         <div
@@ -61,7 +86,7 @@ export function LockedFeaturePanel({ message }: { message: string }) {
           )}
           style={{ fontSize: "10px", letterSpacing: "0.22em" }}
         >
-          {pending ? "Loading…" : "Upgrade to Pro"}
+          {pending ? "Loading…" : upgradeLabel}
         </button>
       )}
     </div>

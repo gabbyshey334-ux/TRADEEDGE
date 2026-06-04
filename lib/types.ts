@@ -45,7 +45,12 @@ export interface Subscription {
   updated_at: string;
 }
 
-export type AiReportType = "session" | "psychology" | "edge";
+export type AiCoachReportType = "session" | "psychology" | "edge";
+export type AiReportType =
+  | AiCoachReportType
+  | "readiness_score"
+  | "rule_break_prediction"
+  | "daily_coaching";
 
 export interface AiUsage {
   id: string;

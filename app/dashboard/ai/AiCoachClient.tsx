@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { DailyCoachingReport } from "@/components/DailyCoachingReport";
 import { EliteBadge } from "@/components/EliteBadge";
 import { PageHeader } from "@/components/PageHeader";
 import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
@@ -12,10 +13,10 @@ import {
   PAYMENT_COMING_SOON_MESSAGE,
 } from "@/lib/billing-client";
 import { cn } from "@/lib/utils";
-import type { AiReportType, Plan } from "@/lib/types";
+import type { AiCoachReportType, Plan } from "@/lib/types";
 
 const MODES: Array<{
-  id: AiReportType;
+  id: AiCoachReportType;
   title: string;
   desc: string;
   color: string;
@@ -70,7 +71,7 @@ export function AiCoachClient({
   reportsThisMonth,
   monthlyLimit,
 }: AiCoachClientProps) {
-  const [mode, setMode] = useState<AiReportType>("session");
+  const [mode, setMode] = useState<AiCoachReportType>("session");
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +132,8 @@ export function AiCoachClient({
       />
 
       <div className="dashboard-page space-y-7">
+        <DailyCoachingReport plan={plan} />
+
         <div>
           <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase mb-4">
             Select Mode

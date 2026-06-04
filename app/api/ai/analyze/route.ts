@@ -15,13 +15,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildTradeSummary } from "@/lib/utils";
 import { canRunAiReport } from "@/lib/plan-limits";
-import type { Trade, AiReportType, Plan } from "@/lib/types";
+import type { Trade, AiCoachReportType, Plan } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-const VALID_MODES: AiReportType[] = ["session", "psychology", "edge"];
+const VALID_MODES: AiCoachReportType[] = ["session", "psychology", "edge"];
 
-function isValidMode(value: unknown): value is AiReportType {
+function isValidMode(value: unknown): value is AiCoachReportType {
   return typeof value === "string" && (VALID_MODES as string[]).includes(value);
 }
 
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const mode: AiReportType = isValidMode(body.mode) ? body.mode : "session";
+  const mode: AiCoachReportType = isValidMode(body.mode) ? body.mode : "session";
 
   let tradeSummary: string;
   if (typeof body.tradeSummary === "string" && body.tradeSummary.trim()) {
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const prompts: Record<AiReportType, string> = {
+  const prompts: Record<AiCoachReportType, string> = {
     session: `Analyze my recent trading session data and provide a detailed debrief:\n\n${tradeSummary}`,
     psychology: `As a trading psychology coach, deeply analyze the emotional patterns in my trading:\n\n${tradeSummary}`,
     edge: `Analyze my trading data to quantify and define my statistical edge:\n\n${tradeSummary}`,
