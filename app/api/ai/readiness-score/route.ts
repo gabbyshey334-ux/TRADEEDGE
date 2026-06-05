@@ -1,48 +1,77 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import {
-  aggregatePnl,
-  calcStats,
-  formatCurrency,
-  groupBy,
-} from "@/lib/utils";
+import { aggregatePnl, calcStats, groupBy } from "@/lib/utils";
 import type { Plan, Trade } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-const REPORT_TYPE = "readiness_score" as const;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-const SYSTEM_PROMPT = `You are a professional trading coach analyzing a trader's recent performance data. Based on the metrics provided, generate a Readiness Score from 0 to 100 that represents how prepared this trader is for their next session.
+const SYSTEM_PROMPT = `You are an elite prop firm trading coach. Generate a Readiness Score from 0 to 100 specifically assessing whether this trader is ready for the exact challenge rules provided. Every point in your analysis must reference a specific rule from the challenge.
 
-Return ONLY a valid JSON object in this exact format with no markdown, no backticks, no extra text:
+Return ONLY valid JSON:
 {
   "score": 75,
   "grade": "B+",
-  "summary": "One sentence overall assessment",
-  "strengths": ["strength 1", "strength 2"],
-  "warnings": ["warning 1", "warning 2"],
-  "recommendation": "One actionable sentence for next session"
+  "summary": "One sentence specific to this firm/challenge",
+  "ruleAnalysis": [
+    {
+      "rule": "Daily Loss Limit 5%",
+      "traderStat": "Avg daily loss 1.8%",
+      "assessment": "SAFE",
+      "note": "Specific insight about this rule"
+    }
+  ],
+  "estimatedPassDays": 18,
+  "biggestRisk": "The single most likely reason they fail this challenge",
+  "recommendation": "One specific action to improve readiness"
 }
 
-Grade scale:
-90-100: A — Elite
-80-89:  B — Strong
-70-79:  C — Developing
-60-69:  D — Needs Work
-0-59:   F — Not Ready`;
+For assessment use exactly one of: SAFE, AT RISK, DANGER`;
+
+export interface RuleAnalysisItem {
+  rule: string;
+  traderStat: string;
+  assessment: "SAFE" | "AT RISK" | "DANGER";
+  note: string;
+}
 
 export interface ReadinessScoreResult {
   score: number;
   grade: string;
   summary: string;
-  strengths: string[];
-  warnings: string[];
+  ruleAnalysis: RuleAnalysisItem[];
+  estimatedPassDays: number;
+  biggestRisk: string;
   recommendation: string;
-  cached_at: string;
+  cached_at?: string;
 }
 
-function topByFrequency(trades: Trade[], field: "emotion" | "setup" | "session"): string {
+interface ReadinessScoreRequest {
+  firmName: string;
+  challengeType: string;
+  profitTarget: number;
+  dailyDrawdown: number;
+  maxDrawdown: number;
+  minTradingDays: number;
+  accountSize: number;
+  refresh?: boolean;
+}
+
+function tradeDay(trade: Trade): string {
+  return trade.date.split("T")[0] ?? trade.date;
+}
+
+function buildReportType(firmName: string, challengeType: string): string {
+  return `readiness_score_${firmName}_${challengeType}`
+    .replace(/\s+/g, "_")
+    .toLowerCase();
+}
+
+function topByFrequency(
+  trades: Trade[],
+  field: "emotion" | "session"
+): string {
   const groups = groupBy(trades, (t) => t[field] ?? null);
   const entries = Object.entries(groups);
   if (!entries.length) return "N/A";
@@ -56,71 +85,200 @@ function topByFrequency(trades: Trade[], field: "emotion" | "setup" | "session")
     .sort((a, b) => b.pnl - a.pnl)[0].key;
 }
 
-function buildUserMessage(trades: Trade[]): string {
-  const stats = calcStats(trades);
-  const avgPnl = trades.length ? stats.totalPnl / trades.length : 0;
-  const profitFactor = Number.isFinite(stats.profitFactor)
-    ? stats.profitFactor.toFixed(2)
-    : "∞";
+function computeDailyMetrics(trades: Trade[], accountSize: number) {
+  const byDay = groupBy(trades, (t) => tradeDay(t));
+  const dailyPnls = Object.values(byDay).map((list) => aggregatePnl(list));
 
-  const sorted = [...trades].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  if (!dailyPnls.length || accountSize <= 0) {
+    return {
+      avgDailyPnl: 0,
+      avgDailyDrawdown: 0,
+      worstDayLoss: 0,
+    };
+  }
+
+  const avgDailyPnl =
+    dailyPnls.reduce((sum, pnl) => sum + pnl, 0) / dailyPnls.length;
+
+  const dailyLossPcts = dailyPnls.map((pnl) =>
+    pnl < 0 ? (Math.abs(pnl) / accountSize) * 100 : 0
   );
-  const recentTrend =
-    sorted.length === 0
-      ? "No recent trades"
-      : sorted
-          .slice(0, 5)
-          .map((t) => formatCurrency(Number(t.pnl)))
-          .join(", ");
+  const avgDailyDrawdown =
+    dailyLossPcts.reduce((sum, pct) => sum + pct, 0) / dailyLossPcts.length;
 
-  return `Analyze this trader's last 30 trades:
+  const losingDayPcts = dailyPnls
+    .filter((pnl) => pnl < 0)
+    .map((pnl) => (Math.abs(pnl) / accountSize) * 100);
+  const worstDayLoss = losingDayPcts.length
+    ? Math.max(...losingDayPcts)
+    : 0;
+
+  return { avgDailyPnl, avgDailyDrawdown, worstDayLoss };
+}
+
+function estimateDaysToTarget(
+  avgDailyPnl: number,
+  accountSize: number,
+  profitTarget: number
+): string {
+  if (avgDailyPnl <= 0) return "Unlikely at current pace";
+  const targetAmount = accountSize * (profitTarget / 100);
+  return String(Math.ceil(targetAmount / avgDailyPnl));
+}
+
+function buildUserMessage(
+  trades: Trade[],
+  body: ReadinessScoreRequest
+): string {
+  const stats = calcStats(trades);
+  const {
+    firmName,
+    challengeType,
+    profitTarget,
+    dailyDrawdown,
+    maxDrawdown,
+    minTradingDays,
+    accountSize,
+  } = body;
+
+  const profitTargetAmount = accountSize * (profitTarget / 100);
+  const dailyLossLimit = accountSize * (dailyDrawdown / 100);
+  const maxDrawdownAmount = accountSize * (maxDrawdown / 100);
+  const { avgDailyPnl, avgDailyDrawdown, worstDayLoss } = computeDailyMetrics(
+    trades,
+    accountSize
+  );
+  const estimatedDays = estimateDaysToTarget(
+    avgDailyPnl,
+    accountSize,
+    profitTarget
+  );
+
+  return `You are analyzing a trader's readiness for a specific prop firm challenge.
+
+CHALLENGE DETAILS:
+Firm: ${firmName}
+Challenge: ${challengeType}
+Account Size: $${accountSize.toLocaleString()}
+Profit Target: ${profitTarget}% ($${profitTargetAmount.toLocaleString()})
+Daily Loss Limit: ${dailyDrawdown}% ($${dailyLossLimit.toLocaleString()})
+Max Drawdown: ${maxDrawdown}% ($${maxDrawdownAmount.toLocaleString()})
+Minimum Trading Days: ${minTradingDays === 0 ? "None" : `${minTradingDays} days`}
+
+TRADER'S RECENT PERFORMANCE (last 30 trades):
 Total trades: ${stats.tradeCount}
 Win rate: ${stats.winRate.toFixed(1)}%
 Average R:R: ${stats.avgRR.toFixed(2)}
-Profit factor: ${profitFactor}
-Average P&L: ${formatCurrency(avgPnl)}
+Average daily P&L: $${avgDailyPnl.toFixed(2)}
+Average daily drawdown: ${avgDailyDrawdown.toFixed(2)}%
+Worst single day loss: ${worstDayLoss.toFixed(2)}%
 Most common emotion: ${topByFrequency(trades, "emotion")}
-Most profitable setup: ${topByFrequency(trades, "setup")}
-Most profitable session: ${topByFrequency(trades, "session")}
-Recent trend (last 5 trades P&L): ${recentTrend}`;
+Best performing session: ${topByFrequency(trades, "session")}
+Estimated days to hit profit target at current pace: ${estimatedDays}
+
+Generate a Readiness Score specifically for this ${firmName} ${challengeType} challenge.`;
+}
+
+function normalizeAssessment(value: string): RuleAnalysisItem["assessment"] {
+  const upper = value.toUpperCase().trim();
+  if (upper.includes("DANGER")) return "DANGER";
+  if (upper.includes("RISK")) return "AT RISK";
+  return "SAFE";
+}
+
+function parseRuleAnalysis(value: unknown): RuleAnalysisItem | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Partial<RuleAnalysisItem>;
+  if (
+    typeof item.rule !== "string" ||
+    typeof item.traderStat !== "string" ||
+    typeof item.assessment !== "string" ||
+    typeof item.note !== "string"
+  ) {
+    return null;
+  }
+  return {
+    rule: item.rule,
+    traderStat: item.traderStat,
+    assessment: normalizeAssessment(item.assessment),
+    note: item.note,
+  };
 }
 
 function parseScorePayload(text: string): ReadinessScoreResult | null {
   const trimmed = text.trim();
+  let parsed: Partial<ReadinessScoreResult> & { ruleAnalysis?: unknown[] };
+
   try {
-    const parsed = JSON.parse(trimmed) as Partial<ReadinessScoreResult>;
-    if (
-      typeof parsed.score !== "number" ||
-      typeof parsed.grade !== "string" ||
-      typeof parsed.summary !== "string" ||
-      !Array.isArray(parsed.strengths) ||
-      !Array.isArray(parsed.warnings) ||
-      typeof parsed.recommendation !== "string"
-    ) {
-      return null;
-    }
-    return {
-      score: parsed.score,
-      grade: parsed.grade,
-      summary: parsed.summary,
-      strengths: parsed.strengths.map(String),
-      warnings: parsed.warnings.map(String),
-      recommendation: parsed.recommendation,
-      cached_at: new Date().toISOString(),
-    };
+    parsed = JSON.parse(trimmed);
   } catch {
     const match = trimmed.match(/\{[\s\S]*\}/);
     if (!match) return null;
     try {
-      return parseScorePayload(match[0]);
+      parsed = JSON.parse(match[0]);
     } catch {
       return null;
     }
   }
+
+  if (
+    typeof parsed.score !== "number" ||
+    typeof parsed.grade !== "string" ||
+    typeof parsed.summary !== "string" ||
+    !Array.isArray(parsed.ruleAnalysis) ||
+    typeof parsed.estimatedPassDays !== "number" ||
+    typeof parsed.biggestRisk !== "string" ||
+    typeof parsed.recommendation !== "string"
+  ) {
+    return null;
+  }
+
+  const ruleAnalysis = parsed.ruleAnalysis
+    .map(parseRuleAnalysis)
+    .filter((item): item is RuleAnalysisItem => item !== null);
+
+  if (!ruleAnalysis.length) return null;
+
+  return {
+    score: parsed.score,
+    grade: parsed.grade,
+    summary: parsed.summary,
+    ruleAnalysis,
+    estimatedPassDays: parsed.estimatedPassDays,
+    biggestRisk: parsed.biggestRisk,
+    recommendation: parsed.recommendation,
+  };
 }
 
-export async function GET(request: NextRequest) {
+function parseRequestBody(body: unknown): ReadinessScoreRequest | null {
+  if (!body || typeof body !== "object") return null;
+  const input = body as Partial<ReadinessScoreRequest>;
+  if (
+    typeof input.firmName !== "string" ||
+    !input.firmName.trim() ||
+    typeof input.challengeType !== "string" ||
+    !input.challengeType.trim() ||
+    typeof input.profitTarget !== "number" ||
+    typeof input.dailyDrawdown !== "number" ||
+    typeof input.maxDrawdown !== "number" ||
+    typeof input.minTradingDays !== "number" ||
+    typeof input.accountSize !== "number"
+  ) {
+    return null;
+  }
+  return {
+    firmName: input.firmName.trim(),
+    challengeType: input.challengeType.trim(),
+    profitTarget: input.profitTarget,
+    dailyDrawdown: input.dailyDrawdown,
+    maxDrawdown: input.maxDrawdown,
+    minTradingDays: input.minTradingDays,
+    accountSize: input.accountSize,
+    refresh: input.refresh === true,
+  };
+}
+
+export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -145,14 +303,29 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const refresh = request.nextUrl.searchParams.get("refresh") === "true";
+  let rawBody: unknown;
+  try {
+    rawBody = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
 
-  if (!refresh) {
+  const body = parseRequestBody(rawBody);
+  if (!body) {
+    return NextResponse.json(
+      { error: "Missing or invalid firm/challenge fields." },
+      { status: 400 }
+    );
+  }
+
+  const reportType = buildReportType(body.firmName, body.challengeType);
+
+  if (!body.refresh) {
     const { data: cached } = await supabase
       .from("ai_usage")
       .select("content, created_at")
       .eq("user_id", user.id)
-      .eq("report_type", REPORT_TYPE)
+      .eq("report_type", reportType)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -191,7 +364,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const userMessage = buildUserMessage(trades);
+  const userMessage = buildUserMessage(trades, body);
 
   let response: Response;
   try {
@@ -204,7 +377,7 @@ export async function GET(request: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 500,
+        max_tokens: 800,
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: userMessage }],
       }),
@@ -246,15 +419,8 @@ export async function GET(request: NextRequest) {
 
   await supabase.from("ai_usage").insert({
     user_id: user.id,
-    report_type: REPORT_TYPE,
-    content: JSON.stringify({
-      score: result.score,
-      grade: result.grade,
-      summary: result.summary,
-      strengths: result.strengths,
-      warnings: result.warnings,
-      recommendation: result.recommendation,
-    }),
+    report_type: reportType,
+    content: JSON.stringify(result),
     tokens_used: data.usage?.output_tokens ?? null,
   });
 

@@ -61,6 +61,7 @@ export function JournalClient({ initialTrades }: JournalClientProps) {
       const res = await createTrade(data);
       if (res.error) throw new Error(res.error);
       setTrades((list) => [res.data as Trade, ...list]);
+      window.dispatchEvent(new CustomEvent("tradeedge:trade-logged"));
     }
     setModalOpen(false);
     setEditing(null);

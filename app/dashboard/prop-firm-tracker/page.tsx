@@ -35,6 +35,7 @@ export default async function PropFirmTrackerPage() {
           <PropFirmClient
             initialAccounts={accountsResult.data ?? []}
             initialError={accountsResult.error}
+            plan={plan}
           />
         ) : (
           <div className="relative min-h-[420px]">

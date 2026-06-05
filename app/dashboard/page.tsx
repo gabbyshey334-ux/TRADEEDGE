@@ -3,11 +3,7 @@ import { StatCard } from "@/components/StatCard";
 import { EquityChart } from "@/components/EquityChart";
 import { TradeTable } from "@/components/TradeTable";
 import { WelcomeGreeting } from "@/components/WelcomeGreeting";
-import { ReadinessScore } from "@/components/ReadinessScore";
-import { RuleBreakPrediction } from "@/components/RuleBreakPrediction";
 import { requireAuthUser, getUserProfile } from "@/lib/auth/server";
-import { parsePlan } from "@/lib/plan-limits";
-import type { Plan } from "@/lib/types";
 import { getTradesForUser } from "@/lib/data/trades";
 import {
   aggregatePnl,
@@ -35,8 +31,6 @@ export default async function DashboardPage() {
     getTradesForUser(user.id),
     getUserProfile(user.id),
   ]);
-
-  const plan: Plan = parsePlan(profile?.plan) ?? "starter";
 
   const displayName =
     profile?.full_name ||
@@ -121,10 +115,6 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_400px] gap-5">
           <div className="space-y-5 min-w-0">
             <EquityChart trades={tradeList} />
-
-            <ReadinessScore plan={plan} />
-
-            <RuleBreakPrediction plan={plan} />
 
             <section className="space-y-4">
               <div className="flex items-end justify-between">

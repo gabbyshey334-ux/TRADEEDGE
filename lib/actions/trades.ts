@@ -12,6 +12,7 @@ function revalidateDashboardPages() {
   revalidatePath("/dashboard/analytics");
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard/ai");
+  revalidatePath("/dashboard/prop-firm-tracker");
 }
 
 export type TradeActionResult =

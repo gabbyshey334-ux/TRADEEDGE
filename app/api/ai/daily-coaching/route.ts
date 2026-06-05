@@ -256,6 +256,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ empty: true });
   }
 
+  const { data: challenges } = await supabase
+    .from("prop_firm_accounts")
+    .select(
+      "firm_name, challenge_phase, profit_target, daily_drawdown, max_drawdown, account_size, current_balance, notes"
+    )
+    .eq("user_id", user.id)
+    .not("challenge_phase", "eq", "Failed")
+    .not("challenge_phase", "eq", "Passed");
+
   if (!refresh) {
     const { data: cachedRows } = await supabase
       .from("ai_usage")
@@ -292,7 +301,25 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const userMessage = buildUserMessage(sessionTrades, sessionDateKey);
+  let userMessage = buildUserMessage(sessionTrades, sessionDateKey);
+
+  if (challenges?.length) {
+    userMessage += `
+
+ACTIVE PROP FIRM CHALLENGES:
+${challenges
+  .map(
+    (c) =>
+      `${c.firm_name} — Phase: ${c.challenge_phase}
+ Profit Target: ${c.profit_target}%
+ Daily Loss Limit: ${c.daily_drawdown}%
+ Max Drawdown: ${c.max_drawdown}%
+ Current Balance: $${c.current_balance ?? c.account_size}`
+  )
+  .join("\n")}
+
+Where relevant, reference how today's session performance relates to these active challenges in your coaching insight and tomorrow's focus.`;
+  }
 
   let response: Response;
   try {

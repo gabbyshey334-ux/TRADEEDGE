@@ -2,22 +2,29 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { Pencil, Trash2 } from "lucide-react";
+import { EliteBadge } from "@/components/EliteBadge";
+import { ChallengeRiskBanner } from "@/components/ChallengeRiskBanner";
 import { PropFirmModal } from "@/components/PropFirmModal";
+import { ReadinessScoreModal } from "@/components/ReadinessScoreModal";
 import {
   createPropFirmAccount,
   deletePropFirmAccount,
   updatePropFirmAccount,
 } from "@/lib/actions/prop-firms";
 import {
+  decodeChallengeType,
+  getMinTradingDays,
   type ChallengePhase,
   type NewPropFirmAccount,
   type PropFirmAccount,
 } from "@/lib/prop-firms";
+import type { Plan } from "@/lib/types";
 import { cn, formatCurrency } from "@/lib/utils";
 
 interface PropFirmClientProps {
   initialAccounts: PropFirmAccount[];
   initialError?: string | null;
+  plan: Plan;
 }
 
 const PHASE_STYLES: Record<
@@ -59,10 +66,13 @@ const PHASE_STYLES: Record<
 export function PropFirmClient({
   initialAccounts,
   initialError = null,
+  plan,
 }: PropFirmClientProps) {
   const [accounts, setAccounts] = useState<PropFirmAccount[]>(initialAccounts);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<PropFirmAccount | null>(null);
+  const [readinessAccount, setReadinessAccount] =
+    useState<PropFirmAccount | null>(null);
   const [error, setError] = useState<string | null>(initialError);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -162,8 +172,10 @@ export function PropFirmClient({
             <AccountCard
               key={account.id}
               account={account}
+              plan={plan}
               onEdit={openEdit}
               onDelete={handleDelete}
+              onReadinessScore={setReadinessAccount}
               deleting={deletingId === account.id}
             />
           ))}
@@ -183,6 +195,20 @@ export function PropFirmClient({
         </button>
       </div>
 
+      {readinessAccount && (
+        <ReadinessScoreModal
+          open={Boolean(readinessAccount)}
+          onClose={() => setReadinessAccount(null)}
+          firmName={readinessAccount.firm_name}
+          challengeType={decodeChallengeType(readinessAccount.notes)}
+          profitTarget={Number(readinessAccount.profit_target ?? 0)}
+          dailyDrawdown={Number(readinessAccount.daily_drawdown ?? 0)}
+          maxDrawdown={Number(readinessAccount.max_drawdown ?? 0)}
+          minTradingDays={getMinTradingDays(readinessAccount.firm_name)}
+          accountSize={Number(readinessAccount.account_size)}
+        />
+      )}
+
       {modalOpen && (
         <PropFirmModal
           account={editing}
@@ -199,13 +225,17 @@ export function PropFirmClient({
 
 function AccountCard({
   account,
+  plan,
   onEdit,
   onDelete,
+  onReadinessScore,
   deleting,
 }: {
   account: PropFirmAccount;
+  plan: Plan;
   onEdit: (a: PropFirmAccount) => void;
   onDelete: (a: PropFirmAccount) => void;
+  onReadinessScore: (a: PropFirmAccount) => void;
   deleting: boolean;
 }) {
   const phase = PHASE_STYLES[account.challenge_phase];
@@ -247,6 +277,49 @@ function AccountCard({
       <ProgressBar progress={progress} />
 
       <DrawdownGrid account={account} />
+
+      {plan === "elite" && (
+        <ChallengeRiskBanner
+          accountId={account.id}
+          firmName={account.firm_name}
+          dailyDrawdown={Number(account.daily_drawdown ?? 0)}
+          maxDrawdown={Number(account.max_drawdown ?? 0)}
+          profitTarget={Number(account.profit_target ?? 0)}
+          accountSize={Number(account.account_size)}
+          currentBalance={Number(
+            account.current_balance ?? account.account_size
+          )}
+          plan={plan}
+        />
+      )}
+
+      {plan === "elite" ? (
+        <button
+          type="button"
+          onClick={() => onReadinessScore(account)}
+          className={cn(
+            "mt-1 w-full rounded-lg border border-[#f59e0b]/20 bg-[#f59e0b]/10",
+            "py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-[#f59e0b]",
+            "transition-all duration-200 hover:bg-[#f59e0b]/20"
+          )}
+        >
+          ★ GET READINESS SCORE
+        </button>
+      ) : (
+        <button
+          type="button"
+          disabled
+          className={cn(
+            "mt-1 flex w-full items-center justify-center gap-2 rounded-lg",
+            "border border-[#1c2235] bg-[#111520] py-2.5",
+            "font-mono text-[11px] uppercase tracking-[0.1em] text-[#4a5568]",
+            "cursor-not-allowed opacity-80"
+          )}
+        >
+          ★ GET READINESS SCORE
+          <EliteBadge />
+        </button>
+      )}
 
       <footer className="flex items-center justify-between gap-3 border-t border-[#1c2235] pt-4">
         <span

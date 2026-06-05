@@ -8,112 +8,16 @@ import { Select } from "@/components/ui/Select";
 import { cn } from "@/lib/utils";
 import {
   CHALLENGE_PHASES,
+  PROP_FIRM_DATA,
+  PROP_FIRM_NAMES,
   type ChallengePhase,
   type NewPropFirmAccount,
   type PropFirmAccount,
+  type PropFirmName,
 } from "@/lib/prop-firms";
 
-const PROP_FIRM_DATA = {
-  FTMO: {
-    challenges: [
-      "10K Challenge",
-      "25K Challenge",
-      "50K Challenge",
-      "100K Challenge",
-    ],
-    accountSizes: {
-      "10K Challenge": 10000,
-      "25K Challenge": 25000,
-      "50K Challenge": 50000,
-      "100K Challenge": 100000,
-    },
-    rules: {
-      profit_target: 10,
-      daily_drawdown: 5,
-      max_drawdown: 10,
-      min_trading_days: 10,
-    },
-  },
-  "Apex Trader Funding": {
-    challenges: [
-      "25K Full",
-      "50K Full",
-      "100K Full",
-      "150K Full",
-    ],
-    accountSizes: {
-      "25K Full": 25000,
-      "50K Full": 50000,
-      "100K Full": 100000,
-      "150K Full": 150000,
-    },
-    rules: {
-      profit_target: 6,
-      daily_drawdown: 3,
-      max_drawdown: 6,
-      min_trading_days: 0,
-    },
-  },
-  TopStep: {
-    challenges: [
-      "50K Express",
-      "100K Express",
-      "150K Express",
-    ],
-    accountSizes: {
-      "50K Express": 50000,
-      "100K Express": 100000,
-      "150K Express": 150000,
-    },
-    rules: {
-      profit_target: 6,
-      daily_drawdown: 2,
-      max_drawdown: 4,
-      min_trading_days: 0,
-    },
-  },
-  "The Funded Trader": {
-    challenges: [
-      "25K Standard",
-      "50K Standard",
-      "100K Standard",
-      "200K Standard",
-    ],
-    accountSizes: {
-      "25K Standard": 25000,
-      "50K Standard": 50000,
-      "100K Standard": 100000,
-      "200K Standard": 200000,
-    },
-    rules: {
-      profit_target: 10,
-      daily_drawdown: 5,
-      max_drawdown: 10,
-      min_trading_days: 5,
-    },
-  },
-  "E8 Funding": {
-    challenges: [
-      "25K E8",
-      "50K E8",
-      "100K E8",
-    ],
-    accountSizes: {
-      "25K E8": 25000,
-      "50K E8": 50000,
-      "100K E8": 100000,
-    },
-    rules: {
-      profit_target: 8,
-      daily_drawdown: 5,
-      max_drawdown: 8,
-      min_trading_days: 0,
-    },
-  },
-} as const;
-
-type FirmName = keyof typeof PROP_FIRM_DATA;
-const FIRM_NAMES = Object.keys(PROP_FIRM_DATA) as FirmName[];
+const FIRM_NAMES = PROP_FIRM_NAMES;
+type FirmName = PropFirmName;
 
 interface PropFirmModalProps {
   account: PropFirmAccount | null;
