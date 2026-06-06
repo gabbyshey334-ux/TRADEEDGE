@@ -226,11 +226,18 @@ export async function POST(request: NextRequest) {
   const dailyLimitUsed =
     body.dailyDrawdown > 0 ? (todayDrawdown / body.dailyDrawdown) * 100 : 0;
 
-  const currentDrawdownPct = Math.abs(
-    ((body.currentBalance - body.accountSize) / body.accountSize) * 100
-  );
+  // Only calculate drawdown if balance is BELOW account size
+  // If balance is above account size, there is no drawdown
+  const currentDrawdownPct =
+    body.currentBalance < body.accountSize
+      ? Math.abs(
+          ((body.currentBalance - body.accountSize) / body.accountSize) * 100
+        )
+      : 0;
   const maxDrawdownUsed =
-    body.maxDrawdown > 0 ? (currentDrawdownPct / body.maxDrawdown) * 100 : 0;
+    body.maxDrawdown > 0
+      ? (currentDrawdownPct / body.maxDrawdown) * 100
+      : 0;
 
   const revengeTradingRate = computeRevengeTradingRate(trades);
 
