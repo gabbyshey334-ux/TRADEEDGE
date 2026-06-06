@@ -112,8 +112,28 @@ export function ReadinessScoreModal({
 
   const fetchScore = useCallback(
     async (refresh = false) => {
-      setLoading(true);
+      const cacheKey = `readiness_${firmName}_${challengeType}`
+        .replace(/\s+/g, "_")
+        .toLowerCase();
+
       setError(null);
+
+      let hasCachedDisplay = false;
+      const localCache = localStorage.getItem(cacheKey);
+      if (localCache) {
+        try {
+          const parsed = JSON.parse(localCache) as ReadinessScoreData;
+          setData(parsed);
+          setLoading(false);
+          hasCachedDisplay = true;
+        } catch {
+          // ignore invalid local cache
+        }
+      }
+
+      if (!hasCachedDisplay) {
+        setLoading(true);
+      }
 
       try {
         const res = await fetch("/api/ai/readiness-score", {
@@ -135,15 +155,20 @@ export function ReadinessScoreModal({
         };
 
         if (!res.ok) {
-          setError(body.error ?? "Failed to load readiness score.");
-          setData(null);
+          if (!hasCachedDisplay) {
+            setError(body.error ?? "Failed to load readiness score.");
+            setData(null);
+          }
           return;
         }
 
         setData(body);
+        localStorage.setItem(cacheKey, JSON.stringify(body));
       } catch {
-        setError("Failed to load readiness score.");
-        setData(null);
+        if (!hasCachedDisplay) {
+          setError("Failed to load readiness score.");
+          setData(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -161,7 +186,6 @@ export function ReadinessScoreModal({
 
   useEffect(() => {
     if (open) {
-      setData(null);
       void fetchScore(false);
     }
   }, [open, fetchScore]);
@@ -220,7 +244,7 @@ export function ReadinessScoreModal({
         </div>
 
         <div className="px-5 py-5">
-          {loading ? (
+          {loading && !data ? (
             <div className="flex flex-col items-center py-10">
               <span className="animate-pulse font-mono text-2xl text-[#00ff88]">
                 _
@@ -229,7 +253,7 @@ export function ReadinessScoreModal({
                 ANALYZING CHALLENGE READINESS...
               </span>
             </div>
-          ) : error ? (
+          ) : error && !data ? (
             <div className="py-8 text-center">
               <p className="font-body text-[13px] text-[#ff3b5c]">{error}</p>
               <button
