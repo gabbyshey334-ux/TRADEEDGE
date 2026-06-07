@@ -2,6 +2,7 @@ import { requireAuthUser } from "@/lib/auth/server";
 import { createClient } from "@/lib/supabase/server";
 import { parsePlan } from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
+import { ApiKeysSection } from "@/components/ApiKeysSection";
 import { BillingClient } from "./BillingClient";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +22,15 @@ export default async function BillingPage() {
   const hasStripeBilling = Boolean(profile?.stripe_customer_id);
 
   return (
-    <BillingClient
-      plan={plan}
-      subStatus={subStatus}
-      hasStripeBilling={hasStripeBilling}
-    />
+    <>
+      <BillingClient
+        plan={plan}
+        subStatus={subStatus}
+        hasStripeBilling={hasStripeBilling}
+      />
+      <div className="dashboard-page mt-8">
+        <ApiKeysSection plan={plan} />
+      </div>
+    </>
   );
 }
