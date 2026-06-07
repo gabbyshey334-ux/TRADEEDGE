@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { EliteBadge } from "@/components/EliteBadge";
 import { cn } from "@/lib/utils";
 
@@ -76,8 +77,16 @@ function normalizeCachedData(raw: ReadinessScoreData): ReadinessScoreData {
   };
 }
 
-function ScoreCircle({ score, grade }: { score: number; grade: string }) {
-  const radius = 62;
+function ScoreCircle({
+  score,
+  grade,
+  compact,
+}: {
+  score: number;
+  grade: string;
+  compact?: boolean;
+}) {
+  const radius = compact ? 54 : 62;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(Math.max(score, 0), 100) / 100;
   const dashOffset = circumference * (1 - progress);
@@ -85,8 +94,13 @@ function ScoreCircle({ score, grade }: { score: number; grade: string }) {
   const gradientId = "readiness-score-ring";
 
   return (
-    <div className="flex justify-center py-2">
-      <div className="relative h-[168px] w-[168px]">
+    <div className="flex justify-center py-1 sm:py-2">
+      <div
+        className={cn(
+          "relative",
+          compact ? "h-[140px] w-[140px]" : "h-[168px] w-[168px]"
+        )}
+      >
         <svg
           className="h-full w-full -rotate-90"
           viewBox="0 0 140 140"
@@ -124,7 +138,10 @@ function ScoreCircle({ score, grade }: { score: number; grade: string }) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
-            className="font-mono text-[52px] font-bold leading-none tabular-nums"
+            className={cn(
+              "font-mono font-bold leading-none tabular-nums",
+              compact ? "text-[44px]" : "text-[52px]"
+            )}
             style={{ color }}
           >
             {score}
@@ -146,14 +163,14 @@ function BulletList({
   dotColor: string;
 }) {
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-2.5 sm:space-y-3">
       {items.map((item) => (
         <li
           key={item}
-          className="flex items-start gap-2 font-body text-[12px] leading-relaxed text-[#8892a4]"
+          className="flex items-start gap-2 font-body text-[12px] leading-snug text-[#8892a4] sm:leading-relaxed"
         >
           <span
-            className="mt-[7px] h-1 w-1 shrink-0 rounded-full"
+            className="mt-[6px] h-1 w-1 shrink-0 rounded-full sm:mt-[7px]"
             style={{ backgroundColor: dotColor }}
           />
           <span>{item}</span>
@@ -175,10 +192,15 @@ export function ReadinessScoreModal({
   minTradingDays,
   accountSize,
 }: ReadinessScoreModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [data, setData] = useState<ReadinessScoreData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rulesExpanded, setRulesExpanded] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchScore = useCallback(
     async (refresh = false) => {
@@ -277,41 +299,61 @@ export function ReadinessScoreModal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const ruleAnalysis = data?.ruleAnalysis ?? [];
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 p-0 sm:p-4 backdrop-blur-sm"
-      onClick={onClose}
+      className="fixed inset-0 z-[100] flex flex-col sm:items-center sm:justify-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="readiness-score-title"
     >
+      <button
+        type="button"
+        aria-label="Close readiness score"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm sm:bg-black/75"
+        onClick={onClose}
+      />
+
       <div
         className={cn(
-          "relative flex max-h-[94vh] w-full max-w-md flex-col overflow-hidden",
-          "rounded-t-2xl border border-[#1c2235] bg-[#0c0f17] sm:rounded-2xl"
+          "relative z-10 flex w-full flex-col overflow-hidden bg-[#0c0f17]",
+          "h-[100dvh] max-h-[100dvh] sm:h-auto sm:max-h-[min(90vh,720px)] sm:max-w-md",
+          "border-[#1c2235] sm:rounded-2xl sm:border",
+          "shadow-[0_-8px_40px_rgba(0,0,0,0.45)] sm:shadow-[0_32px_64px_rgba(0,0,0,0.55)]",
+          "animate-fadeInSoft"
         )}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile sheet handle */}
+        <div className="flex shrink-0 justify-center pt-2 sm:hidden">
+          <div className="h-1 w-10 rounded-full bg-[#2a3350]" aria-hidden />
+        </div>
+
         {/* Header */}
-        <div className="shrink-0 border-b border-[#1c2235] bg-[#080a0f] px-5 pb-4 pt-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
+        <div
+          className={cn(
+            "shrink-0 border-b border-[#1c2235] bg-[#080a0f]",
+            "px-4 pb-3 pt-1 sm:px-5 sm:pb-4 sm:pt-4",
+            "pt-[max(0.25rem,env(safe-area-inset-top))]"
+          )}
+        >
+          <div className="mb-2 flex items-center justify-between gap-3 sm:mb-3">
             <button
               type="button"
               onClick={onClose}
               className={cn(
-                "flex min-h-[44px] min-w-[44px] items-center gap-1.5",
-                "font-mono text-[11px] uppercase tracking-[0.12em] text-[#8892a4]",
-                "transition-colors hover:text-[#e8edf5]"
+                "flex min-h-[44px] items-center gap-1.5 rounded-lg",
+                "px-1 font-mono text-[11px] uppercase tracking-[0.12em] text-[#8892a4]",
+                "transition-colors hover:text-[#e8edf5] active:bg-[#111520]"
               )}
             >
               <span aria-hidden className="text-base leading-none">
                 ←
               </span>
-              <span className="hidden sm:inline">Back</span>
+              Back
             </button>
             <EliteBadge />
           </div>
@@ -322,7 +364,7 @@ export function ReadinessScoreModal({
           >
             AI Readiness Score
           </p>
-          <p className="mt-1 truncate font-display text-lg font-bold text-[#e8edf5]">
+          <p className="mt-1 truncate font-display text-base font-bold text-[#e8edf5] sm:text-lg">
             {firmName}
           </p>
           <p className="truncate font-mono text-[11px] text-[#5a6580]">
@@ -331,10 +373,10 @@ export function ReadinessScoreModal({
         </div>
 
         {/* Scrollable body */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
           {loading && !data ? (
-            <div className="flex flex-col items-center py-12">
-              <div className="relative h-[168px] w-[168px]">
+            <div className="flex flex-col items-center py-10 sm:py-12">
+              <div className="relative h-[140px] w-[140px] sm:h-[168px] sm:w-[168px]">
                 <div className="absolute inset-0 rounded-full border-[10px] border-[#1c2235]" />
                 <div className="absolute inset-0 animate-pulse rounded-full border-[10px] border-[#f59e0b]/30 border-t-[#f59e0b]" />
               </div>
@@ -344,7 +386,7 @@ export function ReadinessScoreModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-6 font-mono text-[10px] uppercase tracking-wider text-[#4a5568] transition-colors hover:text-[#8892a4]"
+                className="mt-6 min-h-[44px] px-4 font-mono text-[10px] uppercase tracking-wider text-[#4a5568] transition-colors hover:text-[#8892a4]"
               >
                 Cancel
               </button>
@@ -355,22 +397,22 @@ export function ReadinessScoreModal({
               <button
                 type="button"
                 onClick={() => void fetchScore(true)}
-                className="mt-4 font-mono text-[10px] uppercase tracking-wider text-[#4a5568] transition-colors hover:text-[#8892a4]"
+                className="mt-4 min-h-[44px] px-4 font-mono text-[10px] uppercase tracking-wider text-[#4a5568] transition-colors hover:text-[#8892a4]"
               >
                 ↻ Retry
               </button>
             </div>
           ) : data ? (
             <>
-              <ScoreCircle score={data.score} grade={data.grade} />
+              <ScoreCircle score={data.score} grade={data.grade} compact />
 
-              <p className="mx-auto mt-4 max-w-[32ch] text-center font-body text-[13px] leading-relaxed text-[#8892a4]">
+              <p className="mt-3 text-center font-body text-[13px] leading-relaxed text-[#8892a4] sm:mx-auto sm:mt-4 sm:max-w-[34ch]">
                 {data.summary}
               </p>
 
-              <div className="mt-6 grid grid-cols-2 gap-4 border-t border-[#1c2235] pt-5">
+              <div className="mt-5 grid grid-cols-1 gap-5 border-t border-[#1c2235] pt-5 min-[400px]:grid-cols-2 min-[400px]:gap-4 sm:mt-6">
                 <div>
-                  <div className="mb-3 flex items-center gap-2">
+                  <div className="mb-2.5 flex items-center gap-2 sm:mb-3">
                     <span className="font-mono text-[11px] font-bold text-[#00ff88]">
                       +
                     </span>
@@ -382,7 +424,7 @@ export function ReadinessScoreModal({
                 </div>
 
                 <div>
-                  <div className="mb-3 flex items-center gap-2">
+                  <div className="mb-2.5 flex items-center gap-2 sm:mb-3">
                     <span className="font-mono text-[11px] font-bold text-[#f59e0b]">
                       −
                     </span>
@@ -399,14 +441,14 @@ export function ReadinessScoreModal({
                   <button
                     type="button"
                     onClick={() => setRulesExpanded((v) => !v)}
-                    className="flex w-full items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-[#4a5568] transition-colors hover:text-[#8892a4]"
+                    className="flex min-h-[44px] w-full items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-[#4a5568] transition-colors hover:text-[#8892a4]"
                   >
                     <span>Rule-by-rule breakdown</span>
                     <span>{rulesExpanded ? "▲" : "▼"}</span>
                   </button>
 
                   {rulesExpanded ? (
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-1 space-y-2">
                       {ruleAnalysis.map((item) => (
                         <div
                           key={`${item.rule}-${item.traderStat}`}
@@ -452,12 +494,17 @@ export function ReadinessScoreModal({
 
         {/* Footer */}
         {data || error ? (
-          <div className="shrink-0 border-t border-[#1c2235] bg-[#080a0f] p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div
+            className={cn(
+              "shrink-0 border-t border-[#1c2235] bg-[#080a0f] p-4",
+              "pb-[max(1rem,env(safe-area-inset-bottom))]"
+            )}
+          >
             <button
               type="button"
               onClick={onClose}
               className={cn(
-                "w-full rounded-xl border border-[#1c2235] bg-[#111520] py-3.5",
+                "w-full min-h-[48px] rounded-xl border border-[#1c2235] bg-[#111520]",
                 "font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#e8edf5]",
                 "transition-all duration-200 hover:border-[#2a3350] hover:bg-[#1c2235]",
                 "active:scale-[0.99]"
@@ -468,6 +515,7 @@ export function ReadinessScoreModal({
           </div>
         ) : null}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
