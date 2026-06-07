@@ -48,6 +48,7 @@ export interface ReadinessScoreResult {
 }
 
 interface ReadinessScoreRequest {
+  accountId: string;
   firmName: string;
   challengeType: string;
   profitTarget: number;
@@ -62,10 +63,8 @@ function tradeDay(trade: Trade): string {
   return trade.date.split("T")[0] ?? trade.date;
 }
 
-function buildReportType(firmName: string, challengeType: string): string {
-  return `readiness_score_${firmName}_${challengeType}`
-    .replace(/\s+/g, "_")
-    .toLowerCase();
+function buildReportType(accountId: string): string {
+  return `readiness_score_${accountId}`;
 }
 
 function topByFrequency(
@@ -254,6 +253,8 @@ function parseRequestBody(body: unknown): ReadinessScoreRequest | null {
   if (!body || typeof body !== "object") return null;
   const input = body as Partial<ReadinessScoreRequest>;
   if (
+    typeof input.accountId !== "string" ||
+    !input.accountId.trim() ||
     typeof input.firmName !== "string" ||
     !input.firmName.trim() ||
     typeof input.challengeType !== "string" ||
@@ -267,6 +268,7 @@ function parseRequestBody(body: unknown): ReadinessScoreRequest | null {
     return null;
   }
   return {
+    accountId: input.accountId.trim(),
     firmName: input.firmName.trim(),
     challengeType: input.challengeType.trim(),
     profitTarget: input.profitTarget,
@@ -318,7 +320,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const reportType = buildReportType(body.firmName, body.challengeType);
+  const reportType = buildReportType(body.accountId);
+
+  const { data: ownedAccount } = await supabase
+    .from("prop_firm_accounts")
+    .select("id")
+    .eq("id", body.accountId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!ownedAccount) {
+    return NextResponse.json({ error: "Account not found." }, { status: 404 });
+  }
 
   if (!body.refresh) {
     const { data: cached } = await supabase

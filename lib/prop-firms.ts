@@ -45,6 +45,17 @@ export function isChallengePhase(value: unknown): value is ChallengePhase {
   );
 }
 
+const ACTIVE_CHALLENGE_PHASES: readonly ChallengePhase[] = [
+  "Evaluation",
+  "Phase 1",
+  "Phase 2",
+  "Funded",
+];
+
+export function isActiveChallenge(phase: ChallengePhase): boolean {
+  return ACTIVE_CHALLENGE_PHASES.includes(phase);
+}
+
 export const PROP_FIRM_DATA = {
   FTMO: {
     challenges: [

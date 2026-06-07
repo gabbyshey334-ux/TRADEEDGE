@@ -2,16 +2,21 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import type { ChallengePhase } from "@/lib/prop-firms";
 import type { Plan } from "@/lib/types";
 
 export interface ChallengeRiskBannerProps {
   accountId: string;
   firmName: string;
+  challengeType: string;
+  challengePhase: ChallengePhase;
   dailyDrawdown: number;
   maxDrawdown: number;
   profitTarget: number;
+  minTradingDays: number;
   accountSize: number;
   currentBalance: number;
+  startDate: string | null;
   plan: Plan;
 }
 
@@ -27,11 +32,15 @@ interface ChallengeRiskData {
 export function ChallengeRiskBanner({
   accountId,
   firmName,
+  challengeType,
+  challengePhase,
   dailyDrawdown,
   maxDrawdown,
   profitTarget,
+  minTradingDays,
   accountSize,
   currentBalance,
+  startDate,
   plan,
 }: ChallengeRiskBannerProps) {
   const [data, setData] = useState<ChallengeRiskData | null>(null);
@@ -47,11 +56,15 @@ export function ChallengeRiskBanner({
         body: JSON.stringify({
           accountId,
           firmName,
+          challengeType,
+          challengePhase,
           dailyDrawdown,
           maxDrawdown,
           profitTarget,
+          minTradingDays,
           accountSize,
           currentBalance,
+          startDate,
         }),
       });
 
@@ -69,11 +82,15 @@ export function ChallengeRiskBanner({
     plan,
     accountId,
     firmName,
+    challengeType,
+    challengePhase,
     dailyDrawdown,
     maxDrawdown,
     profitTarget,
+    minTradingDays,
     accountSize,
     currentBalance,
+    startDate,
   ]);
 
   useEffect(() => {
@@ -114,7 +131,7 @@ export function ChallengeRiskBanner({
         <span className="shrink-0 font-mono text-lg text-[#f59e0b]">▲</span>
         <div>
           <div className="mb-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-[#f59e0b]">
-            RULE BREAK RISK DETECTED
+            RULE BREAK PREDICTION
           </div>
           <p className="font-body text-[12px] text-[#f59e0b]/80">
             {data.warning}
@@ -142,7 +159,7 @@ export function ChallengeRiskBanner({
       <span className="shrink-0 font-mono text-lg text-[#ff3b5c]">⚠</span>
       <div className="pr-6">
         <div className="mb-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-[#ff3b5c]">
-          HIGH RISK — STOP TRADING
+          RULE BREAK PREDICTION — HIGH RISK
         </div>
         <p className="font-body text-[12px] text-[#ff3b5c]/80">{data.warning}</p>
       </div>

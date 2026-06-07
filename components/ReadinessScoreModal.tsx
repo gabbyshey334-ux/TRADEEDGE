@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export interface ReadinessScoreModalProps {
   open: boolean;
   onClose: () => void;
+  accountId: string;
   firmName: string;
   challengeType: string;
   profitTarget: number;
@@ -98,6 +99,7 @@ function ScoreCircle({ score, grade }: { score: number; grade: string }) {
 export function ReadinessScoreModal({
   open,
   onClose,
+  accountId,
   firmName,
   challengeType,
   profitTarget,
@@ -112,9 +114,7 @@ export function ReadinessScoreModal({
 
   const fetchScore = useCallback(
     async (refresh = false) => {
-      const cacheKey = `readiness_${firmName}_${challengeType}`
-        .replace(/\s+/g, "_")
-        .toLowerCase();
+      const cacheKey = `readiness_${accountId}`;
 
       setError(null);
 
@@ -140,6 +140,7 @@ export function ReadinessScoreModal({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            accountId,
             firmName,
             challengeType,
             profitTarget,
@@ -174,6 +175,7 @@ export function ReadinessScoreModal({
       }
     },
     [
+      accountId,
       firmName,
       challengeType,
       profitTarget,

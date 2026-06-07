@@ -103,6 +103,19 @@ export function DailyCoachingReport({ plan }: DailyCoachingReportProps) {
     }
   }, [plan, fetchReport]);
 
+  useEffect(() => {
+    if (plan !== "elite") return;
+
+    function onTradeLogged() {
+      void fetchReport(true);
+    }
+
+    window.addEventListener("tradeedge:trade-logged", onTradeLogged);
+    return () => {
+      window.removeEventListener("tradeedge:trade-logged", onTradeLogged);
+    };
+  }, [plan, fetchReport]);
+
   const metrics = data
     ? [
         { label: "TRADES", value: String(data.keyMetrics.trades) },

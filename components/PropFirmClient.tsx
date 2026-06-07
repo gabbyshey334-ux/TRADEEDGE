@@ -14,6 +14,7 @@ import {
 import {
   decodeChallengeType,
   getMinTradingDays,
+  isActiveChallenge,
   type ChallengePhase,
   type NewPropFirmAccount,
   type PropFirmAccount,
@@ -199,6 +200,7 @@ export function PropFirmClient({
         <ReadinessScoreModal
           open={Boolean(readinessAccount)}
           onClose={() => setReadinessAccount(null)}
+          accountId={readinessAccount.id}
           firmName={readinessAccount.firm_name}
           challengeType={decodeChallengeType(readinessAccount.notes)}
           profitTarget={Number(readinessAccount.profit_target ?? 0)}
@@ -278,17 +280,21 @@ function AccountCard({
 
       <DrawdownGrid account={account} />
 
-      {plan === "elite" && (
+      {plan === "elite" && isActiveChallenge(account.challenge_phase) && (
         <ChallengeRiskBanner
           accountId={account.id}
           firmName={account.firm_name}
+          challengeType={decodeChallengeType(account.notes)}
+          challengePhase={account.challenge_phase}
           dailyDrawdown={Number(account.daily_drawdown ?? 0)}
           maxDrawdown={Number(account.max_drawdown ?? 0)}
           profitTarget={Number(account.profit_target ?? 0)}
+          minTradingDays={getMinTradingDays(account.firm_name)}
           accountSize={Number(account.account_size)}
           currentBalance={Number(
             account.current_balance ?? account.account_size
           )}
+          startDate={account.start_date}
           plan={plan}
         />
       )}

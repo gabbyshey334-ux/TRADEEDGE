@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { aggregatePnl } from "@/lib/utils";
+import { aggregatePnl, groupBy } from "@/lib/utils";
 import type { Plan, Trade } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -17,11 +17,15 @@ export interface ChallengeRiskResult {
 interface ChallengeRiskRequest {
   accountId: string;
   firmName: string;
+  challengeType: string;
+  challengePhase: string;
   dailyDrawdown: number;
   maxDrawdown: number;
   profitTarget: number;
+  minTradingDays: number;
   accountSize: number;
   currentBalance: number;
+  startDate: string | null;
 }
 
 function todayKey(): string {
@@ -69,21 +73,45 @@ function computeRevengeTradingRate(trades: Trade[]): number {
   return revengeCount / losingTrades.length;
 }
 
+function computeTradingDays(trades: Trade[]): number {
+  if (!trades.length) return 0;
+  return Object.keys(groupBy(trades, (t) => tradeDay(t))).length;
+}
+
+function computeDaysSinceStart(startDate: string | null): number | null {
+  if (!startDate) return null;
+  const start = new Date(startDate);
+  if (Number.isNaN(start.getTime())) return null;
+  const now = new Date();
+  const startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+  const nowUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.round((nowUtc - startUtc) / 86_400_000));
+}
+
 function determineRisk(input: {
   firmName: string;
+  challengeType: string;
   dailyDrawdown: number;
   maxDrawdown: number;
+  profitTarget: number;
+  minTradingDays: number;
   dailyLimitUsed: number;
   maxDrawdownUsed: number;
   revengeTradingRate: number;
+  tradingDaysLogged: number;
+  daysSinceStart: number | null;
 }): Pick<ChallengeRiskResult, "riskLevel" | "warning"> {
   const {
     firmName,
+    challengeType,
     dailyDrawdown,
     maxDrawdown,
+    minTradingDays,
     dailyLimitUsed,
     maxDrawdownUsed,
     revengeTradingRate,
+    tradingDaysLogged,
+    daysSinceStart,
   } = input;
 
   const dailyUsed = Math.round(dailyLimitUsed);
@@ -93,28 +121,54 @@ function determineRisk(input: {
   if (dailyLimitUsed >= 80 && revengeTradingRate > 0.3) {
     return {
       riskLevel: "high",
-      warning: `You are at ${dailyUsed}% of your daily loss limit and your journal shows you revenge trade ${revengePct}% of the time after losses. Stop trading for today.`,
+      warning: `You are at ${dailyUsed}% of your ${dailyDrawdown}% daily loss limit on ${firmName} ${challengeType} and your journal shows revenge trading ${revengePct}% of the time after losses. Stop trading for today.`,
+    };
+  }
+
+  if (dailyLimitUsed >= 70 && revengeTradingRate > 0.25) {
+    return {
+      riskLevel: "high",
+      warning: `At ${dailyUsed}% of your ${dailyDrawdown}% daily loss limit with a ${revengePct}% revenge-trading rate — this pattern historically leads to rule breaks on ${firmName} challenges.`,
+    };
+  }
+
+  if (maxDrawdownUsed >= 85) {
+    return {
+      riskLevel: "high",
+      warning: `Your account is at ${maxUsed}% of the ${maxDrawdown}% max drawdown limit on ${firmName} ${challengeType}. One more losing session ends this challenge.`,
     };
   }
 
   if (dailyLimitUsed >= 60) {
     return {
       riskLevel: "medium",
-      warning: `You have used ${dailyUsed}% of your ${firmName} daily loss limit. Proceed with caution.`,
+      warning: `You have used ${dailyUsed}% of your ${dailyDrawdown}% daily loss limit on ${firmName} ${challengeType}. Proceed with caution.`,
     };
   }
 
   if (maxDrawdownUsed >= 70) {
     return {
       riskLevel: "medium",
-      warning: `Your account is at ${maxUsed}% of the maximum drawdown limit. One bad session ends this challenge.`,
+      warning: `Your account is at ${maxUsed}% of the ${maxDrawdown}% maximum drawdown limit. One bad session ends this ${firmName} challenge.`,
     };
   }
 
   if (dailyLimitUsed >= 40 && revengeTradingRate > 0.5) {
     return {
       riskLevel: "medium",
-      warning: `Your historical revenge trading rate is high. With ${dailyUsed}% of your daily limit used, walk away if this trade loses.`,
+      warning: `Your historical revenge trading rate is ${revengePct}%. With ${dailyUsed}% of your ${dailyDrawdown}% daily limit used, walk away if this trade loses.`,
+    };
+  }
+
+  if (
+    minTradingDays > 0 &&
+    daysSinceStart !== null &&
+    daysSinceStart >= minTradingDays &&
+    tradingDaysLogged < minTradingDays
+  ) {
+    return {
+      riskLevel: "medium",
+      warning: `${firmName} ${challengeType} requires ${minTradingDays} minimum trading days — you have logged trades on ${tradingDaysLogged} day${tradingDaysLogged === 1 ? "" : "s"} so far.`,
     };
   }
 
@@ -129,9 +183,12 @@ function parseRequestBody(body: unknown): ChallengeRiskRequest | null {
     !input.accountId.trim() ||
     typeof input.firmName !== "string" ||
     !input.firmName.trim() ||
+    typeof input.challengeType !== "string" ||
+    typeof input.challengePhase !== "string" ||
     typeof input.dailyDrawdown !== "number" ||
     typeof input.maxDrawdown !== "number" ||
     typeof input.profitTarget !== "number" ||
+    typeof input.minTradingDays !== "number" ||
     typeof input.accountSize !== "number" ||
     typeof input.currentBalance !== "number"
   ) {
@@ -140,11 +197,16 @@ function parseRequestBody(body: unknown): ChallengeRiskRequest | null {
   return {
     accountId: input.accountId.trim(),
     firmName: input.firmName.trim(),
+    challengeType: input.challengeType.trim() || "Standard Challenge",
+    challengePhase: input.challengePhase.trim(),
     dailyDrawdown: input.dailyDrawdown,
     maxDrawdown: input.maxDrawdown,
     profitTarget: input.profitTarget,
+    minTradingDays: input.minTradingDays,
     accountSize: input.accountSize,
     currentBalance: input.currentBalance,
+    startDate:
+      typeof input.startDate === "string" ? input.startDate : null,
   };
 }
 
@@ -168,7 +230,7 @@ export async function POST(request: NextRequest) {
 
   if (plan !== "elite") {
     return NextResponse.json(
-      { error: "Challenge risk alerts are available on the Elite plan." },
+      { error: "Rule Break Prediction is available on the Elite plan." },
       { status: 403 }
     );
   }
@@ -226,8 +288,6 @@ export async function POST(request: NextRequest) {
   const dailyLimitUsed =
     body.dailyDrawdown > 0 ? (todayDrawdown / body.dailyDrawdown) * 100 : 0;
 
-  // Only calculate drawdown if balance is BELOW account size
-  // If balance is above account size, there is no drawdown
   const currentDrawdownPct =
     body.currentBalance < body.accountSize
       ? Math.abs(
@@ -240,14 +300,21 @@ export async function POST(request: NextRequest) {
       : 0;
 
   const revengeTradingRate = computeRevengeTradingRate(trades);
+  const tradingDaysLogged = computeTradingDays(trades);
+  const daysSinceStart = computeDaysSinceStart(body.startDate);
 
   const { riskLevel, warning } = determineRisk({
     firmName: body.firmName,
+    challengeType: body.challengeType,
     dailyDrawdown: body.dailyDrawdown,
     maxDrawdown: body.maxDrawdown,
+    profitTarget: body.profitTarget,
+    minTradingDays: body.minTradingDays,
     dailyLimitUsed,
     maxDrawdownUsed,
     revengeTradingRate,
+    tradingDaysLogged,
+    daysSinceStart,
   });
 
   return NextResponse.json({
