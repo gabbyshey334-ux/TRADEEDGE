@@ -7,13 +7,23 @@ export const runtime = "nodejs";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-const SYSTEM_PROMPT = `You are an elite prop firm trading coach. Generate a Readiness Score from 0 to 100 specifically assessing whether this trader is ready for the exact challenge rules provided. Every point in your analysis must reference a specific rule from the challenge.
+const SYSTEM_PROMPT = `You are an elite prop firm trading coach. Generate a Readiness Score from 0 to 100 specifically assessing whether this trader is ready for the exact challenge rules provided. Every bullet must reference journal stats or a specific challenge rule.
 
 Return ONLY valid JSON:
 {
-  "score": 75,
-  "grade": "B+",
-  "summary": "One sentence specific to this firm/challenge",
+  "score": 78,
+  "grade": "C+",
+  "summary": "2-3 sentences on readiness for this specific firm/challenge — balanced and direct",
+  "strengths": [
+    "Excellent 70% win rate shows disciplined trade selection",
+    "Profit factor of 1.89 indicates positive expectancy",
+    "Daily drawdown avg stays well under the 5% firm limit"
+  ],
+  "watch": [
+    "RR of 1:1.5 is suboptimal for this challenge's profit target",
+    "Large single loss suggests inconsistent position sizing",
+    "Revenge trading pattern after losses increases rule-break risk"
+  ],
   "ruleAnalysis": [
     {
       "rule": "Daily Loss Limit 5%",
@@ -22,12 +32,10 @@ Return ONLY valid JSON:
       "note": "Specific insight about this rule"
     }
   ],
-  "estimatedPassDays": 18,
-  "biggestRisk": "The single most likely reason they fail this challenge",
-  "recommendation": "One specific action to improve readiness"
+  "recommendation": "One specific coaching action tied to their journal patterns and this challenge"
 }
 
-For assessment use exactly one of: SAFE, AT RISK, DANGER`;
+Provide exactly 3 strengths and 3 watch items. For ruleAnalysis assessment use exactly one of: SAFE, AT RISK, DANGER. Include one ruleAnalysis row per challenge rule (profit target, daily loss, max drawdown, min trading days).`;
 
 export interface RuleAnalysisItem {
   rule: string;
@@ -40,9 +48,9 @@ export interface ReadinessScoreResult {
   score: number;
   grade: string;
   summary: string;
+  strengths: string[];
+  watch: string[];
   ruleAnalysis: RuleAnalysisItem[];
-  estimatedPassDays: number;
-  biggestRisk: string;
   recommendation: string;
   cached_at?: string;
 }
@@ -204,9 +212,59 @@ function parseRuleAnalysis(value: unknown): RuleAnalysisItem | null {
   };
 }
 
+function parseStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (item): item is string => typeof item === "string" && item.trim().length > 0
+  );
+}
+
+function deriveStrengthsAndWatch(
+  parsed: Partial<
+    ReadinessScoreResult & {
+      biggestRisk?: string;
+      estimatedPassDays?: number;
+    }
+  >,
+  ruleAnalysis: RuleAnalysisItem[]
+): { strengths: string[]; watch: string[] } {
+  let strengths = parseStringArray(parsed.strengths);
+  let watch = parseStringArray(parsed.watch);
+
+  if (!strengths.length && ruleAnalysis.length) {
+    strengths = ruleAnalysis
+      .filter((item) => item.assessment === "SAFE")
+      .map((item) => item.note || `${item.rule}: ${item.traderStat}`);
+  }
+
+  if (!watch.length && ruleAnalysis.length) {
+    watch = ruleAnalysis
+      .filter((item) => item.assessment !== "SAFE")
+      .map((item) => item.note || `${item.rule}: ${item.traderStat}`);
+  }
+
+  if (!watch.length && typeof parsed.biggestRisk === "string") {
+    watch = [parsed.biggestRisk];
+  }
+
+  if (!strengths.length) {
+    strengths = ["Journal patterns show areas of consistency for this challenge."];
+  }
+
+  if (!watch.length) {
+    watch = ["Monitor daily loss and max drawdown limits closely."];
+  }
+
+  return { strengths: strengths.slice(0, 4), watch: watch.slice(0, 4) };
+}
+
 function parseScorePayload(text: string): ReadinessScoreResult | null {
   const trimmed = text.trim();
-  let parsed: Partial<ReadinessScoreResult> & { ruleAnalysis?: unknown[] };
+  let parsed: Partial<ReadinessScoreResult> & {
+    ruleAnalysis?: unknown[];
+    biggestRisk?: string;
+    estimatedPassDays?: number;
+  };
 
   try {
     parsed = JSON.parse(trimmed);
@@ -224,27 +282,26 @@ function parseScorePayload(text: string): ReadinessScoreResult | null {
     typeof parsed.score !== "number" ||
     typeof parsed.grade !== "string" ||
     typeof parsed.summary !== "string" ||
-    !Array.isArray(parsed.ruleAnalysis) ||
-    typeof parsed.estimatedPassDays !== "number" ||
-    typeof parsed.biggestRisk !== "string" ||
     typeof parsed.recommendation !== "string"
   ) {
     return null;
   }
 
-  const ruleAnalysis = parsed.ruleAnalysis
-    .map(parseRuleAnalysis)
-    .filter((item): item is RuleAnalysisItem => item !== null);
+  const ruleAnalysis = Array.isArray(parsed.ruleAnalysis)
+    ? parsed.ruleAnalysis
+        .map(parseRuleAnalysis)
+        .filter((item): item is RuleAnalysisItem => item !== null)
+    : [];
 
-  if (!ruleAnalysis.length) return null;
+  const { strengths, watch } = deriveStrengthsAndWatch(parsed, ruleAnalysis);
 
   return {
     score: parsed.score,
     grade: parsed.grade,
     summary: parsed.summary,
+    strengths,
+    watch,
     ruleAnalysis,
-    estimatedPassDays: parsed.estimatedPassDays,
-    biggestRisk: parsed.biggestRisk,
     recommendation: parsed.recommendation,
   };
 }
@@ -390,7 +447,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 800,
+        max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: userMessage }],
       }),
