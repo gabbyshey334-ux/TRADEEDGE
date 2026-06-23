@@ -36,12 +36,18 @@ export default function SignupPage() {
       }
 
       if (res.needsEmailConfirmation) {
+        if (typeof window !== "undefined" && (window as any).fbq) {
+          (window as any).fbq('track', 'CompleteRegistration');
+        }
         setSuccess(
           "Account created. Check your email to confirm, then sign in with the password you just chose."
         );
         return;
       }
 
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq('track', 'CompleteRegistration');
+      }
       router.push("/dashboard");
       router.refresh();
     });

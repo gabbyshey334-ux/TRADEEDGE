@@ -43,6 +43,9 @@ export function DashboardShell({
         console.error("[DashboardShell] Plan sync after upgrade failed:", result.error);
         return;
       }
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq('track', 'Purchase');
+      }
       router.replace(pathname);
       router.refresh();
     });
