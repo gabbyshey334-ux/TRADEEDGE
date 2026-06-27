@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -31,29 +32,13 @@ export function LegalLayout({
             className="flex items-center gap-3 group"
             aria-label="TradeEdge AI home"
           >
-            <div
-              className="grid h-9 w-9 place-items-center rounded-xl shadow-[0_0_24px_rgba(0,229,176,0.25)]"
-              style={{
-                background: "linear-gradient(135deg, #00e5b0, #0066ff)",
-              }}
-              aria-hidden
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M4 16.5 9 11l4 3.5L20 6"
-                  stroke="#06080d"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M4 20h16"
-                  stroke="#06080d"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
+            <Image
+              src="/logos/TRADEEDGE.PNG"
+              alt="TradeEdge AI"
+              width={36}
+              height={36}
+              className="rounded-xl shadow-[0_0_24px_rgba(0,229,176,0.25)]"
+            />
             <span className="font-heading text-xl tracking-[0.1em] text-[#e8edf5]">
               TRADE<span className="text-[#00e5b0]">EDGE</span>
             </span>

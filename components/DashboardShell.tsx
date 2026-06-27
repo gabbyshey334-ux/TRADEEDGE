@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { Sidebar, type SidebarUser } from "@/components/Sidebar";
 import { signOutClient } from "@/lib/auth/client";
@@ -106,8 +107,15 @@ export function DashboardShell({
         </button>
         <Link
           href="/dashboard"
-          className="font-display font-bold text-base tracking-tight"
+          className="flex items-center gap-2 font-display font-bold text-base tracking-tight"
         >
+          <Image
+            src="/logos/TRADEEDGE.PNG"
+            alt="TradeEdge AI"
+            width={24}
+            height={24}
+            className="rounded-md"
+          />
           <span className="text-[#e8edf5]">TRADE</span>
           <span className="text-[#00ff88]">EDGE</span>
         </Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -187,9 +188,18 @@ export function Sidebar({
             onClick={handleNavClick}
             className="block px-3 pr-12 transition-all duration-200"
           >
-            <div className="font-display font-bold text-[22px] leading-none tracking-tight">
-              <span className="text-[#e8edf5]">TRADE</span>
-              <span className="text-[#00ff88]">EDGE</span>
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/logos/TRADEEDGE.PNG"
+                alt="TradeEdge AI"
+                width={28}
+                height={28}
+                className="rounded-md"
+              />
+              <div className="font-display font-bold text-[22px] leading-none tracking-tight">
+                <span className="text-[#e8edf5]">TRADE</span>
+                <span className="text-[#00ff88]">EDGE</span>
+              </div>
             </div>
             <div className="mt-2 font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
               AI · JOURNAL SUITE

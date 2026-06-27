@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Fragment, type CSSProperties } from "react";
 import {
@@ -143,12 +144,13 @@ const congressRows = [
 function Logo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[linear-gradient(135deg,#00ff88,#0ea5e9)] shadow-[0_0_24px_rgba(0,255,136,0.25)]">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M4 16.5 9 11l4 3.5L20 6" stroke="#06080d" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M4 20h16" stroke="#06080d" strokeWidth="2.6" strokeLinecap="round" />
-        </svg>
-      </div>
+      <Image
+        src="/logos/TRADEEDGE.PNG"
+        alt="TradeEdge AI"
+        width={36}
+        height={36}
+        className="rounded-xl shadow-[0_0_24px_rgba(0,255,136,0.25)]"
+      />
       <span className="font-display font-bold text-2xl tracking-tight text-[#e8edf5]">
         TRADE<span className="text-[#00ff88]">EDGE</span>
       </span>

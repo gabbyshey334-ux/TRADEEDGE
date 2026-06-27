@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface AuthShellProps {
@@ -21,7 +22,14 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
 
       <div className="relative z-10 w-full max-w-[420px] bg-[#0c0f17] border border-[#1c2235] rounded-2xl px-8 py-10 shadow-[0_0_80px_rgba(0,0,0,0.6)] animate-fadeIn">
         <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="group">
+          <Link href="/" className="group flex items-center gap-2.5">
+            <Image
+              src="/logos/TRADEEDGE.PNG"
+              alt="TradeEdge AI"
+              width={28}
+              height={28}
+              className="rounded-md"
+            />
             <div className="font-display font-bold text-xl text-[#e8edf5] tracking-tight leading-none">
               <span>TRADE</span>
               <span className="text-[#00ff88]">EDGE</span>
