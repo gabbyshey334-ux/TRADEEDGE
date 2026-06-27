@@ -29,12 +29,42 @@ interface FormState {
   setup: string;
   emotion: string;
   entry: string;
+  stop_loss: string;
   exit_price: string;
   size: string;
   pnl: string;
   rr: string;
   notes: string;
   screenshot_url: string;
+}
+
+function getFuturesMultiplier(symbol: string): number {
+  const sym = symbol.toUpperCase().trim();
+  if (sym.includes("NQ")) {
+    return sym.includes("M") ? 2 : 20;
+  }
+  if (sym.includes("ES")) {
+    return sym.includes("M") ? 5 : 50;
+  }
+  if (sym.includes("YM")) {
+    return sym.includes("M") ? 0.5 : 5;
+  }
+  if (sym.includes("CL")) {
+    return sym.includes("M") ? 100 : 1000;
+  }
+  if (sym.includes("GC")) {
+    return sym.includes("M") ? 10 : 100;
+  }
+  return 1;
+}
+
+function getForexMultiplier(symbol: string, size: number): number {
+  if (size >= 1000) return 1;
+  const sym = symbol.toUpperCase().trim();
+  if (sym.includes("JPY")) {
+    return 1000;
+  }
+  return 100000;
 }
 
 function emptyState(): FormState {
@@ -47,6 +77,7 @@ function emptyState(): FormState {
     setup: "Breakout",
     emotion: "Calm",
     entry: "",
+    stop_loss: "",
     exit_price: "",
     size: "",
     pnl: "",
@@ -57,6 +88,14 @@ function emptyState(): FormState {
 }
 
 function fromTrade(t: Trade): FormState {
+  let stopLossStr = "";
+  if (t.entry && t.exit_price && t.rr && t.rr > 0) {
+    const reward = t.direction === "Long" ? t.exit_price - t.entry : t.entry - t.exit_price;
+    const risk = reward / t.rr;
+    const sl = t.direction === "Long" ? t.entry - risk : t.entry + risk;
+    stopLossStr = Number(sl.toFixed(5)).toString();
+  }
+
   return {
     date: t.date.slice(0, 10),
     symbol: t.symbol,
@@ -66,6 +105,7 @@ function fromTrade(t: Trade): FormState {
     setup: t.setup ?? "Breakout",
     emotion: t.emotion ?? "Calm",
     entry: String(t.entry ?? ""),
+    stop_loss: stopLossStr,
     exit_price: t.exit_price != null ? String(t.exit_price) : "",
     size: t.size != null ? String(t.size) : "",
     pnl: String(t.pnl ?? ""),
@@ -110,6 +150,71 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
+
+  // Auto-calculate P&L and R:R
+  useEffect(() => {
+    const entryVal = parseFloat(form.entry);
+    const exitVal = parseFloat(form.exit_price);
+    const sizeVal = parseFloat(form.size);
+    const slVal = parseFloat(form.stop_loss);
+
+    let nextPnl = form.pnl;
+    let nextRr = form.rr;
+
+    // Calculate PnL if entry, exit, and size are valid
+    if (
+      !isNaN(entryVal) &&
+      !isNaN(exitVal) &&
+      !isNaN(sizeVal) &&
+      entryVal > 0 &&
+      exitVal > 0 &&
+      sizeVal > 0
+    ) {
+      const isLong = form.direction === "Long";
+      const diff = isLong ? exitVal - entryVal : entryVal - exitVal;
+      let multiplier = 1;
+      if (form.market === "Forex") {
+        multiplier = getForexMultiplier(form.symbol, sizeVal);
+      } else if (form.market === "Futures") {
+        multiplier = getFuturesMultiplier(form.symbol);
+      }
+      const calculatedPnl = Math.round(diff * sizeVal * multiplier * 100) / 100;
+      nextPnl = String(calculatedPnl);
+    }
+
+    // Calculate R:R if entry, exit, and stop loss are valid
+    if (
+      !isNaN(entryVal) &&
+      !isNaN(exitVal) &&
+      !isNaN(slVal) &&
+      entryVal > 0 &&
+      exitVal > 0 &&
+      slVal > 0 &&
+      entryVal !== slVal
+    ) {
+      const reward = Math.abs(exitVal - entryVal);
+      const risk = Math.abs(entryVal - slVal);
+      const calculatedRr = Math.round((reward / risk) * 100) / 100;
+      nextRr = String(calculatedRr);
+    }
+
+    // Only update if changed to avoid loop
+    if (nextPnl !== form.pnl || nextRr !== form.rr) {
+      setForm((f) => ({
+        ...f,
+        pnl: nextPnl !== f.pnl ? nextPnl : f.pnl,
+        rr: nextRr !== f.rr ? nextRr : f.rr,
+      }));
+    }
+  }, [
+    form.entry,
+    form.exit_price,
+    form.size,
+    form.stop_loss,
+    form.direction,
+    form.market,
+    form.symbol,
+  ]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -288,7 +393,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
             {/* Execution */}
             <section className="space-y-4">
               <FormSectionLabel accent="#f0c040">Execution</FormSectionLabel>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                 <Input
                   label="Entry"
                   name="entry"
@@ -298,6 +403,16 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   value={form.entry}
                   onChange={(e) => update("entry", e.target.value)}
                   required
+                />
+                <Input
+                  label="Stop Loss"
+                  name="stop_loss"
+                  type="number"
+                  step="0.00001"
+                  placeholder="0.00000"
+                  value={form.stop_loss}
+                  onChange={(e) => update("stop_loss", e.target.value)}
+                  hint="Optional — auto-calcs R:R"
                 />
                 <Input
                   label="Exit"
@@ -327,7 +442,6 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   onChange={(e) => update("rr", e.target.value)}
                 />
               </div>
-
               <div
                 className={cn(
                   "rounded-sm border-l-2 border p-4 transition-colors duration-150",
