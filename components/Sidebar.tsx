@@ -166,24 +166,27 @@ export function Sidebar({
       >
         {expanded ? (
           <div>
-            <div className="flex items-center justify-between gap-2">
-              <Link
-                href="/dashboard"
-                onClick={handleNavClick}
-                className="flex items-center gap-2.5 transition-all duration-200"
-              >
-                <Image
-                  src="/logos/TRADEEDGE.PNG"
-                  alt="TradeEdge AI"
-                  width={36}
-                  height={36}
-                  className="rounded-lg shadow-md shrink-0"
-                />
-                <div className="font-display font-bold text-[22px] leading-none tracking-tight">
-                  <span className="text-[#e8edf5]">TRADE</span>
-                  <span className="text-[#00ff88]">EDGE</span>
-                </div>
-              </Link>
+            <Link
+              href="/dashboard"
+              onClick={handleNavClick}
+              className="flex items-center gap-2.5 transition-all duration-200"
+            >
+              <Image
+                src="/logos/TRADEEDGE.PNG"
+                alt="TradeEdge AI"
+                width={36}
+                height={36}
+                className="rounded-lg shadow-md shrink-0"
+              />
+              <div className="font-display font-bold text-[22px] leading-none tracking-tight">
+                <span className="text-[#e8edf5]">TRADE</span>
+                <span className="text-[#00ff88]">EDGE</span>
+              </div>
+            </Link>
+            <div className="flex items-center justify-between mt-3 px-0.5">
+              <div className="font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
+                AI · JOURNAL SUITE
+              </div>
               <button
                 type="button"
                 onClick={onToggle}
@@ -192,9 +195,6 @@ export function Sidebar({
               >
                 <PanelLeftClose size={16} strokeWidth={1.75} />
               </button>
-            </div>
-            <div className="mt-2.5 px-0.5 font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
-              AI · JOURNAL SUITE
             </div>
             <hr className="mt-4 border-[#1c2235]" />
           </div>
