@@ -202,7 +202,7 @@ export function TradeTable({
                     </Td>
                   )}
                   <Td align="right" className="text-[#a78bfa] tabular-nums">
-                    {t.rr != null ? `1 : ${Number(t.rr).toFixed(2)}` : "—"}
+                    {t.rr != null ? Number(t.rr).toFixed(2) : "—"}
                   </Td>
                   <Td
                     align="right"
