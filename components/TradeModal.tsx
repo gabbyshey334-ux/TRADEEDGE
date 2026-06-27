@@ -29,6 +29,7 @@ interface FormState {
   setup: string;
   emotion: string;
   entry: string;
+  stop_loss: string;
   exit_price: string;
   size: string;
   pnl: string;
@@ -76,6 +77,7 @@ function emptyState(): FormState {
     setup: "Breakout",
     emotion: "Calm",
     entry: "",
+    stop_loss: "",
     exit_price: "",
     size: "",
     pnl: "",
@@ -86,6 +88,14 @@ function emptyState(): FormState {
 }
 
 function fromTrade(t: Trade): FormState {
+  let stopLossStr = "";
+  if (t.entry && t.exit_price && t.rr && t.rr > 0) {
+    const reward = t.direction === "Long" ? t.exit_price - t.entry : t.entry - t.exit_price;
+    const risk = reward / t.rr;
+    const sl = t.direction === "Long" ? t.entry - risk : t.entry + risk;
+    stopLossStr = Number(sl.toFixed(5)).toString();
+  }
+
   return {
     date: t.date.slice(0, 10),
     symbol: t.symbol,
@@ -95,6 +105,7 @@ function fromTrade(t: Trade): FormState {
     setup: t.setup ?? "Breakout",
     emotion: t.emotion ?? "Calm",
     entry: String(t.entry ?? ""),
+    stop_loss: stopLossStr,
     exit_price: t.exit_price != null ? String(t.exit_price) : "",
     size: t.size != null ? String(t.size) : "",
     pnl: String(t.pnl ?? ""),
@@ -140,11 +151,12 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  // Auto-calculate P&L
+  // Auto-calculate P&L and R:R
   useEffect(() => {
     const entryVal = parseFloat(form.entry);
     const exitVal = parseFloat(form.exit_price);
     const sizeVal = parseFloat(form.size);
+    const slVal = parseFloat(form.stop_loss);
 
     let nextPnl = form.pnl;
     let nextRr = form.rr;
@@ -168,12 +180,29 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
       }
       const calculatedPnl = Math.round(diff * sizeVal * multiplier * 100) / 100;
       nextPnl = String(calculatedPnl);
+    }
 
-      // Auto-populate R:R using the proxy P&L / Size
-      // If Size represents Dollar Risk, this perfectly computes the R-Multiple.
-      // Alternatively, it computes the raw Pips/Points captured per unit.
-      const calculatedRr = Math.round((Math.abs(calculatedPnl) / sizeVal) * 100) / 100;
-      nextRr = String(calculatedRr);
+    // Calculate R:R if entry, exit, and stop loss are valid
+    if (
+      !isNaN(entryVal) &&
+      !isNaN(exitVal) &&
+      !isNaN(slVal) &&
+      entryVal > 0 &&
+      exitVal > 0 &&
+      slVal > 0 &&
+      entryVal !== slVal
+    ) {
+      const isLong = form.direction === "Long";
+      const reward = isLong ? exitVal - entryVal : entryVal - exitVal;
+      const risk = isLong ? entryVal - slVal : slVal - entryVal;
+      
+      // Only compute R:R if risk is logically positive (stop loss is on correct side)
+      if (risk > 0) {
+        const calculatedRr = Math.round((reward / risk) * 100) / 100;
+        nextRr = String(calculatedRr);
+      } else {
+        nextRr = "";
+      }
     }
 
     // Only update if changed to avoid loop
@@ -188,6 +217,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
     form.entry,
     form.exit_price,
     form.size,
+    form.stop_loss,
     form.direction,
     form.market,
     form.symbol,
@@ -370,7 +400,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
             {/* Execution */}
             <section className="space-y-4">
               <FormSectionLabel accent="#f0c040">Execution</FormSectionLabel>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                 <Input
                   label="Entry"
                   name="entry"
@@ -380,6 +410,15 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   value={form.entry}
                   onChange={(e) => update("entry", e.target.value)}
                   required
+                />
+                <Input
+                  label="Stop Loss"
+                  name="stop_loss"
+                  type="number"
+                  step="0.00001"
+                  placeholder="0.00000"
+                  value={form.stop_loss}
+                  onChange={(e) => update("stop_loss", e.target.value)}
                 />
                 <Input
                   label="Exit"
@@ -404,9 +443,11 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   name="rr"
                   type="number"
                   step="0.01"
-                  placeholder="2.00"
+                  placeholder="—"
+                  prefix="1 :"
                   value={form.rr}
                   onChange={(e) => update("rr", e.target.value)}
+                  hint="Add SL to calculate"
                 />
               </div>
               <div
