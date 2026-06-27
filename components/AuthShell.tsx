@@ -26,8 +26,8 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
             <Image
               src="/logos/TRADEEDGE.PNG"
               alt="TradeEdge AI"
-              width={28}
-              height={28}
+              width={36}
+              height={36}
               className="rounded-md"
             />
             <div className="font-display font-bold text-xl text-[#e8edf5] tracking-tight leading-none">

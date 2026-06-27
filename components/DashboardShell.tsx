@@ -112,8 +112,8 @@ export function DashboardShell({
           <Image
             src="/logos/TRADEEDGE.PNG"
             alt="TradeEdge AI"
-            width={24}
-            height={24}
+            width={32}
+            height={32}
             className="rounded-md"
           />
           <span className="text-[#e8edf5]">TRADE</span>

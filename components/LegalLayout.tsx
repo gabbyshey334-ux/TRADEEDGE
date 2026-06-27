@@ -35,8 +35,8 @@ export function LegalLayout({
             <Image
               src="/logos/TRADEEDGE.PNG"
               alt="TradeEdge AI"
-              width={36}
-              height={36}
+              width={40}
+              height={40}
               className="rounded-xl shadow-[0_0_24px_rgba(0,229,176,0.25)]"
             />
             <span className="font-heading text-xl tracking-[0.1em] text-[#e8edf5]">

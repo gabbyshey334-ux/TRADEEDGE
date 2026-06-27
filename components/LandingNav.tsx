@@ -9,8 +9,8 @@ function Logo() {
       <Image
         src="/logos/TRADEEDGE.PNG"
         alt="TradeEdge AI"
-        width={32}
-        height={32}
+        width={38}
+        height={38}
         className="rounded-md shrink-0"
       />
       <div className="font-display font-bold text-[20px] sm:text-[22px] tracking-tight text-[#e8edf5]">

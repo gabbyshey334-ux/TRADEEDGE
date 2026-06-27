@@ -160,52 +160,53 @@ export function Sidebar({
       {/* Logo block + collapse toggle */}
       <div
         className={cn(
-          "relative shrink-0 pb-4",
-          expanded ? "px-3 pt-8" : "px-2 pt-8 flex justify-center"
+          "relative shrink-0",
+          expanded ? "px-4 pt-6 pb-2" : "px-2 pt-6 pb-4 flex justify-center"
         )}
       >
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-          className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-lg",
-            "text-[#4a5568] hover:text-[#e8edf5] hover:bg-[#111520]",
-            "transition-all duration-150 cursor-pointer border-0 bg-transparent",
-            expanded ? "absolute right-3 top-8" : "relative"
-          )}
-        >
-          {open ? (
-            <PanelLeftClose size={16} strokeWidth={1.75} />
-          ) : (
-            <PanelLeftOpen size={16} strokeWidth={1.75} />
-          )}
-        </button>
-
-        {expanded && (
-          <Link
-            href="/dashboard"
-            onClick={handleNavClick}
-            className="block px-3 pr-12 transition-all duration-200"
-          >
-            <div className="flex items-center gap-2.5">
-              <Image
-                src="/logos/TRADEEDGE.PNG"
-                alt="TradeEdge AI"
-                width={28}
-                height={28}
-                className="rounded-md"
-              />
-              <div className="font-display font-bold text-[22px] leading-none tracking-tight">
-                <span className="text-[#e8edf5]">TRADE</span>
-                <span className="text-[#00ff88]">EDGE</span>
-              </div>
+        {expanded ? (
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <Link
+                href="/dashboard"
+                onClick={handleNavClick}
+                className="flex items-center gap-2.5 transition-all duration-200"
+              >
+                <Image
+                  src="/logos/TRADEEDGE.PNG"
+                  alt="TradeEdge AI"
+                  width={36}
+                  height={36}
+                  className="rounded-lg shadow-md shrink-0"
+                />
+                <div className="font-display font-bold text-[22px] leading-none tracking-tight">
+                  <span className="text-[#e8edf5]">TRADE</span>
+                  <span className="text-[#00ff88]">EDGE</span>
+                </div>
+              </Link>
+              <button
+                type="button"
+                onClick={onToggle}
+                aria-label="Collapse sidebar"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#4a5568] hover:text-[#e8edf5] hover:bg-[#111520] transition-all duration-150 cursor-pointer border-0 bg-transparent shrink-0"
+              >
+                <PanelLeftClose size={16} strokeWidth={1.75} />
+              </button>
             </div>
-            <div className="mt-2 font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
+            <div className="mt-2.5 px-0.5 font-mono text-[10px] text-[#4a5568] tracking-[0.2em] uppercase">
               AI · JOURNAL SUITE
             </div>
-            <hr className="mt-3 border-[#1c2235]" />
-          </Link>
+            <hr className="mt-4 border-[#1c2235]" />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label="Expand sidebar"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#4a5568] hover:text-[#e8edf5] hover:bg-[#111520] transition-all duration-150 cursor-pointer border-0 bg-transparent"
+          >
+            <PanelLeftOpen size={16} strokeWidth={1.75} />
+          </button>
         )}
       </div>
 

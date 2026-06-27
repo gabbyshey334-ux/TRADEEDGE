@@ -147,8 +147,8 @@ function Logo() {
       <Image
         src="/logos/TRADEEDGE.PNG"
         alt="TradeEdge AI"
-        width={36}
-        height={36}
+        width={40}
+        height={40}
         className="rounded-xl shadow-[0_0_24px_rgba(0,255,136,0.25)]"
       />
       <span className="font-display font-bold text-2xl tracking-tight text-[#e8edf5]">
