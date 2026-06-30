@@ -387,6 +387,9 @@ export default function LandingPage() {
                 {item}
               </a>
             ))}
+            <a href="#about" className="font-mono text-[11px] tracking-[0.1em] text-[#8892a4] uppercase hover:text-[#e8edf5] transition-colors duration-150">
+              About
+            </a>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
             <Link href="/login" className="rounded-full px-4 py-2 text-sm text-[#a0afc0] transition-colors hover:text-[#e8edf5]">
@@ -407,6 +410,9 @@ export default function LandingPage() {
                   {item}
                 </a>
               ))}
+              <a href="#about" className="block rounded-xl px-3 py-3 text-sm text-[#a0afc0] hover:bg-[#0c1018] hover:text-[#e8edf5]">
+                About
+              </a>
               <Link href="/signup" className="mt-2 block rounded-xl bg-[#00e5b0] px-3 py-3 text-center text-sm font-bold text-[#06080d]">
                 Start free
               </Link>
@@ -592,6 +598,72 @@ export default function LandingPage() {
         <SectionHeader eyebrow="FAQ" title="QUESTIONS BEFORE YOU COMMIT?" />
         <div className="mt-12">
           <FaqAccordion />
+        </div>
+      </ScrollReveal>
+
+      <ScrollReveal id="about" className="relative overflow-hidden px-6 py-24">
+        <div
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#00ff88]/[0.03] blur-[150px]"
+          aria-hidden
+        />
+
+        <div className="relative mx-auto max-w-3xl">
+          <div className="mb-3 text-center">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#4a5568]">
+              THE FOUNDER
+            </span>
+          </div>
+
+          <h2 className="mb-2 text-center font-display text-3xl font-bold text-[#e8edf5] sm:text-4xl">
+            Built by a Trader, For Traders
+          </h2>
+
+          <p className="mb-12 text-center font-mono text-[12px] text-[#00ff88]">
+            Anthony Brown · Founder, TradeEdge AI
+          </p>
+
+          <div className="space-y-6 rounded-2xl border border-[#1c2235] bg-[#0c0f17] p-8 font-body text-[15px] leading-relaxed text-[#8892a4] sm:p-10 sm:text-[16px]">
+            <p>
+              I spent 20 years in the Army as an Airborne Ranger and 82nd
+              Airborne paratrooper before I ever sat down seriously to trade.
+              Military life teaches you something that took me a long time to
+              fully understand — failure is rarely about ability. It&apos;s
+              almost always about process, preparation, and the small decisions
+              you make under pressure that nobody else ever sees.
+            </p>
+
+            <p className="font-body text-[18px] italic text-[#e8edf5]">
+              Trading taught me that exact same lesson the hard way.
+            </p>
+
+            <p>
+              I&apos;m tired of hearing the same statistic thrown around
+              everywhere — that only a small percentage of traders are ever
+              profitable — like it&apos;s some unchangeable law of nature. I
+              don&apos;t believe that. I&apos;ve seen too many disciplined people
+              fail not because they lacked skill, but because they had no real
+              feedback loop on their own behavior. They could see their P&amp;L,
+              but they couldn&apos;t see why.
+            </p>
+
+            <p>
+              I built TradeEdge AI to change that. This isn&apos;t a money grab,
+              and it&apos;s not another app promising easy profits. It&apos;s a
+              real tool, built by a trader, for traders, designed to do one
+              thing — help you see the patterns that are quietly costing you
+              money before they cost you your account.
+            </p>
+
+            <p className="font-display text-xl font-bold not-italic text-[#00ff88]">
+              My mission is simple: build better traders. Period.
+            </p>
+
+            <div className="mt-2 border-t border-[#1c2235] pt-5">
+              <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#4a5568]">
+                Rangers Lead The Way.
+              </p>
+            </div>
+          </div>
         </div>
       </ScrollReveal>
 

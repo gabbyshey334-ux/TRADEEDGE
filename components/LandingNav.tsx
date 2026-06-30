@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 function Logo() {
   return (
@@ -28,6 +29,8 @@ const LINKS = [
 
 export function LandingNav() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const aboutHref = pathname === "/" ? "#about" : "/#about";
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -56,12 +59,12 @@ export function LandingNav() {
               {l.label}
             </a>
           ))}
-          <Link
-            href="/about"
+          <a
+            href={aboutHref}
             className="font-mono text-[11px] tracking-[0.1em] text-[#8892a4] uppercase hover:text-[#e8edf5] transition-colors duration-150"
           >
             About
-          </Link>
+          </a>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -103,13 +106,13 @@ export function LandingNav() {
               {l.label}
             </a>
           ))}
-          <Link
-            href="/about"
+          <a
+            href={aboutHref}
             onClick={() => setOpen(false)}
             className="rounded-lg px-3 py-3 font-body text-[14px] text-[#8892a4] hover:bg-[#0c0f17] hover:text-[#e8edf5] transition-all duration-200"
           >
             About
-          </Link>
+          </a>
           <Link
             href="/login"
             onClick={() => setOpen(false)}
