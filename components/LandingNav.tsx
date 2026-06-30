@@ -56,6 +56,12 @@ export function LandingNav() {
               {l.label}
             </a>
           ))}
+          <Link
+            href="/about"
+            className="font-mono text-[11px] tracking-[0.1em] text-[#8892a4] uppercase hover:text-[#e8edf5] transition-colors duration-150"
+          >
+            About
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -97,6 +103,13 @@ export function LandingNav() {
               {l.label}
             </a>
           ))}
+          <Link
+            href="/about"
+            onClick={() => setOpen(false)}
+            className="rounded-lg px-3 py-3 font-body text-[14px] text-[#8892a4] hover:bg-[#0c0f17] hover:text-[#e8edf5] transition-all duration-200"
+          >
+            About
+          </Link>
           <Link
             href="/login"
             onClick={() => setOpen(false)}

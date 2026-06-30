@@ -6,6 +6,10 @@ import {
   updateProfilePlan,
   upsertSubscriptionRow,
 } from "@/lib/billing/subscription-sync";
+import {
+  getSessionIdFromMetadata,
+  trackServerFunnelEvent,
+} from "@/lib/funnel-events";
 import { getServiceClient } from "@/lib/supabase/service";
 
 /**
@@ -74,6 +78,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   await applySubscriptionToUser({ userId, subscription });
+
+  await trackServerFunnelEvent({
+    eventType: "checkout_completed",
+    userId,
+    sessionId: getSessionIdFromMetadata(session.metadata),
+    metadata: {
+      plan:
+        (subscription.metadata as Record<string, string> | undefined)?.plan ??
+        (session.metadata as Record<string, string> | undefined)?.plan ??
+        null,
+      stripe_checkout_session_id: session.id,
+      stripe_subscription_id: subscriptionId,
+    },
+  });
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {

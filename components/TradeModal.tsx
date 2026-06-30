@@ -30,6 +30,7 @@ interface FormState {
   emotion: string;
   entry: string;
   exit_price: string;
+  stopLoss: string;
   size: string;
   pnl: string;
   rr: string;
@@ -77,6 +78,7 @@ function emptyState(): FormState {
     emotion: "Calm",
     entry: "",
     exit_price: "",
+    stopLoss: "",
     size: "",
     pnl: "",
     rr: "",
@@ -96,6 +98,7 @@ function fromTrade(t: Trade): FormState {
     emotion: t.emotion ?? "Calm",
     entry: String(t.entry ?? ""),
     exit_price: t.exit_price != null ? String(t.exit_price) : "",
+    stopLoss: t.stop_loss != null ? String(t.stop_loss) : "",
     size: t.size != null ? String(t.size) : "",
     pnl: String(t.pnl ?? ""),
     rr: t.rr != null ? String(t.rr) : "",
@@ -140,56 +143,64 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  // Auto-calculate P&L and R:R
+  // Auto-calculate P&L and R:R from entry, exit, size, direction, and stop loss
   useEffect(() => {
     const entryVal = parseFloat(form.entry);
     const exitVal = parseFloat(form.exit_price);
     const sizeVal = parseFloat(form.size);
+    const stopVal = parseFloat(form.stopLoss);
 
-    let nextPnl = form.pnl;
-    let nextRr = form.rr;
+    let nextPnl = "";
+    let nextRr = "";
 
-    // Calculate PnL if entry, exit, and size are valid
     if (
-      !isNaN(entryVal) &&
-      !isNaN(exitVal) &&
-      !isNaN(sizeVal) &&
+      !Number.isNaN(entryVal) &&
+      !Number.isNaN(exitVal) &&
+      !Number.isNaN(sizeVal) &&
       entryVal > 0 &&
       exitVal > 0 &&
       sizeVal > 0
     ) {
       const isLong = form.direction === "Long";
       const diff = isLong ? exitVal - entryVal : entryVal - exitVal;
+
       let multiplier = 1;
       if (form.market === "Forex") {
         multiplier = getForexMultiplier(form.symbol, sizeVal);
       } else if (form.market === "Futures") {
         multiplier = getFuturesMultiplier(form.symbol);
       }
-      const calculatedPnl = Math.round(diff * sizeVal * multiplier * 100) / 100;
-      nextPnl = String(calculatedPnl);
 
-      // Auto-populate R:R using the proxy P&L / Size
-      const calculatedRr = Math.round((Math.abs(calculatedPnl) / sizeVal) * 100) / 100;
-      nextRr = String(calculatedRr);
+      const calculatedPnl =
+        Math.round(diff * sizeVal * multiplier * 100) / 100;
+      nextPnl = String(calculatedPnl);
     }
 
-    // Only update if changed to avoid loop
+    if (
+      form.stopLoss.trim() !== "" &&
+      !Number.isNaN(entryVal) &&
+      !Number.isNaN(exitVal) &&
+      !Number.isNaN(stopVal) &&
+      entryVal > 0 &&
+      exitVal > 0
+    ) {
+      const riskDistance = Math.abs(entryVal - stopVal);
+      const rewardDistance = Math.abs(exitVal - entryVal);
+      if (riskDistance > 0) {
+        nextRr = String(
+          Math.round((rewardDistance / riskDistance) * 100) / 100
+        );
+      }
+    }
+
     if (nextPnl !== form.pnl || nextRr !== form.rr) {
       setForm((f) => ({
         ...f,
-        pnl: nextPnl !== f.pnl ? nextPnl : f.pnl,
-        rr: nextRr !== f.rr ? nextRr : f.rr,
+        pnl: nextPnl,
+        rr: nextRr,
       }));
     }
-  }, [
-    form.entry,
-    form.exit_price,
-    form.size,
-    form.direction,
-    form.market,
-    form.symbol,
-  ]);
+  }, [form.entry, form.exit_price, form.size, form.direction, form.stopLoss]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -218,6 +229,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
       emotion: form.emotion || null,
       entry: Number(form.entry),
       exit_price: form.exit_price ? Number(form.exit_price) : null,
+      stop_loss: form.stopLoss ? Number(form.stopLoss) : null,
       size: form.size ? Number(form.size) : null,
       pnl: Number(form.pnl),
       rr: form.rr ? Number(form.rr) : null,
@@ -388,6 +400,24 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   value={form.exit_price}
                   onChange={(e) => update("exit_price", e.target.value)}
                 />
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="stopLoss"
+                    className="font-mono text-[10px] tracking-[0.15em] text-[#4a5568] uppercase"
+                  >
+                    Stop Loss (optional)
+                  </label>
+                  <input
+                    id="stopLoss"
+                    name="stopLoss"
+                    type="number"
+                    step="0.00001"
+                    placeholder="0.00000"
+                    value={form.stopLoss}
+                    onChange={(e) => update("stopLoss", e.target.value)}
+                    className="w-full rounded-lg border border-[#1c2235] bg-[#080a0f] px-4 py-3 font-mono text-[14px] text-[#e8edf5] placeholder:text-[#3a4560] focus:border-[#00e5b0] focus:outline-none focus:ring-1 focus:ring-[#00e5b0]/20"
+                  />
+                </div>
                 <Input
                   label="Size"
                   name="size"
@@ -397,15 +427,29 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   value={form.size}
                   onChange={(e) => update("size", e.target.value)}
                 />
-                <Input
-                  label="R : R"
-                  name="rr"
-                  type="number"
-                  step="0.01"
-                  placeholder="2.00"
-                  value={form.rr}
-                  onChange={(e) => update("rr", e.target.value)}
-                />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="rr"
+                    className="text-[10px] uppercase tracking-[0.18em] text-[#5a6580] font-mono"
+                  >
+                    R : R
+                  </label>
+                  <div className="flex w-full items-center rounded-lg border border-[#1a2030] bg-[#080b11] px-4 py-3">
+                    <span
+                      id="rr"
+                      className="flex-1 font-mono text-sm text-[#e8edf5]"
+                    >
+                      {form.rr || "—"}
+                    </span>
+                  </div>
+                  {!form.rr && (
+                    <span className="text-[10px] text-[#5a6580] font-mono">
+                      Add a stop loss to calculate R:R
+                    </span>
+                  )}
+                </div>
               </div>
               <div
                 className={cn(
@@ -432,7 +476,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   step="0.01"
                   placeholder="0.00"
                   value={form.pnl}
-                  onChange={(e) => update("pnl", e.target.value)}
+                  readOnly
                   required
                   prefix="$"
                   hint="Required — net result for this trade"

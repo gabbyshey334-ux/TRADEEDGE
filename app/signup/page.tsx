@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { signUpWithPassword } from "@/lib/auth/client";
+import { trackFunnelEvent } from "@/lib/funnel-track";
 import { AuthShell } from "@/components/AuthShell";
 import { GoogleButton } from "@/components/GoogleButton";
 
@@ -12,6 +13,14 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const hasTrackedSignupStart = useRef(false);
+
+  function handleFirstInteraction() {
+    if (hasTrackedSignupStart.current) return;
+
+    hasTrackedSignupStart.current = true;
+    void trackFunnelEvent("signup_started");
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,6 +48,7 @@ export default function SignupPage() {
         if (typeof window !== "undefined" && (window as any).fbq) {
           (window as any).fbq('track', 'CompleteRegistration');
         }
+        void trackFunnelEvent("signup_completed");
         setSuccess(
           "Account created. Check your email to confirm, then sign in with the password you just chose."
         );
@@ -48,6 +58,7 @@ export default function SignupPage() {
       if (typeof window !== "undefined" && (window as any).fbq) {
         (window as any).fbq('track', 'CompleteRegistration');
       }
+      void trackFunnelEvent("signup_completed");
       router.push("/dashboard");
       router.refresh();
     });
@@ -77,7 +88,11 @@ export default function SignupPage() {
           <div className="flex-1 border-t border-[#1c2235]" />
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          onFocusCapture={handleFirstInteraction}
+          onPointerDownCapture={handleFirstInteraction}
+        >
           <Field label="Full Name">
             <input
               name="full_name"

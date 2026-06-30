@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { FaqAccordion } from "@/components/LandingFaqAccordion";
 import { HeroDashboard } from "@/components/HeroDashboard";
+import { LandingViewTracker } from "@/components/LandingViewTracker";
 import { LiveTickerBar } from "@/components/LiveTickerBar";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { TrustLogos } from "@/components/TrustLogos";
@@ -372,6 +373,7 @@ function LandingStyles() {
 export default function LandingPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#06080d] text-[#e8edf5]">
+      <LandingViewTracker />
       <LandingStyles />
 
       <header className="nav-shell fixed left-0 right-0 top-0 z-50 border-b border-[#1c2235]/80 bg-[#06080d]/72">
@@ -613,6 +615,7 @@ export default function LandingPage() {
             <a href="#features" className="transition-colors hover:text-[#8892a4]">Features</a>
             <a href="#pricing" className="transition-colors hover:text-[#8892a4]">Pricing</a>
             <a href="#faq" className="transition-colors hover:text-[#8892a4]">FAQ</a>
+            <Link href="/about" className="transition-colors hover:text-[#8892a4]">About</Link>
             <Link href="/login" className="transition-colors hover:text-[#8892a4]">Log in</Link>
             <Link href="/privacy" className="transition-colors hover:text-[#8892a4]">Privacy</Link>
             <Link href="/terms" className="transition-colors hover:text-[#8892a4]">Terms</Link>

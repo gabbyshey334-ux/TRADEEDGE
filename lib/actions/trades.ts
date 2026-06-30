@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/server";
+import { trackServerFunnelEvent } from "@/lib/funnel-events";
 import { canAddTrade } from "@/lib/plan-limits";
 import type { NewTrade, Plan, Trade } from "@/lib/types";
 
@@ -76,6 +77,11 @@ export async function createTrade(input: NewTrade): Promise<TradeActionResult> {
     };
   }
 
+  const { count: existingTradeCount } = await supabase
+    .from("trades")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
   const payload = { ...input, user_id: user.id };
 
   const { data, error } = await supabase
@@ -85,6 +91,18 @@ export async function createTrade(input: NewTrade): Promise<TradeActionResult> {
     .single();
 
   if (error) return { data: null, error: error.message };
+
+  if ((existingTradeCount ?? 0) === 0) {
+    await trackServerFunnelEvent({
+      eventType: "first_trade_logged",
+      userId: user.id,
+      metadata: {
+        market: input.market,
+        symbol: input.symbol,
+      },
+    });
+  }
+
   revalidateDashboardPages();
   return { data: data as Trade, error: null };
 }

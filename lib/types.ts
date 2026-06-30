@@ -21,6 +21,7 @@ export interface Trade {
   direction: "Long" | "Short";
   entry: number;
   exit_price: number | null;
+  stop_loss: number | null;
   size: number | null;
   pnl: number;
   rr: number | null;
