@@ -6,6 +6,8 @@ import {
   day3NudgeEmail,
   day7HalfwayEmail,
   day12LastChanceEmail,
+  day14LastDayEmail,
+  day15WinBackEmail,
   type EmailContent,
 } from "@/lib/emails/templates";
 
@@ -22,6 +24,8 @@ type SequenceRow = {
   day_3_sent_at: string | null;
   day_7_sent_at: string | null;
   day_12_sent_at: string | null;
+  day_14_sent_at: string | null;
+  day_15_sent_at: string | null;
   created_at: string;
 };
 
@@ -31,7 +35,9 @@ type DueEmail = {
     | "day_1_sent_at"
     | "day_3_sent_at"
     | "day_7_sent_at"
-    | "day_12_sent_at";
+    | "day_12_sent_at"
+    | "day_14_sent_at"
+    | "day_15_sent_at";
   build: (firstName: string, userId: string) => EmailContent;
 };
 
@@ -80,6 +86,20 @@ function collectDue(row: SequenceRow): DueEmail[] {
       build: day12LastChanceEmail,
     });
   }
+  if (!row.day_14_sent_at && created <= daysAgo(14).getTime()) {
+    due.push({
+      row,
+      column: "day_14_sent_at",
+      build: day14LastDayEmail,
+    });
+  }
+  if (!row.day_15_sent_at && created <= daysAgo(15).getTime()) {
+    due.push({
+      row,
+      column: "day_15_sent_at",
+      build: day15WinBackEmail,
+    });
+  }
 
   return due;
 }
@@ -108,7 +128,7 @@ export async function GET(request: NextRequest) {
     const { data: rows, error } = await service
       .from("email_sequence")
       .select(
-        "id, user_id, email, day_1_sent_at, day_3_sent_at, day_7_sent_at, day_12_sent_at, created_at"
+        "id, user_id, email, day_1_sent_at, day_3_sent_at, day_7_sent_at, day_12_sent_at, day_14_sent_at, day_15_sent_at, created_at"
       )
       .eq("unsubscribed", false);
 
