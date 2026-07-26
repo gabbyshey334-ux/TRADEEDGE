@@ -141,6 +141,8 @@ export interface CongressionalTradesResponse {
   source: "live" | "cache" | "empty";
   error: string | null;
   fetched_at: string;
+  /** Present when the caller's plan lacks access — data is a capped teaser. */
+  locked?: boolean;
 }
 
 async function readFromCache(): Promise<CongressionalTrade[]> {
@@ -211,28 +213,34 @@ export async function GET() {
       ? (profile.plan as Plan)
       : "starter";
 
-  if (!PLAN_LIMITS[plan].congressionalTrades) {
-    return NextResponse.json(
-      {
-        data: [],
-        source: "empty",
-        error: "Congressional Trades is available on Pro and Elite plans.",
-        fetched_at: new Date().toISOString(),
-      },
-      { status: 403 }
-    );
+  const locked = !PLAN_LIMITS[plan].congressionalTrades;
+  const LOCKED_MESSAGE =
+    "Congressional Trades is available on Pro and Elite plans.";
+
+  function maybeTease(
+    payload: CongressionalTradesResponse
+  ): CongressionalTradesResponse {
+    if (!locked) return payload;
+    return {
+      ...payload,
+      data: payload.data.slice(0, 5),
+      error: LOCKED_MESSAGE,
+      locked: true,
+    };
   }
 
   const apiKey = process.env.FMP_API_KEY?.trim();
   if (!apiKey) {
     const cached = await readFromCache();
-    return NextResponse.json<CongressionalTradesResponse>({
-      data: cached,
-      source: cached.length ? "cache" : "empty",
-      error:
-        "FMP_API_KEY is not configured. Add it to your Vercel environment variables to enable the live feed.",
-      fetched_at: new Date().toISOString(),
-    });
+    return NextResponse.json<CongressionalTradesResponse>(
+      maybeTease({
+        data: cached,
+        source: cached.length ? "cache" : "empty",
+        error:
+          "FMP_API_KEY is not configured. Add it to your Vercel environment variables to enable the live feed.",
+        fetched_at: new Date().toISOString(),
+      })
+    );
   }
 
   try {
@@ -263,22 +271,26 @@ export async function GET() {
       void writeToCache(mapped);
     }
 
-    return NextResponse.json<CongressionalTradesResponse>({
-      data: mapped,
-      source: "live",
-      error: null,
-      fetched_at: new Date().toISOString(),
-    });
+    return NextResponse.json<CongressionalTradesResponse>(
+      maybeTease({
+        data: mapped,
+        source: "live",
+        error: null,
+        fetched_at: new Date().toISOString(),
+      })
+    );
   } catch (err) {
     const cached = await readFromCache();
-    return NextResponse.json<CongressionalTradesResponse>({
-      data: cached,
-      source: cached.length ? "cache" : "empty",
-      error:
-        cached.length
-          ? "Live feed unavailable — showing the last cached snapshot."
-          : `Live feed unavailable and no cached data on file. (${err instanceof Error ? err.message : "Unknown error"})`,
-      fetched_at: new Date().toISOString(),
-    });
+    return NextResponse.json<CongressionalTradesResponse>(
+      maybeTease({
+        data: cached,
+        source: cached.length ? "cache" : "empty",
+        error:
+          cached.length
+            ? "Live feed unavailable — showing the last cached snapshot."
+            : `Live feed unavailable and no cached data on file. (${err instanceof Error ? err.message : "Unknown error"})`,
+        fetched_at: new Date().toISOString(),
+      })
+    );
   }
 }

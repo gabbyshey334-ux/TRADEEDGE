@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { getServiceClient } from "@/lib/supabase/service";
+import { stopEmailSequenceForUpgradedUser } from "@/lib/onboarding";
 import { parsePlan, priceIdToPlan } from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
 
@@ -130,6 +131,10 @@ export async function applySubscriptionToUser(args: {
       sub_status: subscription.status,
     },
   });
+
+  if (effectivePlan !== "starter") {
+    await stopEmailSequenceForUpgradedUser(userId);
+  }
 
   return effectivePlan;
 }

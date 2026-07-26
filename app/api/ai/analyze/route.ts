@@ -13,6 +13,8 @@
 // =============================================================================
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getServiceClient } from "@/lib/supabase/service";
+import { maybeCompleteOnboarding } from "@/lib/onboarding";
 import { buildTradeSummary } from "@/lib/utils";
 import { canRunAiReport } from "@/lib/plan-limits";
 import type { Trade, AiCoachReportType, Plan } from "@/lib/types";
@@ -147,6 +149,13 @@ export async function POST(request: NextRequest) {
     content,
     tokens_used: data.usage?.output_tokens ?? null,
   });
+
+  try {
+    const service = getServiceClient();
+    await maybeCompleteOnboarding(service, user.id);
+  } catch {
+    // Non-blocking — onboarding flag must not fail the AI response
+  }
 
   return NextResponse.json({ content });
 }

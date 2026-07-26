@@ -22,7 +22,7 @@ export const getUserProfile = cache(async (userId: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("full_name, email, plan")
+    .select("full_name, email, plan, onboarding_completed")
     .eq("id", userId)
     .maybeSingle();
   return data;
@@ -40,17 +40,24 @@ export interface SidebarUserData {
   plan: Plan;
   /** True when the user has a Stripe customer id and can open the billing portal. */
   hasStripeBilling: boolean;
+  trialEndsAt: string | null;
 }
 
 export async function getSidebarUser(): Promise<SidebarUserData> {
   if (!getSupabaseEnv()) {
-    return { name: "Trader", email: "", plan: "starter", hasStripeBilling: false };
+    return {
+      name: "Trader",
+      email: "",
+      plan: "starter",
+      hasStripeBilling: false,
+      trialEndsAt: null,
+    };
   }
   const user = await requireAuthUser();
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, email, plan, stripe_customer_id")
+    .select("full_name, email, plan, stripe_customer_id, trial_ends_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -63,5 +70,6 @@ export async function getSidebarUser(): Promise<SidebarUserData> {
     email: profile?.email || user.email || "",
     plan: ((profile?.plan as Plan | undefined) ?? "starter") as Plan,
     hasStripeBilling: Boolean(profile?.stripe_customer_id),
+    trialEndsAt: profile?.trial_ends_at ?? null,
   };
 }

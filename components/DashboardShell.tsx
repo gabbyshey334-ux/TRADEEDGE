@@ -5,15 +5,18 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Sidebar, type SidebarUser } from "@/components/Sidebar";
+import { TrialBanner } from "@/components/TrialBanner";
 import { signOutClient } from "@/lib/auth/client";
 import { syncSubscriptionFromStripe } from "@/lib/actions/billing";
 import { cn } from "@/lib/utils";
 
 export function DashboardShell({
   user,
+  trialEndsAt,
   children,
 }: {
   user: SidebarUser;
+  trialEndsAt: string | null;
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -161,6 +164,7 @@ export function DashboardShell({
           sidebarOpen ? "lg:ml-[240px]" : "lg:ml-[64px]"
         )}
       >
+        <TrialBanner plan={user.plan} trialEndsAt={trialEndsAt} />
         {children}
       </main>
     </div>

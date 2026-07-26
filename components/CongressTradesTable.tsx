@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, TriangleAlert } from "lucide-react";
+import { BlurredFeaturePreview } from "@/components/BlurredFeaturePreview";
 import { normalizeTradeType } from "@/lib/congressional-trades";
 import { cn, formatDate } from "@/lib/utils";
 import type {
@@ -16,6 +17,7 @@ const PAGE_SIZE = 20;
 export function CongressTradesTable() {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<CongressionalTrade[]>([]);
+  const [locked, setLocked] = useState(false);
   const [meta, setMeta] = useState<{
     source: CongressionalTradesResponse["source"];
     error: string | null;
@@ -42,6 +44,7 @@ export function CongressTradesTable() {
               }))
             : []
         );
+        setLocked(Boolean(json.locked));
         setMeta({
           source: json.source,
           error: json.error,
@@ -50,6 +53,7 @@ export function CongressTradesTable() {
       } catch (err) {
         if (cancelled) return;
         setRows([]);
+        setLocked(false);
         setMeta({
           source: "empty",
           error:
@@ -97,9 +101,9 @@ export function CongressTradesTable() {
     return <TableSkeleton />;
   }
 
-  return (
+  const tableOutput = (
     <div className="space-y-4">
-      {meta?.error && (
+      {meta?.error && !locked && (
         <div
           className="rounded-lg bg-[#f59e0b]/[0.06] border border-[#f59e0b]/20 px-4 py-3"
           role="status"
@@ -181,6 +185,21 @@ export function CongressTradesTable() {
       )}
     </div>
   );
+
+  if (locked) {
+    return (
+      <BlurredFeaturePreview
+        targetPlan="pro"
+        featureName="Congressional Trades Feed"
+        featureDescription="See how members of Congress are trading — live STOCK Act disclosures, unlocked on Pro."
+        minHeight={480}
+      >
+        {tableOutput}
+      </BlurredFeaturePreview>
+    );
+  }
+
+  return tableOutput;
 }
 
 function SearchInput({

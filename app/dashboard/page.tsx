@@ -3,8 +3,10 @@ import { StatCard } from "@/components/StatCard";
 import { EquityChart } from "@/components/EquityChart";
 import { TradeTable } from "@/components/TradeTable";
 import { WelcomeGreeting } from "@/components/WelcomeGreeting";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { requireAuthUser, getUserProfile } from "@/lib/auth/server";
 import { getTradesForUser } from "@/lib/data/trades";
+import { createClient } from "@/lib/supabase/server";
 import {
   aggregatePnl,
   calcStats,
@@ -26,11 +28,30 @@ function formatHeaderDate(): string {
 
 export default async function DashboardPage() {
   const user = await requireAuthUser();
+  const supabase = await createClient();
 
-  const [tradeList, profile] = await Promise.all([
-    getTradesForUser(user.id),
-    getUserProfile(user.id),
-  ]);
+  const [tradeList, profile, tradeCountRes, aiCountRes, propCountRes] =
+    await Promise.all([
+      getTradesForUser(user.id),
+      getUserProfile(user.id),
+      supabase
+        .from("trades")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id),
+      supabase
+        .from("ai_usage")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id),
+      supabase
+        .from("prop_firm_accounts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id),
+    ]);
+
+  const tradeCount = tradeCountRes.count;
+  const aiCount = aiCountRes.count;
+  const propCount = propCountRes.count;
+  const showOnboarding = !profile?.onboarding_completed;
 
   const displayName =
     profile?.full_name ||
@@ -75,6 +96,15 @@ export default async function DashboardPage() {
 
       <div className="dashboard-page space-y-7">
         <WelcomeGreeting name={displayName} />
+
+        {showOnboarding && (
+          <OnboardingChecklist
+            hasFirstTrade={(tradeCount ?? 0) > 0}
+            hasFirstAiReport={(aiCount ?? 0) > 0}
+            hasFirstPropFirmAccount={(propCount ?? 0) > 0}
+            userId={user.id}
+          />
+        )}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard

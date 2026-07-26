@@ -23,7 +23,9 @@ export default async function DashboardLayout({
         <div className="min-h-screen bg-[#06080d] lg:ml-[240px]">{children}</div>
       }
     >
-      <DashboardShell user={sidebarUser}>{children}</DashboardShell>
+      <DashboardShell user={sidebarUser} trialEndsAt={sidebarUser.trialEndsAt}>
+        {children}
+      </DashboardShell>
     </Suspense>
   );
 }

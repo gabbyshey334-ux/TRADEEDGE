@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/server";
 import { trackServerFunnelEvent } from "@/lib/funnel-events";
+import { maybeCompleteOnboarding } from "@/lib/onboarding";
 import { canAddTrade } from "@/lib/plan-limits";
 import type { NewTrade, Plan, Trade } from "@/lib/types";
 
@@ -102,6 +103,8 @@ export async function createTrade(input: NewTrade): Promise<TradeActionResult> {
       },
     });
   }
+
+  await maybeCompleteOnboarding(supabase, user.id);
 
   revalidateDashboardPages();
   return { data: data as Trade, error: null };

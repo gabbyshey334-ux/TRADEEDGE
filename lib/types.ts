@@ -10,6 +10,8 @@ export interface Profile {
   sub_status: string;
   trial_ends_at: string;
   created_at: string;
+  onboarding_completed: boolean;
+  onboarding_step: number;
 }
 
 export interface Trade {

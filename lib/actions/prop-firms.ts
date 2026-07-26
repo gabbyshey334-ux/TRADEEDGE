@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/server";
+import { maybeCompleteOnboarding } from "@/lib/onboarding";
 import {
   isChallengePhase,
   type NewPropFirmAccount,
@@ -18,6 +19,7 @@ export type PropFirmActionResult =
   | { data: null; error: string };
 
 function revalidate() {
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/prop-firm-tracker");
 }
 
@@ -118,6 +120,9 @@ export async function createPropFirmAccount(
     .single();
 
   if (error) return { data: null, error: error.message };
+
+  await maybeCompleteOnboarding(supabase, user.id);
+
   revalidate();
   return { data: data as PropFirmAccount, error: null };
 }

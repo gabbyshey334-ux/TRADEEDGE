@@ -1,7 +1,8 @@
 import { requireAuthUser, getUserProfile } from "@/lib/auth/server";
 import { PLAN_LIMITS, parsePlan } from "@/lib/plan-limits";
-import { LockedFeaturePanel } from "@/components/LockedFeaturePanel";
+import { BlurredFeaturePreview } from "@/components/BlurredFeaturePreview";
 import { PropFirmClient } from "@/components/PropFirmClient";
+import { PropFirmPreviewSample } from "@/components/PropFirmPreviewSample";
 import { getPropFirmAccounts } from "@/lib/actions/prop-firms";
 
 export const dynamic = "force-dynamic";
@@ -38,9 +39,15 @@ export default async function PropFirmTrackerPage() {
             plan={plan}
           />
         ) : (
-          <div className="relative min-h-[420px]">
-            <LockedFeaturePanel message="Prop Firm Tracker is available on Pro and Elite plans" />
-          </div>
+          <BlurredFeaturePreview
+            targetPlan="pro"
+            featureName="Prop Firm Tracker"
+            featureDescription="Track challenges, drawdowns, and readiness across firms — unlock the full tracker on Pro."
+            minHeight={420}
+            badge="SAMPLE"
+          >
+            <PropFirmPreviewSample />
+          </BlurredFeaturePreview>
         )}
       </div>
     </div>
