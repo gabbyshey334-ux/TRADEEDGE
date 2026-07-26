@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updatePassword } from "@/lib/auth/client";
 import { AuthShell } from "@/components/AuthShell";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -57,25 +58,21 @@ export default function ResetPasswordPage() {
     >
       <form onSubmit={handleSubmit}>
         <Field label="New Password">
-          <input
+          <PasswordInput
             name="password"
-            type="password"
             placeholder="At least 6 characters"
             autoComplete="new-password"
             minLength={6}
             required
-            className="w-full bg-[#080a0f] border border-[#1c2235] rounded-lg px-4 py-3 font-mono text-[13px] text-[#e8edf5] placeholder:text-[#2a3350] outline-none focus:border-[#2a3350] focus:shadow-[0_0_0_1px_rgba(0,255,136,0.08)] transition-all duration-150"
           />
         </Field>
         <Field label="Confirm Password">
-          <input
+          <PasswordInput
             name="confirm"
-            type="password"
             placeholder="Repeat new password"
             autoComplete="new-password"
             minLength={6}
             required
-            className="w-full bg-[#080a0f] border border-[#1c2235] rounded-lg px-4 py-3 font-mono text-[13px] text-[#e8edf5] placeholder:text-[#2a3350] outline-none focus:border-[#2a3350] focus:shadow-[0_0_0_1px_rgba(0,255,136,0.08)] transition-all duration-150"
           />
         </Field>
 

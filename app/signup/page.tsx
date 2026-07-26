@@ -7,6 +7,7 @@ import { signUpWithPassword } from "@/lib/auth/client";
 import { trackFunnelEvent } from "@/lib/funnel-track";
 import { AuthShell } from "@/components/AuthShell";
 import { GoogleButton } from "@/components/GoogleButton";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -124,14 +125,12 @@ export default function SignupPage() {
             />
           </Field>
           <Field label="Password">
-            <input
+            <PasswordInput
               name="password"
-              type="password"
               placeholder="At least 6 characters"
               autoComplete="new-password"
               minLength={6}
               required
-              className="w-full bg-[#080a0f] border border-[#1c2235] rounded-lg px-4 py-3 font-mono text-[13px] text-[#e8edf5] placeholder:text-[#2a3350] outline-none focus:border-[#2a3350] focus:shadow-[0_0_0_1px_rgba(0,255,136,0.08)] transition-all duration-150"
             />
           </Field>
 

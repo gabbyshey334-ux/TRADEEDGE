@@ -50,7 +50,7 @@ export function AuthShell({
   return (
     <main className="min-h-screen flex flex-col lg:flex-row bg-[#080a0f]">
       {/* Briefing panel — desktop only */}
-      <aside className="relative hidden lg:flex lg:w-[45%] flex-col justify-between overflow-hidden px-12 py-12 xl:px-16">
+      <aside className="relative hidden lg:flex lg:w-[45%] flex-col justify-between overflow-hidden bg-[#080a0f] border-r border-[#1c2235] px-12 py-12 xl:px-16">
         <div
           className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-[#00ff88]/[0.04] blur-[120px] pointer-events-none"
           aria-hidden
@@ -108,7 +108,7 @@ export function AuthShell({
       </aside>
 
       {/* Form column — full width on mobile, ~55% on desktop */}
-      <section className="relative flex-1 flex items-center justify-center px-4 py-12 sm:px-8 lg:px-12">
+      <section className="relative flex-1 flex items-center justify-center bg-[#0c0f17] px-4 py-12 sm:px-8 lg:px-12">
         <div className="relative z-10 w-full max-w-[420px] animate-fadeIn">
           {/* Logo only when briefing panel is hidden */}
           <BrandMark className="flex flex-col items-center mb-8 lg:hidden" />
