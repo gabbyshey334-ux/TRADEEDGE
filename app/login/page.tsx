@@ -40,6 +40,13 @@ function LoginForm() {
     <AuthShell
       title="Sign In"
       subtitle="Welcome back. Log in to access your journal."
+      panel={{
+        eyebrow: "FIELD REPORT · RETURNING",
+        headline: "Most Losses Repeat. That's The Point.",
+        body: "The traders who fix a leak are the ones who can see it happening the same way twice.",
+        quote:
+          "\"Failure is rarely about ability. It's almost always about process, preparation, and the small decisions you make under pressure that nobody else ever sees.\" — Anthony Brown, Founder",
+      }}
       footer={
         <p className="font-body text-[13px] text-[#4a5568]">
           Don&apos;t have an account?{" "}

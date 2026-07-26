@@ -19,9 +19,11 @@ function emailShell(params: {
   userId: string;
   bodyHtml: string;
   ctaLabel: string;
+  ctaUrl?: string;
 }): string {
   const name = escapeHtml(params.firstName);
   const unsubscribeUrl = `${APP_URL}/api/email/unsubscribe?userId=${encodeURIComponent(params.userId)}`;
+  const ctaUrl = params.ctaUrl ?? BILLING_URL;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -49,7 +51,7 @@ function emailShell(params: {
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 8px 0;">
                 <tr>
                   <td style="border-radius:10px;background-color:#00ff88;">
-                    <a href="${BILLING_URL}" style="display:inline-block;padding:14px 22px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;color:#080a0f;">
+                    <a href="${ctaUrl}" style="display:inline-block;padding:14px 22px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;color:#080a0f;">
                       ${escapeHtml(params.ctaLabel)}
                     </a>
                   </td>
@@ -82,6 +84,7 @@ export function day1WelcomeEmail(
       firstName,
       userId,
       ctaLabel: "Open TradeEdge AI →",
+      ctaUrl: `${APP_URL}/dashboard`,
       bodyHtml: `
         <p style="margin:0 0 16px 0;">
           Welcome to TradeEdge AI. You just made the first move most traders never make — deciding to actually track what's happening with their trading.
@@ -112,6 +115,7 @@ export function day3NudgeEmail(
       firstName,
       userId,
       ctaLabel: "Generate My AI Report →",
+      ctaUrl: `${APP_URL}/dashboard/ai`,
       bodyHtml: `
         <p style="margin:0 0 16px 0;">
           If you've logged a few trades, your AI Coach has already found something interesting about your trading patterns.

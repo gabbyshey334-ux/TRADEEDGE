@@ -1,69 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment, type CSSProperties } from "react";
-import {
-  Bot,
-  Brain,
-  Calendar,
-  Check,
-  Landmark,
-  Scale,
-  TrendingUp,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { Fragment } from "react";
+import { Check, X } from "lucide-react";
 import { FaqAccordion } from "@/components/LandingFaqAccordion";
-import { HeroDashboard } from "@/components/HeroDashboard";
 import { LandingViewTracker } from "@/components/LandingViewTracker";
 import { LiveTickerBar } from "@/components/LiveTickerBar";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { StatCard } from "@/components/StatCard";
 import { TrustLogos } from "@/components/TrustLogos";
-
-const features: Array<{
-  accent: string;
-  icon: LucideIcon;
-  title: string;
-  body: string;
-  badge?: string;
-}> = [
-  {
-    accent: "#00e5b0",
-    icon: Bot,
-    title: "AI COACHING ENGINE",
-    body: "Session debriefs, psychology diagnosis, and specific next-session corrections from your trade history.",
-  },
-  {
-    accent: "#0066ff",
-    icon: Calendar,
-    title: "TRADE CALENDAR",
-    body: "See your month by P&L, session quality, instrument, and mistake patterns without spreadsheet friction.",
-  },
-  {
-    accent: "#b466ff",
-    icon: Brain,
-    title: "PSYCHOLOGY TRACKER",
-    body: "Tag FOMO, hesitation, revenge trading, and confidence, then see which emotions actually cost you money.",
-  },
-  {
-    accent: "#f0c040",
-    icon: Scale,
-    title: "RISK CALCULATOR",
-    body: "Size futures and forex positions precisely before you click, with drawdown and account rules in view.",
-  },
-  {
-    accent: "#ff4d6d",
-    icon: TrendingUp,
-    title: "ADVANCED ANALYTICS",
-    body: "Break down edge by setup, market, time of day, risk multiple, and behavior so you know what to repeat.",
-  },
-  {
-    accent: "#00e5b0",
-    icon: Landmark,
-    title: "CONGRESS TRADES FEED",
-    body: "Track public STOCK Act disclosures alongside your watchlist and spot unusual positioning early.",
-    badge: "PRO EXCLUSIVE",
-  },
-];
 
 const pricingRows = [
   ["Free trial (14 days)", "check", "check", "check"],
@@ -311,6 +255,309 @@ function SectionHeader({
   );
 }
 
+/** Illustrative trade card — mirrors TradeTable mobile row chrome. Non-interactive. */
+function HeroTradeExample() {
+  return (
+    <div className="pointer-events-none mx-auto mt-14 w-full max-w-xl select-none">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[#4a5568]">
+          Illustrative example
+        </span>
+      </div>
+      <div className="overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
+        <div className="px-4 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="truncate font-mono text-[17px] font-semibold text-[#e8edf5]">
+                EUR/USD
+              </div>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded border border-[#0ea5e9]/20 bg-[#0ea5e9]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#0ea5e9]">
+                  Forex
+                </span>
+                <span className="inline-flex items-center rounded border border-[#00ff88]/20 bg-[#00ff88]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#00ff88]">
+                  Long
+                </span>
+              </div>
+            </div>
+            <div className="shrink-0 text-right font-mono text-[18px] font-semibold tabular-nums text-[#00ff88]">
+              +$86.40
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <span>
+              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+                Date
+              </span>
+              <span className="mt-0.5 block font-mono text-[12px] text-[#4a5568]">
+                Jul 24, 2026
+              </span>
+            </span>
+            <span>
+              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+                Entry
+              </span>
+              <span className="mt-0.5 block font-mono text-[12px] text-[#e8edf5]">
+                1.08420
+              </span>
+            </span>
+            <span>
+              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+                R:R
+              </span>
+              <span className="mt-0.5 block font-mono text-[12px] text-[#a78bfa]">
+                1.40
+              </span>
+            </span>
+          </div>
+        </div>
+        <div className="border-t border-[#1c2235] bg-[#080a0f] px-4 py-3">
+          <div className="mb-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+            Coach&apos;s insight
+          </div>
+          <p className="font-body text-[13px] leading-relaxed text-[#8892a4]">
+            You&apos;ve cut winners early 4 of your last 5 trades on this pair.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Finding 01 visual — TradeTable card chrome + StatCard strip. Non-interactive. */
+function FindingJournalVisual() {
+  return (
+    <div className="pointer-events-none select-none space-y-3">
+      <div className="overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
+        <div className="px-4 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="truncate font-mono text-[17px] font-semibold text-[#e8edf5]">
+                NQ1!
+              </div>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded border border-[#a78bfa]/20 bg-[#a78bfa]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#a78bfa]">
+                  Futures
+                </span>
+                <span className="inline-flex items-center rounded border border-[#00ff88]/20 bg-[#00ff88]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#00ff88]">
+                  Long
+                </span>
+              </div>
+            </div>
+            <div className="shrink-0 text-right font-mono text-[18px] font-semibold tabular-nums text-[#00ff88]">
+              +$420.00
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <span>
+              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+                Date
+              </span>
+              <span className="mt-0.5 block font-mono text-[12px] text-[#4a5568]">
+                Jul 22, 2026
+              </span>
+            </span>
+            <span>
+              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+                Setup
+              </span>
+              <span className="mt-0.5 block font-mono text-[12px] text-[#8892a4]">
+                VWAP Reclaim
+              </span>
+            </span>
+            <span>
+              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+                Session
+              </span>
+              <span className="mt-0.5 block font-mono text-[12px] text-[#8892a4]">
+                NY Open
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <StatCard
+          label="Win Rate"
+          value="61%"
+          sub="By setup · last 30 days"
+          color="#00ff88"
+          trend="up"
+          spark={[0.4, 0.45, 0.5, 0.48, 0.55, 0.62, 0.58, 0.61]}
+        />
+        <StatCard
+          label="Avg R:R"
+          value="1.8"
+          sub="By session · London"
+          color="#0ea5e9"
+          trend="up"
+          spark={[0.35, 0.4, 0.42, 0.5, 0.55, 0.52, 0.6, 0.65]}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Finding 02 visual — static crop of DailyCoachingReport chrome.
+ * Labels match live component strings exactly.
+ */
+function FindingCoachVisual() {
+  return (
+    <div className="pointer-events-none select-none overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
+      <div className="flex items-center justify-between border-b border-[#1c2235] bg-[#080a0f] px-5 py-3">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+          DAILY COACHING REPORT
+        </span>
+        <span className="font-mono text-[11px] text-[#4a5568]">Thu, Jul 24, 2026</span>
+      </div>
+      <div className="border-b border-[#1c2235] bg-[#f59e0b]/[0.06] px-5 py-3 font-mono text-[11px] tracking-[0.1em] text-[#f59e0b]">
+        SESSION RATING: C — Cut winners early on EUR/USD
+      </div>
+      <div className="border-b border-[#1c2235] px-5 py-4">
+        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
+          COACH&apos;S INSIGHT
+        </div>
+        <p className="font-body text-[14px] leading-relaxed text-[#e8edf5]">
+          Four of your last five EUR/USD winners were closed before the planned
+          target. The pattern isn&apos;t random — it clusters in the first hour
+          after London open.
+        </p>
+      </div>
+      <div className="bg-[#00ff88]/[0.02] px-5 py-4">
+        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-[#00ff88]">
+          TOMORROW&apos;S FOCUS
+        </div>
+        <p className="font-body text-[14px] font-medium text-[#e8edf5]">
+          Hold to the written target on the next A+ London setup — or don&apos;t take the trade.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** Finding 03 visual — one PropFirm card chrome, no SAMPLE badge. Non-interactive. */
+function FindingPropFirmVisual() {
+  return (
+    <div className="pointer-events-none select-none">
+      <article className="relative flex flex-col gap-5 overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] p-5 sm:p-6">
+        <div
+          aria-hidden
+          className="absolute left-0 right-0 top-0 h-[2px]"
+          style={{
+            background: "linear-gradient(90deg, #0ea5e9, transparent)",
+          }}
+        />
+        <header className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="truncate font-display text-lg font-bold leading-none text-[#e8edf5]">
+              FTMO
+            </h3>
+            <p className="mt-3 font-mono text-2xl font-bold tabular-nums text-[#e8edf5]">
+              $100,000
+            </p>
+          </div>
+          <span
+            className="inline-flex shrink-0 items-center rounded border px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest"
+            style={{
+              color: "#0ea5e9",
+              backgroundColor: "rgba(14,165,233,0.1)",
+              borderColor: "rgba(14,165,233,0.2)",
+            }}
+          >
+            Phase 1
+          </span>
+        </header>
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between gap-3">
+            <span
+              className="font-mono uppercase text-[#5a6580]"
+              style={{ fontSize: "10px", letterSpacing: "0.24em" }}
+            >
+              Progress to Target
+            </span>
+            <span
+              className="font-mono font-bold tabular"
+              style={{ fontSize: "12px", color: "#00ff88", letterSpacing: "0.04em" }}
+            >
+              62.0%
+            </span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-[#1c2235]">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: "62%",
+                background: "#00ff88",
+                boxShadow: "0 0 8px rgba(0,255,136,0.3)",
+              }}
+            />
+          </div>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <span className="font-mono tabular text-[#8892a4]" style={{ fontSize: "12px" }}>
+              $106,200
+              <span className="text-[#3a4560]"> / $110,000</span>
+            </span>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: "Daily Loss", value: "5%" },
+            { label: "Max DD", value: "10%" },
+            { label: "Trading Days", value: "12 / 4 min" },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="rounded-lg border border-[#1c2235] bg-[#111520] px-3 py-3"
+            >
+              <div
+                className="font-mono text-[9px] uppercase tracking-widest text-[#4a5568]"
+                style={{ fontSize: "9px", letterSpacing: "0.24em" }}
+              >
+                {item.label}
+              </div>
+              <div className="mt-1 truncate font-mono text-[13px] tabular-nums text-[#8892a4]">
+                {item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </article>
+    </div>
+  );
+}
+
+function FindingRow({
+  label,
+  headline,
+  body,
+  visual,
+  reverse = false,
+}: {
+  label: string;
+  headline: string;
+  body: string;
+  visual: React.ReactNode;
+  reverse?: boolean;
+}) {
+  return (
+    <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+      <div className={reverse ? "lg:order-2" : undefined}>
+        <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#00e5b0]">
+          {label}
+        </div>
+        <h3 className="mt-4 font-display text-2xl font-bold leading-tight tracking-tight text-[#e8edf5] sm:text-3xl">
+          {headline}
+        </h3>
+        <p className="mt-4 max-w-xl font-body text-[15px] leading-7 text-[#a0afc0] sm:text-[16px]">
+          {body}
+        </p>
+      </div>
+      <div className={reverse ? "lg:order-1" : undefined}>{visual}</div>
+    </div>
+  );
+}
+
 function LandingStyles() {
   return (
     <style
@@ -382,7 +629,7 @@ export default function LandingPage() {
             <Logo />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
-            {["Features", "Congress", "Pricing", "FAQ"].map((item) => (
+            {["Findings", "Congress", "Pricing", "FAQ"].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="font-mono text-[11px] tracking-[0.1em] text-[#8892a4] uppercase hover:text-[#e8edf5] transition-colors duration-150">
                 {item}
               </a>
@@ -405,7 +652,7 @@ export default function LandingPage() {
               <span className="h-0.5 w-5 bg-current shadow-[0_6px_0_current,0_-6px_0_current]" />
             </summary>
             <div className="mobile-panel absolute right-0 top-12 w-56 rounded-2xl border border-[#1a2030] bg-[#080b11] p-3 shadow-2xl">
-              {["Features", "Congress", "Pricing", "FAQ"].map((item) => (
+              {["Findings", "Congress", "Pricing", "FAQ"].map((item) => (
                 <a key={item} href={`#${item.toLowerCase()}`} className="block rounded-xl px-3 py-3 text-sm text-[#a0afc0] hover:bg-[#0c1018] hover:text-[#e8edf5]">
                   {item}
                 </a>
@@ -427,37 +674,31 @@ export default function LandingPage() {
       <section className="hero-breath relative px-5 pb-24 pt-16 text-center md:px-8 md:pb-32 md:pt-20">
         <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(26,32,48,.5)_1px,transparent_1px),linear-gradient(90deg,rgba(26,32,48,.5)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,#000_22%,transparent_70%)]" />
         <div className="relative mx-auto max-w-7xl">
-          <div className="hero-pill inline-flex items-center gap-2 rounded-full border border-[#1a2030] bg-[#0c1018]/80 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-[#a0afc0]">
-            <span className="hero-dot h-2 w-2 rounded-full bg-[#00e5b0]" />
-            LIVE — AI COACHING ENGINE v2
+          <div className="hero-pill font-mono text-[10px] uppercase tracking-[0.24em] text-[#4a5568]">
+            FIELD REPORT · TRADER PERFORMANCE
           </div>
-          <h1 className="mx-auto mt-8 font-display leading-[0.88] tracking-[0.055em] text-[#e8edf5]">
-            <span className="hero-line hero-line-1 block text-3xl sm:text-4xl md:text-5xl lg:text-6xl">TRADE SMARTER.</span>
-            <span className="hero-line hero-line-2 mt-1 block text-3xl text-[#a0afc0] sm:text-4xl md:text-5xl lg:text-6xl">WIN MORE.</span>
-            <span className="hero-line hero-line-3 mt-2 block text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
-              POWERED BY <span className="text-[#00ff88]">AI</span>
-            </span>
+          <h1 className="hero-line hero-line-1 mx-auto mt-8 max-w-4xl font-display text-3xl font-bold leading-[1.05] tracking-tight text-[#e8edf5] sm:text-4xl md:text-5xl lg:text-6xl">
+            Most Traders Never See The Real Problem.
           </h1>
-          <p className="mx-auto mt-7 max-w-[520px] text-base leading-7 text-[#5a6580] sm:text-lg sm:leading-8">
-            A premium trading journal that turns your risk, psychology, and execution data into a daily operating system for better decisions.
+          <p className="hero-line hero-line-2 mx-auto mt-7 max-w-[560px] font-body text-base leading-7 text-[#8892a4] sm:text-lg sm:leading-8">
+            TradeEdge AI shows you the pattern in your own trading that&apos;s
+            quietly costing you money — before it costs you your account.
           </p>
-          <div className="mt-9 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mx-auto sm:max-w-none sm:flex-row sm:gap-4">
-            <Link href="/signup" className="w-full bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200 text-center sm:w-auto">
-              Start 14-day trial
+          <div className="hero-line hero-line-3 mt-9 flex flex-col items-center gap-4">
+            <Link
+              href="/signup"
+              className="bg-[#00ff88] text-[#080a0f] font-mono font-bold text-[11px] tracking-[0.1em] uppercase px-5 py-2.5 rounded-lg hover:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-all duration-200"
+            >
+              Start Free Trial
             </Link>
-            <a href="#pricing" className="w-full font-mono text-[11px] text-[#4a5568] hover:text-[#8892a4] tracking-[0.1em] uppercase transition-colors duration-150 px-7 py-4 text-center sm:w-auto">
-              Compare plans
+            <a
+              href="#findings"
+              className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#4a5568] transition-colors duration-150 hover:text-[#8892a4]"
+            >
+              See how it works ↓
             </a>
           </div>
-          <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-[#a0afc0]">
-            {["No credit card required", "Cancel anytime", "Built for serious traders"].map((item) => (
-              <span key={item} className="inline-flex items-center gap-2">
-                <CheckMark />
-                {item}
-              </span>
-            ))}
-          </div>
-          <HeroDashboard />
+          <HeroTradeExample />
         </div>
       </section>
 
@@ -465,28 +706,33 @@ export default function LandingPage() {
         <TrustLogos />
       </ScrollReveal>
 
-      <ScrollReveal id="features" className="px-5 py-24 md:px-8">
+      <ScrollReveal id="findings" className="px-5 py-24 md:px-8">
         <div className="mx-auto max-w-7xl">
-          <SectionHeader eyebrow="Features" title="YOUR EDGE, ORGANIZED" body="Every card is built to answer the question serious traders ask after every session: what should I do differently tomorrow?" />
-          <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-              <div key={feature.title} className="feature-card rounded-3xl border border-[#1a2030] bg-[#0c1018] p-5 sm:p-6" style={{ "--accent": feature.accent } as CSSProperties}>
-                <div className="flex items-start justify-between gap-4">
-                  <div
-                    className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#1a2030]"
-                    style={{ backgroundColor: `${feature.accent}14` }}
-                    aria-hidden="true"
-                  >
-                    <Icon size={22} color={feature.accent} strokeWidth={1.75} />
-                  </div>
-                  {feature.badge ? <span className="rounded-full border border-[#00e5b0]/30 bg-[#00e5b0]/10 px-2.5 py-1 font-mono text-[9px] font-bold tracking-[0.14em] text-[#00e5b0]">{feature.badge}</span> : null}
-                </div>
-                <h3 className="mt-6 font-heading text-2xl tracking-[0.05em] text-[#e8edf5] sm:text-3xl">{feature.title}</h3>
-                <p className="mt-3 text-[14px] leading-7 text-[#a0afc0] sm:text-[15px]">{feature.body}</p>
-              </div>
-            );})}
+          <SectionHeader
+            eyebrow="Field Findings"
+            title="WHAT THE DATA ACTUALLY SHOWS"
+            body="Three patterns serious traders miss when they only watch the number at the bottom of the screen."
+          />
+          <div className="mt-16 space-y-20 md:mt-20 md:space-y-28">
+            <FindingRow
+              label="FINDING 01"
+              headline="You Can See Your P&L. You Can't See Why."
+              body="Your journal and analytics break edge down by setup, market, time of day, and behavior — so you stop guessing which trades to repeat and which habits to cut. See the month by P&L and mistake patterns without spreadsheet friction."
+              visual={<FindingJournalVisual />}
+            />
+            <FindingRow
+              label="FINDING 02"
+              headline="Discipline Breaks Down In Patterns, Not Random Moments."
+              body="AI coaching turns your trade history into session debriefs, psychology diagnosis, and specific next-session corrections — the feedback loop that shows why the same leak keeps showing up."
+              visual={<FindingCoachVisual />}
+              reverse
+            />
+            <FindingRow
+              label="FINDING 03"
+              headline="Prop Firm Accounts Fail On Rules, Not Markets."
+              body="Track evaluations and funded accounts against profit targets, daily loss, and max drawdown in one place — so you catch a rule break before it fails the challenge."
+              visual={<FindingPropFirmVisual />}
+            />
           </div>
         </div>
       </ScrollReveal>
@@ -610,7 +856,7 @@ export default function LandingPage() {
         <div className="relative mx-auto max-w-3xl">
           <div className="mb-3 text-center">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#4a5568]">
-              THE FOUNDER
+              FILED BY
             </span>
           </div>
 
@@ -684,7 +930,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
           <Logo />
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 font-mono text-[10px] uppercase tracking-[0.1em] text-[#4a5568]">
-            <a href="#features" className="transition-colors hover:text-[#8892a4]">Features</a>
+            <a href="#findings" className="transition-colors hover:text-[#8892a4]">Findings</a>
             <a href="#pricing" className="transition-colors hover:text-[#8892a4]">Pricing</a>
             <a href="#faq" className="transition-colors hover:text-[#8892a4]">FAQ</a>
             <Link href="/about" className="transition-colors hover:text-[#8892a4]">About</Link>

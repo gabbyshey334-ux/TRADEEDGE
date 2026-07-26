@@ -11,6 +11,11 @@ export default function SignedOutPage() {
     <AuthShell
       title="You're Signed Out"
       subtitle="Your session ended securely."
+      panel={{
+        eyebrow: "SESSION ENDED",
+        headline: "See You At The Next Session.",
+        body: "Your data's exactly where you left it.",
+      }}
       footer={
         <Link href="/" className="font-mono text-[10px] tracking-[0.1em] text-[#4a5568] hover:text-[#00ff88] transition-colors duration-150 uppercase">
           ← Return to TradeEdge home

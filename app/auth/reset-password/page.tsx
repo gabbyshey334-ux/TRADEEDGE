@@ -42,6 +42,11 @@ export default function ResetPasswordPage() {
     <AuthShell
       title="New Password"
       subtitle="Choose a strong password for your account."
+      panel={{
+        eyebrow: "FIELD REPORT · RESET",
+        headline: "Almost There.",
+        body: "Set a new password and you're straight back into your journal.",
+      }}
       footer={
         <p className="font-body text-[13px] text-[#4a5568]">
           <Link href="/login" className="text-[#00ff88] hover:text-[#00ff88]/80 transition-colors duration-150">

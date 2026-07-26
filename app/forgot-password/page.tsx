@@ -26,6 +26,11 @@ export default function ForgotPasswordPage() {
     <AuthShell
       title="Reset Password"
       subtitle="Enter your email and we'll send a reset link."
+      panel={{
+        eyebrow: "FIELD REPORT · RECOVERY",
+        headline: "We've Got You.",
+        body: "Enter your email and we'll send a reset link. No account lockouts, no drama.",
+      }}
       footer={
         <p className="font-body text-[13px] text-[#4a5568]">
           <Link href="/login" className="text-[#00ff88] hover:text-[#00ff88]/80 transition-colors duration-150">

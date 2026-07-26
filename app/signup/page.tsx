@@ -68,6 +68,16 @@ export default function SignupPage() {
     <AuthShell
       title="Create Account"
       subtitle="Start your 14-day trial. No card required."
+      panel={{
+        eyebrow: "FIELD REPORT · NEW FILE",
+        headline: "Discipline Is Trackable.",
+        body: "14-day free trial, no card required. Full journal, AI coaching, and prop-firm tracking from day one.",
+        bullets: [
+          "AI coaching on every trade you log",
+          "Prop-firm challenge tracking, rule by rule",
+          "See the pattern costing you money — not just the number",
+        ],
+      }}
       footer={
         <p className="font-body text-[13px] text-[#4a5568]">
           Already have an account?{" "}
