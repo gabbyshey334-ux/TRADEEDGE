@@ -15,14 +15,14 @@ export interface PlanUpgradeModalProps {
   featureDescription: string;
 }
 
-const PRO_FEATURES = [
+export const PRO_FEATURES = [
   "Unlimited trades per month",
   "10 AI coaching reports/month",
   "Congressional Trades feed",
   "Prop Firm Tracker",
 ] as const;
 
-const ELITE_FEATURES = [
+export const ELITE_FEATURES = [
   "Everything in Pro",
   "Unlimited AI coaching reports",
   "AI Readiness Score",

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { StatCard } from "@/components/StatCard";
 import { EquityChart } from "@/components/EquityChart";
 import { TradeTable } from "@/components/TradeTable";
 import { WelcomeGreeting } from "@/components/WelcomeGreeting";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { SubscriptionWelcomeModal } from "@/components/SubscriptionWelcomeModal";
 import { requireAuthUser, getUserProfile } from "@/lib/auth/server";
 import { getTradesForUser } from "@/lib/data/trades";
 import { createClient } from "@/lib/supabase/server";
@@ -80,6 +82,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="animate-fadeIn">
+      <Suspense fallback={null}>
+        <SubscriptionWelcomeModal />
+      </Suspense>
       <div className="border-b border-[#1c2235] pb-4 mb-6 flex flex-wrap items-end justify-between gap-3 px-4 md:px-0">
         <div>
           <div className="font-mono text-[10px] tracking-[0.2em] text-[#4a5568] uppercase">

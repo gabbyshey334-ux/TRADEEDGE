@@ -54,54 +54,53 @@ function firstNameFrom(fullName: string | null | undefined): string {
   return part || "Trader";
 }
 
-function collectDue(row: SequenceRow): DueEmail[] {
+function collectDue(row: SequenceRow): DueEmail | null {
   const created = new Date(row.created_at).getTime();
-  const due: DueEmail[] = [];
 
   if (!row.day_1_sent_at && created <= hoursAgo(1).getTime()) {
-    due.push({
+    return {
       row,
       column: "day_1_sent_at",
       build: day1WelcomeEmail,
-    });
+    };
   }
   if (!row.day_3_sent_at && created <= daysAgo(3).getTime()) {
-    due.push({
+    return {
       row,
       column: "day_3_sent_at",
       build: day3NudgeEmail,
-    });
+    };
   }
   if (!row.day_7_sent_at && created <= daysAgo(7).getTime()) {
-    due.push({
+    return {
       row,
       column: "day_7_sent_at",
       build: day7HalfwayEmail,
-    });
+    };
   }
   if (!row.day_12_sent_at && created <= daysAgo(12).getTime()) {
-    due.push({
+    return {
       row,
       column: "day_12_sent_at",
       build: day12LastChanceEmail,
-    });
+    };
   }
   if (!row.day_14_sent_at && created <= daysAgo(14).getTime()) {
-    due.push({
+    return {
       row,
       column: "day_14_sent_at",
       build: day14LastDayEmail,
-    });
+    };
   }
   if (!row.day_15_sent_at && created <= daysAgo(15).getTime()) {
-    due.push({
+    return {
       row,
       column: "day_15_sent_at",
       build: day15WinBackEmail,
-    });
+    };
   }
 
-  return due;
+  return null;
 }
 
 function isAuthorized(request: NextRequest): boolean {
@@ -141,7 +140,8 @@ export async function GET(request: NextRequest) {
 
     const queue: DueEmail[] = [];
     for (const row of rows as SequenceRow[]) {
-      queue.push(...collectDue(row));
+      const due = collectDue(row);
+      if (due) queue.push(due);
     }
 
     const toSend = queue.slice(0, MAX_EMAILS_PER_RUN);

@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Sidebar, type SidebarUser } from "@/components/Sidebar";
 import { TrialBanner } from "@/components/TrialBanner";
 import { signOutClient } from "@/lib/auth/client";
-import { syncSubscriptionFromStripe } from "@/lib/actions/billing";
 import { cn } from "@/lib/utils";
 
 export function DashboardShell({
@@ -21,11 +20,7 @@ export function DashboardShell({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [signingOut, startSignOut] = useTransition();
-  const [, startSyncPlan] = useTransition();
   const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const upgraded = searchParams.get("upgraded") === "true";
 
   useEffect(() => {
     const isMobile = window.innerWidth < 1024;
@@ -38,22 +33,6 @@ export function DashboardShell({
       setSidebarOpen(stored === "true");
     }
   }, []);
-
-  useEffect(() => {
-    if (!upgraded) return;
-    startSyncPlan(async () => {
-      const result = await syncSubscriptionFromStripe();
-      if (!result.ok) {
-        console.error("[DashboardShell] Plan sync after upgrade failed:", result.error);
-        return;
-      }
-      if (typeof window !== "undefined" && (window as any).fbq) {
-        (window as any).fbq('track', 'Purchase');
-      }
-      router.replace(pathname);
-      router.refresh();
-    });
-  }, [upgraded, pathname, router]);
 
   useEffect(() => {
     if (window.innerWidth < 1024) {
