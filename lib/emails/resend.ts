@@ -10,6 +10,7 @@ export let lastResendAttempt: {
   status: number | null;
   ok: boolean;
   error: string | null;
+  body: string | null;
 } | null = null;
 
 export async function sendResendEmail(params: {
@@ -27,6 +28,7 @@ export async function sendResendEmail(params: {
       status: null,
       ok: false,
       error: "missing_key",
+      body: null,
     };
     return false;
   }
@@ -50,23 +52,22 @@ export async function sendResendEmail(params: {
       }),
     });
     // TEMP diagnostic — remove after Resend send investigation
-    let errorBody: string | null = null;
-    if (!response.ok) {
-      try {
-        errorBody = (await response.text()).slice(0, 300);
-      } catch {
-        errorBody = "unreadable_body";
-      }
+    let responseBody: string | null = null;
+    try {
+      responseBody = (await response.text()).slice(0, 500);
+    } catch {
+      responseBody = "unreadable_body";
     }
     console.log(
-      `[resend] fetch completed status=${response.status} ok=${response.ok}`
+      `[resend] fetch completed status=${response.status} ok=${response.ok} body=${responseBody}`
     );
     lastResendAttempt = {
       at: new Date().toISOString(),
       skippedMissingKey: false,
       status: response.status,
       ok: response.ok,
-      error: errorBody,
+      error: response.ok ? null : responseBody,
+      body: responseBody,
     };
     return response.ok;
   } catch (err) {
@@ -79,6 +80,7 @@ export async function sendResendEmail(params: {
       status: null,
       ok: false,
       error: message,
+      body: null,
     };
     return false;
   }
