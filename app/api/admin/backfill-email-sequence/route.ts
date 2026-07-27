@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase/service";
-import { sendResendEmail } from "@/lib/emails/resend";
+import { lastResendAttempt, sendResendEmail } from "@/lib/emails/resend";
 import {
   day1WelcomeEmail,
   day3NudgeEmail,
@@ -211,10 +211,14 @@ export async function POST(request: NextRequest) {
     diag: {
       resendApiKeyPresent,
       resendApiKeyLength: resendApiKey.length,
+      resendFromEmail:
+        process.env.RESEND_FROM_EMAIL?.trim() ||
+        "TradeEdge AI <noreply@tradeedgeapp.net>",
       eligibleRows,
       sendAttempts,
       invalidCreatedAt,
       sampleDaysSince,
+      lastResendAttempt,
     },
   });
 }

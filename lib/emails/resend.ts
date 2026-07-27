@@ -2,6 +2,16 @@
  * Thin Resend HTTP client — no npm package required.
  * Fails silently (returns false) when Resend is down or misconfigured.
  */
+
+// TEMP diagnostic — last attempt metadata for admin probes
+export let lastResendAttempt: {
+  at: string;
+  skippedMissingKey: boolean;
+  status: number | null;
+  ok: boolean;
+  error: string | null;
+} | null = null;
+
 export async function sendResendEmail(params: {
   to: string;
   subject: string;
@@ -11,6 +21,13 @@ export async function sendResendEmail(params: {
   if (!apiKey) {
     // TEMP diagnostic — remove after Resend send investigation
     console.log("[resend] RESEND_API_KEY missing or empty — skipping fetch");
+    lastResendAttempt = {
+      at: new Date().toISOString(),
+      skippedMissingKey: true,
+      status: null,
+      ok: false,
+      error: "missing_key",
+    };
     return false;
   }
 
@@ -33,15 +50,36 @@ export async function sendResendEmail(params: {
       }),
     });
     // TEMP diagnostic — remove after Resend send investigation
+    let errorBody: string | null = null;
+    if (!response.ok) {
+      try {
+        errorBody = (await response.text()).slice(0, 300);
+      } catch {
+        errorBody = "unreadable_body";
+      }
+    }
     console.log(
       `[resend] fetch completed status=${response.status} ok=${response.ok}`
     );
+    lastResendAttempt = {
+      at: new Date().toISOString(),
+      skippedMissingKey: false,
+      status: response.status,
+      ok: response.ok,
+      error: errorBody,
+    };
     return response.ok;
   } catch (err) {
     // TEMP diagnostic — remove after Resend send investigation
-    console.log(
-      `[resend] fetch threw: ${err instanceof Error ? err.message : "unknown"}`
-    );
+    const message = err instanceof Error ? err.message : "unknown";
+    console.log(`[resend] fetch threw: ${message}`);
+    lastResendAttempt = {
+      at: new Date().toISOString(),
+      skippedMissingKey: false,
+      status: null,
+      ok: false,
+      error: message,
+    };
     return false;
   }
 }
