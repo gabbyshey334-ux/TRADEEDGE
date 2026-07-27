@@ -7,8 +7,12 @@ export async function sendResendEmail(params: {
   subject: string;
   html: string;
 }): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return false;
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    // TEMP diagnostic — remove after Resend send investigation
+    console.log("[resend] RESEND_API_KEY missing or empty — skipping fetch");
+    return false;
+  }
 
   const from =
     process.env.RESEND_FROM_EMAIL ??
@@ -28,8 +32,16 @@ export async function sendResendEmail(params: {
         html: params.html,
       }),
     });
+    // TEMP diagnostic — remove after Resend send investigation
+    console.log(
+      `[resend] fetch completed status=${response.status} ok=${response.ok}`
+    );
     return response.ok;
-  } catch {
+  } catch (err) {
+    // TEMP diagnostic — remove after Resend send investigation
+    console.log(
+      `[resend] fetch threw: ${err instanceof Error ? err.message : "unknown"}`
+    );
     return false;
   }
 }

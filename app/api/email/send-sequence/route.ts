@@ -173,6 +173,10 @@ export async function GET(request: NextRequest) {
         }
 
         const content = item.build(firstName, item.row.user_id);
+        // TEMP diagnostic — fires regardless of send outcome
+        console.log(
+          `[send-sequence] calling sendResendEmail column=${item.column} rowId=${item.row.id}`
+        );
         const ok = await sendResendEmail({
           to: item.row.email,
           subject: content.subject,

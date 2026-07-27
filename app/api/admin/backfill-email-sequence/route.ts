@@ -110,19 +110,38 @@ export async function POST(request: NextRequest) {
   let processed = 0;
   let emailed = 0;
   let backfilledOnly = 0;
+  let eligibleRows = 0;
+  let sendAttempts = 0;
+  let invalidCreatedAt = 0;
+  const sampleDaysSince: number[] = [];
   const nameCache = new Map<string, string>();
+
+  // TEMP diagnostic — confirm deployed runtime can read the key (boolean only)
+  const resendApiKey = process.env.RESEND_API_KEY?.trim() ?? "";
+  const resendApiKeyPresent = resendApiKey.length > 0;
 
   for (const row of rows as SequenceRow[]) {
     processed += 1;
 
+    const createdMs = new Date(row.created_at).getTime();
+    if (!Number.isFinite(createdMs)) {
+      invalidCreatedAt += 1;
+      continue;
+    }
+
     const daysSinceSignup =
-      (Date.now() - new Date(row.created_at).getTime()) / (1000 * 60 * 60 * 24);
+      (Date.now() - createdMs) / (1000 * 60 * 60 * 24);
+
+    if (sampleDaysSince.length < 5) {
+      sampleDaysSince.push(Math.round(daysSinceSignup * 100) / 100);
+    }
 
     const eligible = STAGES.filter(
       (stage) => daysSinceSignup >= stage.days && row[stage.col] == null
     );
 
     if (eligible.length === 0) continue;
+    eligibleRows += 1;
 
     const toEmail = eligible[eligible.length - 1];
     const silentStages = eligible.slice(0, -1);
@@ -140,6 +159,11 @@ export async function POST(request: NextRequest) {
       }
 
       const content = toEmail.build(firstName, row.user_id);
+      // TEMP diagnostic — fires regardless of send outcome
+      console.log(
+        `[backfill-email-sequence] calling sendResendEmail stage=${toEmail.col} daysSince=${daysSinceSignup.toFixed(2)} eligibleCount=${eligible.length}`
+      );
+      sendAttempts += 1;
       const ok = await sendResendEmail({
         to: row.email,
         subject: content.subject,
@@ -183,5 +207,14 @@ export async function POST(request: NextRequest) {
     emailed,
     backfilledOnly,
     remaining: remainingCount ?? 0,
+    // TEMP diagnostic fields — remove after Resend send investigation
+    diag: {
+      resendApiKeyPresent,
+      resendApiKeyLength: resendApiKey.length,
+      eligibleRows,
+      sendAttempts,
+      invalidCreatedAt,
+      sampleDaysSince,
+    },
   });
 }
