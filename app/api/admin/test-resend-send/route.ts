@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const content = day1WelcomeEmail("Test", "00000000-0000-0000-0000-000000000000");
+  const content = day1WelcomeEmail(
+    "Test",
+    "00000000-0000-0000-0000-000000000000"
+  );
   const ok = await sendResendEmail({
     to: "sheywebstudio@gmail.com",
     subject: content.subject,
