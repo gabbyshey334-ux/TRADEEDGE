@@ -1,7 +1,11 @@
 import { requireAuthUser } from "@/lib/auth/server";
 import { getTradesForUser } from "@/lib/data/trades";
 import { createClient } from "@/lib/supabase/server";
-import { PLAN_LIMITS, parsePlan } from "@/lib/plan-limits";
+import {
+  PLAN_LIMITS,
+  getEffectiveAccessPlan,
+  parsePlan,
+} from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
 import { AiCoachClient } from "./AiCoachClient";
 
@@ -12,6 +16,7 @@ export default async function AiCoachPage() {
 
   let tradeCount = 0;
   let plan: Plan = "starter";
+  let billingPlan: Plan = "starter";
   let reportsThisMonth = 0;
   let monthlyLimit: number | null = 0;
 
@@ -21,6 +26,7 @@ export default async function AiCoachPage() {
         <AiCoachClient
           tradeCount={0}
           plan="starter"
+          billingPlan="starter"
           reportsThisMonth={0}
           monthlyLimit={0}
         />
@@ -34,12 +40,16 @@ export default async function AiCoachPage() {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("plan")
+      .select("plan, trial_ends_at")
       .eq("id", user.id)
       .maybeSingle();
 
     if (!profileError && profile != null) {
-      plan = parsePlan(profile.plan) ?? "starter";
+      billingPlan = parsePlan(profile.plan) ?? "starter";
+      plan = getEffectiveAccessPlan({
+        plan: profile.plan,
+        trial_ends_at: profile.trial_ends_at,
+      });
     }
 
     const startOfMonth = new Date();
@@ -66,6 +76,7 @@ export default async function AiCoachPage() {
     <AiCoachClient
       tradeCount={tradeCount}
       plan={plan}
+      billingPlan={billingPlan}
       reportsThisMonth={reportsThisMonth}
       monthlyLimit={monthlyLimit}
     />

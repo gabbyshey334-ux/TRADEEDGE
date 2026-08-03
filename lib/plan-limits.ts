@@ -66,6 +66,32 @@ export function parsePlan(value: unknown): Plan | null {
   return null;
 }
 
+/**
+ * Resolve feature-access tier from billing plan + trial window.
+ * Paying pro/elite → unchanged. Active starter trial → temporary elite.
+ * Expired/missing trial on starter → starter. Does not write profiles.plan.
+ */
+export function getEffectiveAccessPlan(profile: {
+  plan: Plan | string | null | undefined;
+  trial_ends_at: string | null | undefined;
+}): Plan {
+  const billingPlan = parsePlan(profile.plan) ?? "starter";
+
+  if (billingPlan === "pro" || billingPlan === "elite") {
+    return billingPlan;
+  }
+
+  if (
+    billingPlan === "starter" &&
+    profile.trial_ends_at &&
+    new Date(profile.trial_ends_at).getTime() > Date.now()
+  ) {
+    return "elite";
+  }
+
+  return "starter";
+}
+
 /** Map a plan tier to its Stripe Price ID. */
 export function planToPriceId(plan: Plan): string | undefined {
   switch (plan) {

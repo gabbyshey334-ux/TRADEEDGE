@@ -1,6 +1,6 @@
 import { requireAuthUser } from "@/lib/auth/server";
 import { createClient } from "@/lib/supabase/server";
-import { parsePlan } from "@/lib/plan-limits";
+import { getEffectiveAccessPlan, parsePlan } from "@/lib/plan-limits";
 import type { Plan } from "@/lib/types";
 import { ApiKeysSection } from "@/components/ApiKeysSection";
 import { BillingClient } from "./BillingClient";
@@ -13,11 +13,15 @@ export default async function BillingPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan, sub_status, stripe_customer_id")
+    .select("plan, sub_status, stripe_customer_id, trial_ends_at")
     .eq("id", user.id)
     .maybeSingle();
 
   const plan: Plan = parsePlan(profile?.plan) ?? "starter";
+  const accessPlan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
   const subStatus = profile?.sub_status ?? "trialing";
   const hasStripeBilling = Boolean(profile?.stripe_customer_id);
 
@@ -29,7 +33,7 @@ export default async function BillingPage() {
         hasStripeBilling={hasStripeBilling}
       />
       <div className="dashboard-page mt-8">
-        <ApiKeysSection plan={plan} />
+        <ApiKeysSection plan={accessPlan} />
       </div>
     </>
   );

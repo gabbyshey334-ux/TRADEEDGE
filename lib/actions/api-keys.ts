@@ -2,6 +2,7 @@
 
 import { createHash, randomBytes } from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { getEffectiveAccessPlan } from "@/lib/plan-limits";
 
 export async function generateApiKey(name: string) {
   const supabase = await createClient();
@@ -12,11 +13,16 @@ export async function generateApiKey(name: string) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("plan, trial_ends_at")
     .eq("id", user.id)
     .single();
 
-  if (profile?.plan !== "elite") {
+  const accessPlan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
+
+  if (accessPlan !== "elite") {
     return { ok: false as const, error: "API access is an Elite feature." };
   }
 

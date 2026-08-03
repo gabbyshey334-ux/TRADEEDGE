@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { getEffectiveAccessPlan } from "@/lib/plan-limits";
 import { getServiceClient } from "@/lib/supabase/service";
 
 export async function GET(request: NextRequest) {
@@ -49,11 +50,16 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await service
     .from("profiles")
-    .select("plan")
+    .select("plan, trial_ends_at")
     .eq("id", apiKey.user_id)
     .single();
 
-  if (profile?.plan !== "elite") {
+  const accessPlan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
+
+  if (accessPlan !== "elite") {
     return NextResponse.json(
       { error: "API access requires an active Elite subscription." },
       { status: 403 }

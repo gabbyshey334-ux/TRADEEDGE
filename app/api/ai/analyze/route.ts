@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getServiceClient } from "@/lib/supabase/service";
 import { maybeCompleteOnboarding } from "@/lib/onboarding";
 import { buildTradeSummary } from "@/lib/utils";
-import { canRunAiReport } from "@/lib/plan-limits";
+import { canRunAiReport, getEffectiveAccessPlan } from "@/lib/plan-limits";
 import type { Trade, AiCoachReportType, Plan } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -39,11 +39,14 @@ export async function POST(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("plan, trial_ends_at")
     .eq("id", user.id)
     .single();
 
-  const plan: Plan = ((profile?.plan as Plan | undefined) ?? "starter") as Plan;
+  const plan: Plan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
 
   const startOfMonth = new Date();
   startOfMonth.setDate(1);

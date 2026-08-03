@@ -5,8 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/server";
 import { trackServerFunnelEvent } from "@/lib/funnel-events";
 import { maybeCompleteOnboarding } from "@/lib/onboarding";
-import { canAddTrade } from "@/lib/plan-limits";
-import type { NewTrade, Plan, Trade } from "@/lib/types";
+import { canAddTrade, getEffectiveAccessPlan } from "@/lib/plan-limits";
+import type { NewTrade, Trade } from "@/lib/types";
 
 function revalidateDashboardPages() {
   revalidatePath("/dashboard");
@@ -50,11 +50,14 @@ export async function createTrade(input: NewTrade): Promise<TradeActionResult> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("plan, trial_ends_at")
     .eq("id", user.id)
     .single();
 
-  const plan: Plan = ((profile?.plan as Plan | undefined) ?? "starter") as Plan;
+  const plan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
 
   const startOfMonth = new Date();
   startOfMonth.setDate(1);

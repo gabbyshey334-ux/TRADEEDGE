@@ -1,5 +1,5 @@
 import { requireAuthUser, getUserProfile } from "@/lib/auth/server";
-import { PLAN_LIMITS, parsePlan } from "@/lib/plan-limits";
+import { PLAN_LIMITS, getEffectiveAccessPlan } from "@/lib/plan-limits";
 import { BlurredFeaturePreview } from "@/components/BlurredFeaturePreview";
 import { PropFirmClient } from "@/components/PropFirmClient";
 import { PropFirmPreviewSample } from "@/components/PropFirmPreviewSample";
@@ -10,7 +10,10 @@ export const dynamic = "force-dynamic";
 export default async function PropFirmTrackerPage() {
   const user = await requireAuthUser();
   const profile = await getUserProfile(user.id);
-  const plan = parsePlan(profile?.plan) ?? "starter";
+  const plan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
   const unlocked = plan !== "starter" && PLAN_LIMITS[plan].propFirmTracker;
 
   const accountsResult = unlocked

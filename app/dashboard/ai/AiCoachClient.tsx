@@ -47,18 +47,25 @@ const MODES: Array<{
 
 interface AiCoachClientProps {
   tradeCount: number;
+  /** Effective access tier (includes active-trial elevation). */
   plan: Plan;
+  /** Real billing tier from profiles.plan — used for display labels only. */
+  billingPlan: Plan;
   reportsThisMonth: number;
   monthlyLimit: number | null;
 }
 
 function usageLabel(
-  plan: Plan,
+  accessPlan: Plan,
+  billingPlan: Plan,
   reportsThisMonth: number,
   monthlyLimit: number | null
 ): string {
-  if (plan === "starter") return "UPGRADE TO PRO TO UNLOCK";
-  if (plan === "elite") return "∞ UNLIMITED REPORTS · ELITE PLAN";
+  if (accessPlan === "starter") return "UPGRADE TO PRO TO UNLOCK";
+  if (accessPlan === "elite" && billingPlan !== "elite") {
+    return "∞ UNLIMITED REPORTS · TRIAL ACCESS";
+  }
+  if (accessPlan === "elite") return "∞ UNLIMITED REPORTS · ELITE PLAN";
   if (monthlyLimit !== null) {
     return `${reportsThisMonth} / ${monthlyLimit} REPORTS USED · PRO PLAN`;
   }
@@ -68,6 +75,7 @@ function usageLabel(
 export function AiCoachClient({
   tradeCount,
   plan,
+  billingPlan,
   reportsThisMonth,
   monthlyLimit,
 }: AiCoachClientProps) {
@@ -235,7 +243,7 @@ export function AiCoachClient({
           </div>
 
           <p className="mt-2 font-mono text-[11px] text-[#4a5568] uppercase tracking-[0.08em]">
-            {usageLabel(plan, reportsThisMonth, monthlyLimit)}
+            {usageLabel(plan, billingPlan, reportsThisMonth, monthlyLimit)}
           </p>
 
           {!isLocked && plan === "pro" && reachedLimit && (

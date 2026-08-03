@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getEffectiveAccessPlan } from "@/lib/plan-limits";
 import { aggregatePnl, groupBy } from "@/lib/utils";
 import type { Plan, Trade } from "@/lib/types";
 
@@ -200,11 +201,14 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("plan, trial_ends_at")
     .eq("id", user.id)
     .single();
 
-  const plan: Plan = ((profile?.plan as Plan | undefined) ?? "starter") as Plan;
+  const plan: Plan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
 
   if (plan !== "elite") {
     return NextResponse.json(

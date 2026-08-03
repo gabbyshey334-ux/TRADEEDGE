@@ -6,9 +6,7 @@ import {
   normalizeTradeType,
   tradeStableId,
 } from "@/lib/congressional-trades";
-import { PLAN_LIMITS } from "@/lib/plan-limits";
-import type { Plan } from "@/lib/types";
-
+import { PLAN_LIMITS, getEffectiveAccessPlan } from "@/lib/plan-limits";
 export const runtime = "nodejs";
 // We rely on Next's fetch cache (revalidate: 3600) to bound FMP calls to
 // once per hour. The route handler itself stays dynamic so each user request
@@ -204,14 +202,14 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("plan, trial_ends_at")
     .eq("id", user.id)
     .maybeSingle();
 
-  const plan: Plan =
-    profile?.plan === "pro" || profile?.plan === "elite" || profile?.plan === "starter"
-      ? (profile.plan as Plan)
-      : "starter";
+  const plan = getEffectiveAccessPlan({
+    plan: profile?.plan,
+    trial_ends_at: profile?.trial_ends_at,
+  });
 
   const locked = !PLAN_LIMITS[plan].congressionalTrades;
   const LOCKED_MESSAGE =
