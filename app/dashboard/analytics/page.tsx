@@ -136,7 +136,7 @@ function PanelShell({
 
 function emptyHint(text: string) {
   return (
-    <div className="py-10 text-center font-mono uppercase text-[10px] tracking-[0.24em] text-[#5a6580]">
+    <div className="py-10 text-center font-mono uppercase text-[10px] tracking-[0.24em] text-[#8892a4]">
       {text}
     </div>
   );

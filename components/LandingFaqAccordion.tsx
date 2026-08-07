@@ -36,7 +36,7 @@ export function FaqAccordion() {
         return (
           <div
             key={item.q}
-            className="overflow-hidden rounded-2xl border border-[#1c2235] bg-[#0c1018]"
+            className="overflow-hidden rounded-2xl border border-[#1c2235] bg-[#0c0f17]"
           >
             <button
               type="button"

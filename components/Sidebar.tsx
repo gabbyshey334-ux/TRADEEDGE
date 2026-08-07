@@ -12,6 +12,10 @@ import {
   PAYMENT_COMING_SOON_MESSAGE,
 } from "@/lib/billing-client";
 import { PlanUpgradeModal } from "@/components/PlanUpgradeModal";
+import {
+  getEffectiveAccessPlan,
+  PLAN_LIMITS,
+} from "@/lib/plan-limits";
 import { cn } from "@/lib/utils";
 import type { Plan } from "@/lib/types";
 
@@ -22,9 +26,13 @@ const MANUAL_BILLING_NOTICE =
 export interface SidebarUser {
   name: string;
   email: string;
+  /** Raw billing plan — used for plan pill / upgrade CTAs only. */
   plan: Plan;
   hasStripeBilling: boolean;
+  trialEndsAt: string | null;
 }
+
+type GatedFeature = "congressionalTrades" | "propFirmTracker";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: DashIcon },
@@ -37,13 +45,13 @@ const NAV = [
     href: "/dashboard/congressional-trades",
     label: "Congressional Trades",
     icon: CongressIcon,
-    proBadge: true,
+    gatedFeature: "congressionalTrades" as const,
   },
   {
     href: "/dashboard/prop-firm-tracker",
     label: "Prop Firm Tracker",
     icon: PropFirmIcon,
-    proBadge: true,
+    gatedFeature: "propFirmTracker" as const,
   },
 ] as const;
 
@@ -105,6 +113,12 @@ export function Sidebar({
   const pill = PLAN_PILL[user.plan];
   const expanded = open;
   const avatarTooltip = `${user.name} · ${pill.label}`;
+  // Badges follow feature access (trial → elite unlock); plan pill stays on billing plan.
+  const accessPlan = getEffectiveAccessPlan({
+    plan: user.plan,
+    trial_ends_at: user.trialEndsAt,
+  });
+  const accessLimits = PLAN_LIMITS[accessPlan];
 
   function handleNavClick() {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
@@ -234,11 +248,14 @@ export function Sidebar({
             href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(href);
+          const gatedFeature =
+            "gatedFeature" in item
+              ? (item.gatedFeature as GatedFeature)
+              : null;
           const showProBadge =
             expanded &&
-            "proBadge" in item &&
-            item.proBadge &&
-            user.plan === "starter";
+            gatedFeature !== null &&
+            !accessLimits[gatedFeature];
           return (
             <Link
               key={href}

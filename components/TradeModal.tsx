@@ -307,7 +307,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
           <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 space-y-6 sm:space-y-8">
             {/* Direction + market */}
             <section className="space-y-4">
-              <FormSectionLabel accent="#00e5b0">Position</FormSectionLabel>
+              <FormSectionLabel accent="#00ff88">Position</FormSectionLabel>
               <div className="grid grid-cols-2 gap-3">
                 <DirectionToggle
                   label="Long"
@@ -324,7 +324,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   onClick={() => update("direction", "Short")}
                 />
               </div>
-              <div className="inline-flex w-full rounded-sm border border-[#1a2030] bg-[#080b11] p-1">
+              <div className="inline-flex w-full rounded-sm border border-[#1c2235] bg-[#080b11] p-1">
                 {(["Forex", "Futures"] as const).map((m) => {
                   const active = form.market === m;
                   const isForex = m === "Forex";
@@ -338,9 +338,9 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                         "flex-1 h-10 rounded-sm font-mono font-bold uppercase transition-all duration-150 active:scale-[0.98]",
                         active
                           ? isForex
-                            ? "bg-[#00e5b0]/15 text-[#00e5b0] border border-[#00e5b0]/40 shadow-[0_0_14px_rgba(0,229,176,0.18)]"
+                            ? "bg-[#00ff88]/15 text-[#00ff88] border border-[#00ff88]/40 shadow-[0_0_14px_rgba(0,255,136,0.18)]"
                             : "bg-[#0066ff]/15 text-[#0066ff] border border-[#0066ff]/40 shadow-[0_0_14px_rgba(0,102,255,0.18)]"
-                          : "text-[#5a6580] hover:text-[#8892a4] border border-transparent"
+                          : "text-[#8892a4] hover:text-[#8892a4] border border-transparent"
                       )}
                       style={{ fontSize: "10px", letterSpacing: "0.24em" }}
                     >
@@ -379,7 +379,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
 
             {/* Execution */}
             <section className="space-y-4">
-              <FormSectionLabel accent="#f0c040">Execution</FormSectionLabel>
+              <FormSectionLabel accent="#f59e0b">Execution</FormSectionLabel>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <Input
                   label="Entry"
@@ -415,7 +415,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                     placeholder="0.00000"
                     value={form.stopLoss}
                     onChange={(e) => update("stopLoss", e.target.value)}
-                    className="w-full rounded-lg border border-[#1c2235] bg-[#080a0f] px-4 py-3 font-mono text-[14px] text-[#e8edf5] placeholder:text-[#3a4560] focus:border-[#00e5b0] focus:outline-none focus:ring-1 focus:ring-[#00e5b0]/20"
+                    className="w-full rounded-lg border border-[#1c2235] bg-[#080a0f] px-4 py-3 font-mono text-[14px] text-[#e8edf5] placeholder:text-[#4a5568] focus:border-[#00ff88] focus:outline-none focus:ring-1 focus:ring-[#00ff88]/20"
                   />
                 </div>
                 <Input
@@ -432,11 +432,11 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="rr"
-                    className="text-[10px] uppercase tracking-[0.18em] text-[#5a6580] font-mono"
+                    className="text-[10px] uppercase tracking-[0.18em] text-[#8892a4] font-mono"
                   >
                     R : R
                   </label>
-                  <div className="flex w-full items-center rounded-lg border border-[#1a2030] bg-[#080b11] px-4 py-3">
+                  <div className="flex w-full items-center rounded-lg border border-[#1c2235] bg-[#080b11] px-4 py-3">
                     <span
                       id="rr"
                       className="flex-1 font-mono text-sm text-[#e8edf5]"
@@ -445,7 +445,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                     </span>
                   </div>
                   {!form.rr && (
-                    <span className="text-[10px] text-[#5a6580] font-mono">
+                    <span className="text-[10px] text-[#8892a4] font-mono">
                       Add a stop loss to calculate R:R
                     </span>
                   )}
@@ -455,18 +455,18 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                 className={cn(
                   "rounded-sm border-l-2 border p-4 transition-colors duration-150",
                   pnlTone === "win" &&
-                    "border-[#00e5b0]/40 bg-[#00e5b0]/[0.04]",
+                    "border-[#00ff88]/40 bg-[#00ff88]/[0.04]",
                   pnlTone === "loss" &&
-                    "border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.04]",
-                  pnlTone === "neutral" && "border-[#1a2030] bg-[#080b11]"
+                    "border-[#ff3b5c]/40 bg-[#ff3b5c]/[0.04]",
+                  pnlTone === "neutral" && "border-[#1c2235] bg-[#080b11]"
                 )}
                 style={{
                   borderLeftColor:
                     pnlTone === "win"
-                      ? "#00e5b0"
+                      ? "#00ff88"
                       : pnlTone === "loss"
-                        ? "#ff4d6d"
-                        : "#1a2030",
+                        ? "#ff3b5c"
+                        : "#1c2235",
                 }}
               >
                 <Input
@@ -519,7 +519,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="notes"
-                    className="text-[10px] uppercase tracking-[0.18em] text-[#5a6580] font-mono"
+                    className="text-[10px] uppercase tracking-[0.18em] text-[#8892a4] font-mono"
                   >
                     Trade notes
                   </label>
@@ -531,9 +531,9 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                     onChange={(e) => update("notes", e.target.value)}
                     placeholder="Setup thesis, execution quality, lessons learned…"
                     className={cn(
-                      "w-full rounded-lg bg-[#080b11] border border-[#1a2030] px-4 py-3",
-                      "text-sm text-[#e8edf5] font-sans leading-relaxed placeholder:text-[#3a4560]",
-                      "focus:outline-none focus:border-[#00e5b0] focus:ring-1 focus:ring-[#00e5b0]/20",
+                      "w-full rounded-lg bg-[#080b11] border border-[#1c2235] px-4 py-3",
+                      "text-sm text-[#e8edf5] font-sans leading-relaxed placeholder:text-[#4a5568]",
+                      "focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20",
                       "transition-colors duration-150 resize-none"
                     )}
                   />
@@ -550,7 +550,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
             </section>
 
             {error && (
-              <div className="rounded-lg border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">
+              <div className="rounded-lg border border-[#ff3b5c]/40 bg-[#ff3b5c]/[0.06] px-4 py-3 text-xs text-[#ff3b5c] font-mono animate-fadeInSoft">
                 {error}
               </div>
             )}
@@ -612,7 +612,7 @@ function FormSectionLabel({
       >
         {children}
       </span>
-      <span className="h-px flex-1 bg-[#1a2030]" />
+      <span className="h-px flex-1 bg-[#1c2235]" />
     </div>
   );
 }
@@ -640,9 +640,9 @@ function DirectionToggle({
         "active:scale-[0.98]",
         active
           ? isLong
-            ? "border-[#00e5b0] bg-[#00e5b0]/10 shadow-[0_0_24px_rgba(0,229,176,0.22)]"
-            : "border-[#ff4d6d] bg-[#ff4d6d]/10 shadow-[0_0_24px_rgba(255,77,109,0.22)]"
-          : "border-[#1a2030] bg-[#080b11] hover:border-[#2a3050] hover:bg-[#0f1420]"
+            ? "border-[#00ff88] bg-[#00ff88]/10 shadow-[0_0_24px_rgba(0,255,136,0.22)]"
+            : "border-[#ff3b5c] bg-[#ff3b5c]/10 shadow-[0_0_24px_rgba(255,59,92,0.22)]"
+          : "border-[#1c2235] bg-[#080b11] hover:border-[#2a3350] hover:bg-[#0f1420]"
       )}
     >
       <span
@@ -650,9 +650,9 @@ function DirectionToggle({
           "font-heading text-2xl tracking-wide leading-none transition-colors",
           active
             ? isLong
-              ? "text-[#00e5b0]"
-              : "text-[#ff4d6d]"
-            : "text-[#5a6580] group-hover:text-[#8892a4]"
+              ? "text-[#00ff88]"
+              : "text-[#ff3b5c]"
+            : "text-[#8892a4] group-hover:text-[#8892a4]"
         )}
       >
         {label}
@@ -660,7 +660,7 @@ function DirectionToggle({
       <span
         className={cn(
           "text-[9px] uppercase tracking-[0.24em] font-mono transition-colors",
-          active ? "text-[#e8edf5]" : "text-[#5a6580]"
+          active ? "text-[#e8edf5]" : "text-[#8892a4]"
         )}
       >
         {sublabel}
@@ -670,7 +670,7 @@ function DirectionToggle({
           aria-hidden
           className={cn(
             "absolute top-0 left-4 right-4 h-[2px] rounded-full",
-            isLong ? "bg-[#00e5b0]" : "bg-[#ff4d6d]"
+            isLong ? "bg-[#00ff88]" : "bg-[#ff3b5c]"
           )}
         />
       )}

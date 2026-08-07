@@ -18,7 +18,7 @@ const LOGOS = [
 export function TrustLogos() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col items-center gap-10 md:gap-12">
-      <p className="font-mono text-xs uppercase tracking-[0.32em] text-[#5a6580] md:text-sm">
+      <p className="font-mono text-xs uppercase tracking-[0.32em] text-[#8892a4] md:text-sm">
         Trusted by traders at
       </p>
       <div className="grid w-full grid-cols-2 items-center justify-items-center gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 lg:gap-x-8 lg:gap-y-12">

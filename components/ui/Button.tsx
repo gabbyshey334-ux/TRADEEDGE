@@ -14,25 +14,25 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary: cn(
-    "bg-[#00e5b0] text-[#06080d] border border-[#00e5b0]",
-    "hover:brightness-110 hover:shadow-[0_0_16px_rgba(0,229,176,0.35)]",
+    "bg-[#00ff88] text-[#080a0f] border border-[#00ff88]",
+    "hover:brightness-110 hover:shadow-[0_0_16px_rgba(0,255,136,0.35)]",
     "active:scale-[0.98]"
   ),
   secondary: cn(
-    "bg-transparent text-[#8892a4] border border-[#1a2030]",
-    "hover:text-[#e8edf5] hover:border-[#2a3050] hover:bg-[#0f1420]"
+    "bg-transparent text-[#8892a4] border border-[#1c2235]",
+    "hover:text-[#e8edf5] hover:border-[#2a3350] hover:bg-[#0f1420]"
   ),
   ghost: cn(
     "bg-transparent text-[#8892a4] border border-transparent",
     "hover:text-[#e8edf5] hover:bg-[#0f1420]"
   ),
   danger: cn(
-    "bg-[#ff4d6d] text-white border border-[#ff4d6d]",
-    "hover:brightness-110 hover:shadow-[0_0_16px_rgba(255,77,109,0.3)]",
+    "bg-[#ff3b5c] text-white border border-[#ff3b5c]",
+    "hover:brightness-110 hover:shadow-[0_0_16px_rgba(255,59,92,0.3)]",
     "active:scale-[0.98]"
   ),
   outline: cn(
-    "bg-transparent text-[#e8edf5] border border-[#2a3050]",
+    "bg-transparent text-[#e8edf5] border border-[#2a3350]",
     "hover:bg-[#0f1420] hover:border-[#3a4570]"
   ),
 };

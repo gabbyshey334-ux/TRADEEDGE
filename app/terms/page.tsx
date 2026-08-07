@@ -31,7 +31,7 @@ export default function TermsOfServicePage() {
               by these Terms and our{" "}
               <a
                 href="/privacy"
-                className="text-[#00e5b0] hover:underline font-medium"
+                className="text-[#00ff88] hover:underline font-medium"
               >
                 Privacy Policy
               </a>

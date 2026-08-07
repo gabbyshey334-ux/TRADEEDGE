@@ -264,9 +264,9 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 space-y-6 sm:space-y-8">
             <section className="space-y-4">
-              <FormSectionLabel accent="#00e5b0">Account</FormSectionLabel>
+              <FormSectionLabel accent="#00ff88">Account</FormSectionLabel>
               <div className="flex flex-col gap-1.5">
-                <label className="font-mono text-[10px] tracking-[0.18em] text-[#5a6580] uppercase">
+                <label className="font-mono text-[10px] tracking-[0.18em] text-[#8892a4] uppercase">
                   Firm Name
                 </label>
                 <select
@@ -275,7 +275,7 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
                     handleFirmChange(e.target.value as FirmName | "")
                   }
                   required
-                  className="w-full rounded-lg bg-[#080b11] border border-[#1a2030] px-4 py-3 font-mono text-[13px] text-[#e8edf5] focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20 transition-colors duration-150 appearance-none cursor-pointer"
+                  className="w-full rounded-lg bg-[#080b11] border border-[#1c2235] px-4 py-3 font-mono text-[13px] text-[#e8edf5] focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20 transition-colors duration-150 appearance-none cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
                     backgroundRepeat: "no-repeat",
@@ -296,14 +296,14 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
 
               {form.selected_firm && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-mono text-[10px] tracking-[0.18em] text-[#5a6580] uppercase">
+                  <label className="font-mono text-[10px] tracking-[0.18em] text-[#8892a4] uppercase">
                     Challenge Type
                   </label>
                   <select
                     value={form.selected_challenge}
                     onChange={(e) => handleChallengeChange(e.target.value)}
                     required
-                    className="w-full rounded-lg bg-[#080b11] border border-[#1a2030] px-4 py-3 font-mono text-[13px] text-[#e8edf5] focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20 transition-colors duration-150 appearance-none cursor-pointer"
+                    className="w-full rounded-lg bg-[#080b11] border border-[#1c2235] px-4 py-3 font-mono text-[13px] text-[#e8edf5] focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20 transition-colors duration-150 appearance-none cursor-pointer"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
                       backgroundRepeat: "no-repeat",
@@ -434,7 +434,7 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="notes"
-                  className="text-[10px] uppercase tracking-[0.18em] text-[#5a6580] font-mono"
+                  className="text-[10px] uppercase tracking-[0.18em] text-[#8892a4] font-mono"
                 >
                   Account notes
                 </label>
@@ -446,9 +446,9 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
                   onChange={(e) => update("notes", e.target.value)}
                   placeholder="Payout schedule, scaling plan, broker notes..."
                   className={cn(
-                    "w-full rounded-lg bg-[#080b11] border border-[#1a2030] px-4 py-3",
-                    "text-sm text-[#e8edf5] font-sans leading-relaxed placeholder:text-[#3a4560]",
-                    "focus:outline-none focus:border-[#00e5b0] focus:ring-1 focus:ring-[#00e5b0]/20",
+                    "w-full rounded-lg bg-[#080b11] border border-[#1c2235] px-4 py-3",
+                    "text-sm text-[#e8edf5] font-sans leading-relaxed placeholder:text-[#4a5568]",
+                    "focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/20",
                     "transition-colors duration-150 resize-none"
                   )}
                 />
@@ -456,7 +456,7 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
             </section>
 
             {error && (
-              <div className="rounded-lg border border-[#ff4d6d]/40 bg-[#ff4d6d]/[0.06] px-4 py-3 text-xs text-[#ff4d6d] font-mono animate-fadeInSoft">
+              <div className="rounded-lg border border-[#ff3b5c]/40 bg-[#ff3b5c]/[0.06] px-4 py-3 text-xs text-[#ff3b5c] font-mono animate-fadeInSoft">
                 {error}
               </div>
             )}
@@ -509,7 +509,7 @@ function FormSectionLabel({
       >
         {children}
       </span>
-      <span className="h-px flex-1 bg-[#1a2030]" />
+      <span className="h-px flex-1 bg-[#1c2235]" />
     </div>
   );
 }

@@ -42,7 +42,7 @@ export function LandingNav() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 bg-bg"
-      style={{ borderBottom: "1px solid #1a2030" }}
+      style={{ borderBottom: "1px solid #1c2235" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-8 h-14 sm:h-16 flex items-center justify-between gap-3">
         <Link href="/" aria-label="TradeEdge AI home" onClick={() => setOpen(false)}>
@@ -94,7 +94,7 @@ export function LandingNav() {
 
       {open && (
         <div
-          className="md:hidden border-t border-[#1a2030] bg-[#080b11] px-4 py-4 flex flex-col gap-1"
+          className="md:hidden border-t border-[#1c2235] bg-[#080b11] px-4 py-4 flex flex-col gap-1"
         >
           {LINKS.map((l) => (
             <a

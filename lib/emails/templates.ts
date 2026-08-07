@@ -79,7 +79,7 @@ export function day1WelcomeEmail(
   userId: string
 ): EmailContent {
   return {
-    subject: "Welcome to TradeEdge AI — here's where to start",
+    subject: "Welcome to TradeEdge AI: here's where to start",
     html: emailShell({
       firstName,
       userId,
@@ -87,20 +87,20 @@ export function day1WelcomeEmail(
       ctaUrl: `${APP_URL}/dashboard`,
       bodyHtml: `
         <p style="margin:0 0 16px 0;">
-          Welcome to TradeEdge AI. You just made the first move most traders never make — deciding to actually track what's happening with their trading.
+          Welcome to TradeEdge AI. You just made the first move most traders never make: deciding to actually track what's happening with their trading.
         </p>
         <p style="margin:0 0 12px 0;">Here's exactly what to do in the next 10 minutes:</p>
-        <p style="margin:0 0 6px 0;">Step 1 — Log your first trade in the Journal</p>
-        <p style="margin:0 0 6px 0;">Step 2 — Go to AI Coach and generate your first report</p>
-        <p style="margin:0 0 16px 0;">Step 3 — Add a prop firm challenge and check your Readiness Score</p>
+        <p style="margin:0 0 6px 0;">Step 1: Log your first trade in the Journal</p>
+        <p style="margin:0 0 6px 0;">Step 2: Go to AI Coach and generate your first report</p>
+        <p style="margin:0 0 16px 0;">Step 3: Add a prop firm challenge and check your Readiness Score</p>
         <p style="margin:0 0 16px 0;">
-          The AI Coach step is the one that turns those logged trades into something useful — session debriefs, psychology diagnosis, and specific next-session corrections from your own trade history, so you see the leak instead of just the P&amp;L.
+          The AI Coach step is the one that turns those logged trades into something useful: session debriefs, psychology diagnosis, and specific next-session corrections from your own trade history, so you see the leak instead of just the P&amp;L.
         </p>
         <p style="margin:0 0 16px 0;">
           That's it. Three steps and you'll have more insight into your trading than most people get in a year.
         </p>
         <p style="margin:24px 0 0 0;color:#8892a4;">
-          — Anthony Brown<br />
+          Anthony Brown<br />
           Founder, TradeEdge AI
         </p>
       `,
@@ -124,12 +124,12 @@ export function day3NudgeEmail(
           If you've logged a few trades, your AI Coach has already found something interesting about your trading patterns.
         </p>
         <p style="margin:0 0 16px 0;">
-          For example — and this is illustrative, not a claim about your account — something like: you're cutting winners early on your best-performing setup. That's the kind of pattern a report is built to surface from the trades you've already logged.
+          For example (and this is illustrative, not a claim about your account), something like: you're cutting winners early on your best-performing setup. That's the kind of pattern a report is built to surface from the trades you've already logged.
         </p>
         <p style="margin:0 0 16px 0;">
           Go run your first report. It takes 30 seconds.
         </p>
-        <p style="margin:24px 0 0 0;color:#8892a4;">— Anthony</p>
+        <p style="margin:24px 0 0 0;color:#8892a4;">Anthony</p>
       `,
     }),
   };
@@ -140,25 +140,25 @@ export function day7HalfwayEmail(
   userId: string
 ): EmailContent {
   return {
-    subject: "7 days in — here's what Pro unlocks for you",
+    subject: "7 days in: here's what Pro unlocks for you",
     html: emailShell({
       firstName,
       userId,
-      ctaLabel: "Upgrade to Pro — Use FOUNDER20 →",
+      ctaLabel: "Upgrade to Pro: Use FOUNDER20 →",
       bodyHtml: `
         <p style="margin:0 0 16px 0;">You're halfway through your free trial.</p>
         <p style="margin:0 0 12px 0;">Here's what you get when you upgrade to Pro:</p>
-        <p style="margin:0 0 6px 0;">✓ Unlimited trades per month — no more hitting the Starter 50-trade ceiling mid-month</p>
-        <p style="margin:0 0 6px 0;">✓ 10 AI coaching reports every month — session debriefs and next-session corrections from your own history</p>
-        <p style="margin:0 0 6px 0;">✓ Congressional Trades feed — live STOCK Act disclosures so you can see what members of Congress are trading</p>
-        <p style="margin:0 0 16px 0;">✓ Prop Firm Tracker — profit targets, daily loss, and max drawdown in one place so rule breaks don't surprise you</p>
+        <p style="margin:0 0 6px 0;">✓ Unlimited trades per month: no more hitting the Starter 50-trade ceiling mid-month</p>
+        <p style="margin:0 0 6px 0;">✓ 10 AI coaching reports every month: session debriefs and next-session corrections from your own history</p>
+        <p style="margin:0 0 6px 0;">✓ Congressional Trades feed: live STOCK Act disclosures so you can see what members of Congress are trading</p>
+        <p style="margin:0 0 16px 0;">✓ Prop Firm Tracker: profit targets, daily loss, and max drawdown in one place so rule breaks don't surprise you</p>
         <p style="margin:0 0 16px 0;">
           Use code <strong style="color:#00ff88;">FOUNDER20</strong> for 20% off your first month.
         </p>
         <p style="margin:0 0 16px 0;color:#8892a4;">
           The code expires when your trial ends.
         </p>
-        <p style="margin:24px 0 0 0;color:#8892a4;">— Anthony</p>
+        <p style="margin:24px 0 0 0;color:#8892a4;">Anthony</p>
       `,
     }),
   };
@@ -173,14 +173,14 @@ export function day12LastChanceEmail(
     html: emailShell({
       firstName,
       userId,
-      ctaLabel: "Upgrade Now — Save 20% →",
+      ctaLabel: "Upgrade Now: Save 20% →",
       bodyHtml: `
         <p style="margin:0 0 16px 0;">Your free trial ends in 2 days.</p>
         <p style="margin:0 0 16px 0;">
-          You've seen what TradeEdge AI can do. The AI Coach, the Congressional Trades feed, the Prop Firm Tracker — all of it stays available when you upgrade.
+          You've seen what TradeEdge AI can do. The AI Coach, the Congressional Trades feed, the Prop Firm Tracker: all of it stays available when you upgrade.
         </p>
         <p style="margin:0 0 16px 0;">
-          Traders upgrade at this point to keep AI Coach reports and unlimited journaling after trial — on Starter, monthly trades cap at 50 and AI reports drop to zero.
+          Traders upgrade at this point to keep AI Coach reports and unlimited journaling after trial. On Starter, monthly trades cap at 50 and AI reports drop to zero.
         </p>
         <p style="margin:0 0 16px 0;">
           Use <strong style="color:#00ff88;">FOUNDER20</strong> for 20% off. It expires when your trial does.
@@ -189,7 +189,7 @@ export function day12LastChanceEmail(
           If you have any questions before deciding, just reply to this email.
         </p>
         <p style="margin:24px 0 0 0;color:#8892a4;">
-          — Anthony Brown<br />
+          Anthony Brown<br />
           Founder, TradeEdge AI
         </p>
       `,
@@ -206,7 +206,7 @@ export function day14LastDayEmail(
     html: emailShell({
       firstName,
       userId,
-      ctaLabel: "Upgrade Now — Save 20% →",
+      ctaLabel: "Upgrade Now: Save 20% →",
       ctaUrl: BILLING_URL,
       bodyHtml: `
         <p style="margin:0 0 16px 0;">
@@ -215,18 +215,18 @@ export function day14LastDayEmail(
         <p style="margin:0 0 12px 0;">
           If you don't upgrade, here's what changes when you move back to Starter limits:
         </p>
-        <p style="margin:0 0 6px 0;">• Journal entries — capped at 50 trades per month</p>
-        <p style="margin:0 0 6px 0;">• AI Coach reports — stop (Starter includes 0 reports)</p>
-        <p style="margin:0 0 6px 0;">• Congressional Trades feed — locks</p>
-        <p style="margin:0 0 16px 0;">• Prop Firm Tracker — locks</p>
+        <p style="margin:0 0 6px 0;">• Journal entries: capped at 50 trades per month</p>
+        <p style="margin:0 0 6px 0;">• AI Coach reports: stop (Starter includes 0 reports)</p>
+        <p style="margin:0 0 6px 0;">• Congressional Trades feed: locks</p>
+        <p style="margin:0 0 16px 0;">• Prop Firm Tracker: locks</p>
         <p style="margin:0 0 16px 0;">
           Nothing is deleted. Every trade and journal entry you've logged stays in your account whether you upgrade or not.
         </p>
         <p style="margin:0 0 16px 0;">
-          Use code <strong style="color:#00ff88;">FOUNDER20</strong> for 20% off — today is the last day it works.
+          Use code <strong style="color:#00ff88;">FOUNDER20</strong> for 20% off. Today is the last day it works.
         </p>
         <p style="margin:24px 0 0 0;color:#8892a4;">
-          — Anthony Brown<br />
+          Anthony Brown<br />
           Founder, TradeEdge AI
         </p>
       `,
@@ -247,16 +247,16 @@ export function day15WinBackEmail(
       ctaUrl: BILLING_URL,
       bodyHtml: `
         <p style="margin:0 0 16px 0;">
-          Your trial ended, but nothing's gone. Your TradeEdge journal is still here — every trade you logged is exactly where you left it.
+          Your trial ended, but nothing's gone. Your TradeEdge journal is still here. Every trade you logged is exactly where you left it.
         </p>
         <p style="margin:0 0 16px 0;">
-          TradeEdge AI shows you the pattern in your own trading that's quietly costing you money — before it costs you your account.
+          TradeEdge AI shows you the pattern in your own trading that's quietly costing you money, before it costs you your account.
         </p>
         <p style="margin:0 0 16px 0;">
           When you're ready, pick up where you left off.
         </p>
         <p style="margin:24px 0 0 0;color:#8892a4;">
-          — Anthony Brown<br />
+          Anthony Brown<br />
           Founder, TradeEdge AI
         </p>
       `,

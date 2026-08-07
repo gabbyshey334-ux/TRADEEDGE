@@ -19,21 +19,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-[10px] uppercase tracking-[0.18em] text-[#5a6580] font-mono"
+            className="text-[10px] uppercase tracking-[0.18em] text-[#8892a4] font-mono"
           >
             {label}
           </label>
         )}
         <div
           className={cn(
-            "group flex items-center w-full rounded-lg bg-[#080b11] border border-[#1a2030]",
+            "group flex items-center w-full rounded-lg bg-[#080b11] border border-[#1c2235]",
             "transition-colors duration-150",
-            "focus-within:border-[#00e5b0] focus-within:ring-1 focus-within:ring-[#00e5b0]/20",
-            error && "border-[#ff4d6d] focus-within:border-[#ff4d6d] focus-within:ring-[#ff4d6d]/20"
+            "focus-within:border-[#00ff88] focus-within:ring-1 focus-within:ring-[#00ff88]/20",
+            error && "border-[#ff3b5c] focus-within:border-[#ff3b5c] focus-within:ring-[#ff3b5c]/20"
           )}
         >
           {prefix && (
-            <span className="pl-4 pr-2 text-[11px] text-[#5a6580] font-mono uppercase tracking-[0.18em] select-none">
+            <span className="pl-4 pr-2 text-[11px] text-[#8892a4] font-mono uppercase tracking-[0.18em] select-none">
               {prefix}
             </span>
           )}
@@ -42,7 +42,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             className={cn(
               "flex-1 bg-transparent py-3 text-sm text-[#e8edf5] font-mono",
-              "placeholder:text-[#3a4560] focus:outline-none",
+              "placeholder:text-[#4a5568] focus:outline-none",
               prefix ? "pl-0 pr-4" : "px-4",
               suffix && (prefix ? "pl-0 pr-2" : "pl-4 pr-2"),
               className
@@ -50,16 +50,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {suffix && (
-            <span className="pr-4 pl-1 text-[11px] text-[#5a6580] font-mono uppercase tracking-[0.18em] select-none">
+            <span className="pr-4 pl-1 text-[11px] text-[#8892a4] font-mono uppercase tracking-[0.18em] select-none">
               {suffix}
             </span>
           )}
         </div>
         {hint && !error && (
-          <span className="text-[10px] text-[#5a6580] font-mono">{hint}</span>
+          <span className="text-[10px] text-[#8892a4] font-mono">{hint}</span>
         )}
         {error && (
-          <span className="text-[10px] text-[#ff4d6d] font-mono">{error}</span>
+          <span className="text-[10px] text-[#ff3b5c] font-mono">{error}</span>
         )}
       </div>
     );

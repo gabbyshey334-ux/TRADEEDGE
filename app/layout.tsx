@@ -48,7 +48,7 @@ export default function RootLayout({
     >
       <body
         className="font-sans antialiased"
-        style={{ backgroundColor: "#06080d", color: "#e8edf5" }}
+        style={{ backgroundColor: "#080a0f", color: "#e8edf5" }}
       >
         {children}
         <Script

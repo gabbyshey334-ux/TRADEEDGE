@@ -98,7 +98,7 @@ function SampleCard({
       <div className="space-y-2">
         <div className="flex items-baseline justify-between gap-3">
           <span
-            className="font-mono uppercase text-[#5a6580]"
+            className="font-mono uppercase text-[#8892a4]"
             style={{ fontSize: "10px", letterSpacing: "0.24em" }}
           >
             Progress to Target
@@ -123,7 +123,7 @@ function SampleCard({
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="font-mono text-[#8892a4] tabular" style={{ fontSize: "12px" }}>
             {currentBalance}
-            <span className="text-[#3a4560]"> / {targetBalance}</span>
+            <span className="text-[#4a5568]"> / {targetBalance}</span>
           </span>
         </div>
       </div>

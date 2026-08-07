@@ -18,6 +18,10 @@
     supabase/config.toml — see that file for MCP / CLI apply steps.
   - All styles are inline because email clients strip <style> blocks,
     external stylesheets, and class names.
+  - Logo uses an absolute production URL
+    (https://www.tradeedgeapp.net/logos/TRADEEDGE.PNG). Relative paths
+    will not load in email clients. Repo edits do not update hosted
+    templates until you paste/save in the Dashboard (or config push).
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +40,7 @@
             <!-- Header -->
             <tr>
               <td align="center" style="background:linear-gradient(180deg, #0c1018 0%, #080b11 100%); background-color:#0c1018; padding:40px 40px 32px 40px;">
-                <div style="width:48px; height:48px; background:linear-gradient(135deg, #00e5b0 0%, #0066ff 100%); background-color:#00e5b0; border-radius:10px; display:inline-block; line-height:48px; text-align:center; color:#ffffff; font-size:20px; font-weight:700; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">TE</div>
+                <img src="https://www.tradeedgeapp.net/logos/TRADEEDGE.PNG" alt="TradeEdge AI" width="48" height="48" style="display:block; margin:0 auto; width:48px; height:48px; border:0; border-radius:10px;" />
                 <div style="margin-top:16px; font-size:24px; font-weight:700; letter-spacing:4px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
                   <span style="color:#e8edf5;">TRADE</span><span style="color:#00e5b0;">EDGE AI</span>
                 </div>

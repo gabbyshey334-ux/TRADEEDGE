@@ -48,7 +48,7 @@ export function LockedFeaturePanel(props: LockedFeaturePanelProps) {
     <div
       className={cn(
         "absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-lg",
-        "bg-[#06080d]/90 backdrop-blur-sm border border-[#1a2030]",
+        "bg-[#080a0f]/90 backdrop-blur-sm border border-[#1c2235]",
         "px-6 py-12 text-center"
       )}
     >
@@ -67,7 +67,7 @@ export function LockedFeaturePanel(props: LockedFeaturePanelProps) {
 
       {paymentNotice ? (
         <div
-          className="max-w-sm rounded-sm border border-[#f0c040]/40 bg-[#f0c040]/[0.08] px-4 py-3 text-[13px] text-[#f0c040] font-sans leading-relaxed"
+          className="max-w-sm rounded-sm border border-[#f59e0b]/40 bg-[#f59e0b]/[0.08] px-4 py-3 text-[13px] text-[#f59e0b] font-sans leading-relaxed"
           role="status"
         >
           {paymentNotice}
@@ -79,9 +79,9 @@ export function LockedFeaturePanel(props: LockedFeaturePanelProps) {
           disabled={pending}
           className={cn(
             "h-9 px-4 rounded-sm",
-            "font-mono font-bold uppercase text-[#06080d]",
-            "bg-[#00e5b0] hover:bg-[#00f5be]",
-            "shadow-[0_0_18px_rgba(0,229,176,0.35)]",
+            "font-mono font-bold uppercase text-[#080a0f]",
+            "bg-[#00ff88] hover:bg-[#00ff88]/90",
+            "shadow-[0_0_18px_rgba(0,255,136,0.35)]",
             "transition-all active:scale-[0.98] disabled:opacity-60"
           )}
           style={{ fontSize: "10px", letterSpacing: "0.22em" }}

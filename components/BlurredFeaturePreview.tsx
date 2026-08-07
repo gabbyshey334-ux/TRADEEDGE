@@ -62,7 +62,7 @@ export function BlurredFeaturePreview({
       >
         {badge ? (
           <span
-            className="absolute top-4 left-4 font-mono font-bold uppercase text-[#00e5b0] border border-[#00e5b0]/30 bg-[#00e5b0]/10 px-2 py-0.5 rounded"
+            className="absolute top-4 left-4 font-mono font-bold uppercase text-[#00ff88] border border-[#00ff88]/30 bg-[#00ff88]/10 px-2 py-0.5 rounded"
             style={{ fontSize: "9px", letterSpacing: "0.22em" }}
           >
             {badge}
@@ -82,7 +82,7 @@ export function BlurredFeaturePreview({
 
         {paymentNotice ? (
           <div
-            className="mt-4 max-w-sm rounded-sm border border-[#f0c040]/40 bg-[#f0c040]/[0.08] px-4 py-3 text-[13px] text-[#f0c040] font-body leading-relaxed"
+            className="mt-4 max-w-sm rounded-sm border border-[#f59e0b]/40 bg-[#f59e0b]/[0.08] px-4 py-3 text-[13px] text-[#f59e0b] font-body leading-relaxed"
             role="status"
           >
             {paymentNotice}
@@ -94,9 +94,9 @@ export function BlurredFeaturePreview({
             disabled={pending}
             className={cn(
               "mt-4 h-9 px-4 rounded-sm",
-              "font-mono font-bold uppercase text-[#06080d]",
-              "bg-[#00e5b0] hover:bg-[#00f5be]",
-              "shadow-[0_0_18px_rgba(0,229,176,0.35)]",
+              "font-mono font-bold uppercase text-[#080a0f]",
+              "bg-[#00ff88] hover:bg-[#00ff88]/90",
+              "shadow-[0_0_18px_rgba(0,255,136,0.35)]",
               "transition-all active:scale-[0.98] disabled:opacity-60"
             )}
             style={{ fontSize: "10px", letterSpacing: "0.22em" }}

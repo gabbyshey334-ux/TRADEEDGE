@@ -256,7 +256,7 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                         day: "numeric",
                         timeZone: "UTC",
                       })}
-                      <span className="ml-2 text-[#5a6580]">
+                      <span className="ml-2 text-[#8892a4]">
                         {dayData.count} trade{dayData.count !== 1 ? "s" : ""}
                       </span>
                     </div>

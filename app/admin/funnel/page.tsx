@@ -68,10 +68,10 @@ export default async function AdminFunnelPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#06080d] px-6 py-10 text-[#e8edf5]">
+    <main className="min-h-screen bg-[#080a0f] px-6 py-10 text-[#e8edf5]">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="rounded-xl border border-[#1c2235] bg-[#0c0f17] p-6">
-          <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#00e5b0]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#00ff88]">
             Funnel Analytics
           </div>
           <h1 className="mt-3 text-3xl font-semibold text-[#e8edf5]">

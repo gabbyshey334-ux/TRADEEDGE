@@ -11,6 +11,18 @@ function redirectUrl(path: string): string {
   return `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}${path}`;
 }
 
+/** Map Supabase Auth errors to clearer copy (esp. email rate limits). */
+function mapAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("email rate limit exceeded") ||
+    lower.includes("over_email_send_rate_limit")
+  ) {
+    return "Too many auth emails were sent recently. Please wait about an hour and try again — or ask support if you need access sooner.";
+  }
+  return message;
+}
+
 export async function signUpWithPassword(input: {
   email: string;
   password: string;
@@ -26,7 +38,7 @@ export async function signUpWithPassword(input: {
     },
   });
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: mapAuthError(error.message) };
   return { ok: true, needsEmailConfirmation: !data.session };
 }
 
@@ -40,7 +52,7 @@ export async function signInWithPassword(input: {
     password: input.password,
   });
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: mapAuthError(error.message) };
   return { ok: true, needsEmailConfirmation: false };
 }
 
@@ -53,7 +65,7 @@ export async function signInWithGoogle(): Promise<
     options: { redirectTo: redirectUrl("/auth/callback") },
   });
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: mapAuthError(error.message) };
   if (!data.url) return { ok: false, error: "Could not start Google sign-in." };
   return { ok: true, url: data.url };
 }
@@ -70,7 +82,7 @@ export async function resetPasswordForEmail(
   const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
     redirectTo: redirectUrl("/auth/reset-password"),
   });
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: mapAuthError(error.message) };
   return { ok: true };
 }
 
@@ -79,6 +91,6 @@ export async function updatePassword(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = createClient();
   const { error } = await supabase.auth.updateUser({ password });
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: mapAuthError(error.message) };
   return { ok: true };
 }

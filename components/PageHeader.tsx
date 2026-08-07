@@ -8,10 +8,10 @@ interface PageHeaderProps {
 export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProps) {
   return (
     <div
-      className="border-b border-[#1a2030] bg-[#080b11]"
+      className="border-b border-[#1c2235] bg-[#080b11]"
       style={{
         backgroundImage:
-          "radial-gradient(900px 200px at 10% 0%, rgba(0,229,176,0.04), transparent 70%)",
+          "radial-gradient(900px 200px at 10% 0%, rgba(0,255,136,0.04), transparent 70%)",
       }}
     >
       <div className="flex flex-col gap-4 px-4 py-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:px-8 sm:py-7">
@@ -22,7 +22,7 @@ export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProp
               style={{
                 fontSize: "10px",
                 letterSpacing: "0.32em",
-                color: "#00e5b0",
+                color: "#00ff88",
               }}
             >
               {eyebrow}
@@ -33,7 +33,7 @@ export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProp
               style={{
                 fontSize: "10px",
                 letterSpacing: "0.32em",
-                color: "#5a6580",
+                color: "#8892a4",
               }}
             >
               TradeEdge AI

@@ -21,25 +21,22 @@ interface StatCardProps {
 function accentWashClass(color: string): string {
   const map: Record<string, string> = {
     "#00ff88": "from-[#00ff88]/[0.03]",
-    "#00e5b0": "from-[#00ff88]/[0.03]",
     "#0ea5e9": "from-[#0ea5e9]/[0.03]",
     "#0066ff": "from-[#0ea5e9]/[0.03]",
     "#a78bfa": "from-[#a78bfa]/[0.03]",
     "#b466ff": "from-[#a78bfa]/[0.03]",
     "#f59e0b": "from-[#f59e0b]/[0.03]",
-    "#f0c040": "from-[#f59e0b]/[0.03]",
     "#ff3b5c": "from-[#ff3b5c]/[0.03]",
-    "#ff4d6d": "from-[#ff3b5c]/[0.03]",
   };
   return map[color] ?? "from-[#00ff88]/[0.03]";
 }
 
 function valueColorClass(color: string): string {
-  if (color === "#ff3b5c" || color === "#ff4d6d") return "text-[#ff3b5c]";
-  if (color === "#00ff88" || color === "#00e5b0") return "text-[#00ff88]";
+  if (color === "#ff3b5c") return "text-[#ff3b5c]";
+  if (color === "#00ff88") return "text-[#00ff88]";
   if (color === "#0ea5e9" || color === "#0066ff") return "text-[#0ea5e9]";
   if (color === "#a78bfa" || color === "#b466ff") return "text-[#a78bfa]";
-  if (color === "#f59e0b" || color === "#f0c040") return "text-[#f59e0b]";
+  if (color === "#f59e0b") return "text-[#f59e0b]";
   return "text-[#e8edf5]";
 }
 
@@ -108,8 +105,7 @@ export function StatCard({
   spark,
   className,
 }: StatCardProps) {
-  const isPositivePnl =
-    color === "#00ff88" || color === "#00e5b0";
+  const isPositivePnl = color === "#00ff88";
 
   return (
     <div

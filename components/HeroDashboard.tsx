@@ -17,7 +17,7 @@ const STATS: Stat[] = [
     label: "Net P&L",
     value: 4821,
     prefix: "+$",
-    color: "#00e5b0",
+    color: "#00ff88",
     sub: "Last 30 days",
   },
   {
@@ -39,7 +39,7 @@ const STATS: Stat[] = [
     label: "Rule Breaks",
     value: 7,
     suffix: " flagged",
-    color: "#f0c040",
+    color: "#f59e0b",
     sub: "Before execution",
   },
 ];
@@ -105,14 +105,14 @@ export function HeroDashboard() {
 
   return (
     <div className="hero-dashboard-wrap mx-auto mt-10 w-full max-w-full overflow-hidden px-0 sm:mt-16">
-      <div className="hero-dashboard w-full max-w-full overflow-hidden rounded-xl border border-[#1a2030] bg-[#0c1018] shadow-[0_60px_140px_-60px_rgba(0,0,0,0.95)]">
-        <div className="flex items-center gap-3 border-b border-[#1a2030] px-4 py-3">
+      <div className="hero-dashboard w-full max-w-full overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] shadow-[0_60px_140px_-60px_rgba(0,0,0,0.95)]">
+        <div className="flex items-center gap-3 border-b border-[#1c2235] px-4 py-3">
           <div className="flex gap-1.5" aria-hidden="true">
-            <span className="h-3 w-3 rounded-full bg-[#ff4d6d]" />
-            <span className="h-3 w-3 rounded-full bg-[#f0c040]" />
-            <span className="h-3 w-3 rounded-full bg-[#00e5b0]" />
+            <span className="h-3 w-3 rounded-full bg-[#ff3b5c]" />
+            <span className="h-3 w-3 rounded-full bg-[#f59e0b]" />
+            <span className="h-3 w-3 rounded-full bg-[#00ff88]" />
           </div>
-          <div className="flex-1 overflow-hidden rounded-full border border-[#1a2030] bg-[#06080d] px-2 py-1.5 text-center font-mono text-[8px] uppercase tracking-[0.14em] text-[#5a6580] sm:px-3 sm:text-[10px] sm:tracking-[0.2em]">
+          <div className="flex-1 overflow-hidden rounded-full border border-[#1c2235] bg-[#080a0f] px-2 py-1.5 text-center font-mono text-[8px] uppercase tracking-[0.14em] text-[#8892a4] sm:px-3 sm:text-[10px] sm:tracking-[0.2em]">
             app.tradeedge.ai / ai-coaching-live
           </div>
         </div>
@@ -122,13 +122,13 @@ export function HeroDashboard() {
             {STATS.map((stat, index) => (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-[#1a2030] bg-[#080b11] p-4"
+                className="rounded-2xl border border-[#1c2235] bg-[#080b11] p-4"
                 style={{
                   background: `linear-gradient(180deg, ${stat.color}12, rgba(8,11,17,0.96) 72%)`,
                   borderTopColor: `${stat.color}66`,
                 }}
               >
-                <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-[#5a6580]">
+                <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-[#8892a4]">
                   {stat.label}
                 </div>
                 <div
@@ -137,15 +137,15 @@ export function HeroDashboard() {
                 >
                   {formatValue(stat, values[index] ?? 0)}
                 </div>
-                <div className="mt-2 font-mono text-[9px] uppercase tracking-[0.18em] text-[#3a4560]">
+                <div className="mt-2 font-mono text-[9px] uppercase tracking-[0.18em] text-[#4a5568]">
                   {stat.sub}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[#1a2030]">
-            <div className="hidden grid-cols-[1fr_1.4fr_1fr_0.8fr] border-b border-[#1a2030] bg-[#06080d] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5a6580] md:grid">
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[#1c2235]">
+            <div className="hidden grid-cols-[1fr_1.4fr_1fr_0.8fr] border-b border-[#1c2235] bg-[#080a0f] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#8892a4] md:grid">
               <span>Market</span>
               <span>Setup</span>
               <span>Psychology</span>
@@ -154,15 +154,15 @@ export function HeroDashboard() {
             {ROWS.map((row, index) => (
               <div
                 key={row.market}
-                className="dashboard-row grid grid-cols-2 gap-x-3 gap-y-1 border-b border-[#1a2030] px-4 py-4 last:border-b-0 md:grid-cols-[1fr_1.4fr_1fr_0.8fr] md:gap-2"
+                className="dashboard-row grid grid-cols-2 gap-x-3 gap-y-1 border-b border-[#1c2235] px-4 py-4 last:border-b-0 md:grid-cols-[1fr_1.4fr_1fr_0.8fr] md:gap-2"
                 style={{ animationDelay: `${420 + index * 160}ms` }}
               >
                 <span className="font-mono text-sm text-[#e8edf5]">{row.market}</span>
                 <span className="font-sans text-sm text-[#a0afc0]">{row.setup}</span>
-                <span className="font-sans text-sm text-[#5a6580]">{row.emotion}</span>
+                <span className="font-sans text-sm text-[#8892a4]">{row.emotion}</span>
                 <span
                   className="font-mono text-sm font-bold md:text-right"
-                  style={{ color: row.positive ? "#00e5b0" : "#ff4d6d" }}
+                  style={{ color: row.positive ? "#00ff88" : "#ff3b5c" }}
                 >
                   {row.pnl}
                 </span>

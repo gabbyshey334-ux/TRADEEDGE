@@ -451,7 +451,7 @@ function PageButton({
         "h-8 px-3 rounded border border-[#1c2235] bg-[#080a0f]",
         "font-mono font-bold uppercase text-[#8892a4]",
         "transition-colors duration-150",
-        "hover:text-[#e8edf5] hover:border-[#2a3050]",
+        "hover:text-[#e8edf5] hover:border-[#2a3350]",
         "disabled:opacity-40 disabled:cursor-not-allowed"
       )}
       style={{ fontSize: "10px", letterSpacing: "0.22em" }}

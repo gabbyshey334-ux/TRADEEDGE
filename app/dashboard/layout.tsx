@@ -20,7 +20,7 @@ export default async function DashboardLayout({
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#06080d] lg:ml-[240px]">{children}</div>
+        <div className="min-h-screen bg-[#080a0f] lg:ml-[240px]">{children}</div>
       }
     >
       <DashboardShell user={sidebarUser} trialEndsAt={sidebarUser.trialEndsAt}>

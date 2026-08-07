@@ -135,7 +135,7 @@ export function PropFirmClient({
     <div className="space-y-5 pb-24 sm:pb-0">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div
-          className="font-mono uppercase text-[#5a6580]"
+          className="font-mono uppercase text-[#8892a4]"
           style={{ fontSize: "11px", letterSpacing: "0.24em" }}
         >
           {accounts.length === 0
@@ -452,13 +452,13 @@ function ProgressBar({ progress }: { progress: Progress }) {
       ? "#00ff88"
       : progress.state === "behind"
         ? "#ff3b5c"
-        : "#5a6580";
+        : "#8892a4";
 
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
         <span
-          className="font-mono uppercase text-[#5a6580]"
+          className="font-mono uppercase text-[#8892a4]"
           style={{ fontSize: "10px", letterSpacing: "0.24em" }}
         >
           Progress to Target
@@ -472,7 +472,7 @@ function ProgressBar({ progress }: { progress: Progress }) {
           </span>
         ) : (
           <span
-            className="font-mono uppercase text-[#3a4560]"
+            className="font-mono uppercase text-[#4a5568]"
             style={{ fontSize: "10px", letterSpacing: "0.24em" }}
           >
             Set balance
@@ -509,7 +509,7 @@ function ProgressBar({ progress }: { progress: Progress }) {
           {progress.hasData
             ? formatCurrency(progress.currentBalance, 0)
             : "—"}
-          <span className="text-[#3a4560]">
+          <span className="text-[#4a5568]">
             {" "}/ {formatCurrency(progress.targetBalance, 0)}
           </span>
         </span>

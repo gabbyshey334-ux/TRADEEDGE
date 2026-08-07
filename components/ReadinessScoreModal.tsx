@@ -367,7 +367,7 @@ export function ReadinessScoreModal({
           <p className="mt-1 truncate font-display text-base font-bold text-[#e8edf5] sm:text-lg">
             {firmName}
           </p>
-          <p className="truncate font-mono text-[11px] text-[#5a6580]">
+          <p className="truncate font-mono text-[11px] text-[#8892a4]">
             {challengeType}
           </p>
         </div>

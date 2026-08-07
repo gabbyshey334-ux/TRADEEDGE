@@ -47,8 +47,8 @@ const plans: Array<{
     name: "Starter",
     price: "$19",
     nameColor: "#e8edf5",
-    borderColor: "#1a2030",
-    bg: "#0c1018",
+    borderColor: "#1c2235",
+    bg: "#0c0f17",
     cta: "ghost",
     orderClass: "lg:order-1",
   },
@@ -57,10 +57,10 @@ const plans: Array<{
     name: "Pro",
     price: "$49",
     badge: "Most Popular",
-    nameColor: "#00e5b0",
-    borderColor: "#00e5b0",
-    bg: "linear-gradient(180deg, rgba(0,229,176,0.06) 0%, #0c1018 55%)",
-    glow: "0 0 40px rgba(0,229,176,0.18), 0 0 0 1px rgba(0,229,176,0.25)",
+    nameColor: "#00ff88",
+    borderColor: "#00ff88",
+    bg: "linear-gradient(180deg, rgba(0,255,136,0.06) 0%, #0c0f17 55%)",
+    glow: "0 0 40px rgba(0,255,136,0.18), 0 0 0 1px rgba(0,255,136,0.25)",
     cta: "green",
     orderClass: "lg:order-2",
     scaleClass: "lg:scale-[1.04] lg:-my-2",
@@ -70,10 +70,10 @@ const plans: Array<{
     name: "Elite",
     price: "$99",
     badge: "Most Powerful",
-    nameColor: "#f0c040",
-    borderColor: "#f0c040",
-    bg: "linear-gradient(180deg, rgba(240,192,64,0.08) 0%, #0c1018 55%)",
-    glow: "0 0 48px rgba(240,192,64,0.12), 0 0 0 1px rgba(240,192,64,0.2)",
+    nameColor: "#f59e0b",
+    borderColor: "#f59e0b",
+    bg: "linear-gradient(180deg, rgba(245,158,11,0.08) 0%, #0c0f17 55%)",
+    glow: "0 0 48px rgba(245,158,11,0.12), 0 0 0 1px rgba(245,158,11,0.2)",
     cta: "gold",
     orderClass: "lg:order-3",
   },
@@ -106,9 +106,9 @@ function Logo() {
 function CheckMark({ withNew = false }: { withNew?: boolean }) {
   return (
     <span className="inline-flex shrink-0 items-center gap-2">
-      <Check size={16} color="#00e5b0" strokeWidth={3} aria-hidden />
+      <Check size={16} color="#00ff88" strokeWidth={3} aria-hidden />
       {withNew ? (
-        <span className="rounded-full border border-[#00e5b0]/35 bg-[#00e5b0]/10 px-2 py-0.5 font-mono text-[9px] font-bold tracking-[0.16em] text-[#00e5b0]">
+        <span className="rounded-full border border-[#00ff88]/35 bg-[#00ff88]/10 px-2 py-0.5 font-mono text-[9px] font-bold tracking-[0.16em] text-[#00ff88]">
           NEW
         </span>
       ) : null}
@@ -117,7 +117,7 @@ function CheckMark({ withNew = false }: { withNew?: boolean }) {
 }
 
 function CrossMark() {
-  return <X size={16} color="#ff4d6d" strokeWidth={2.5} aria-hidden className="shrink-0" />;
+  return <X size={16} color="#ff3b5c" strokeWidth={2.5} aria-hidden className="shrink-0" />;
 }
 
 function CongressTypeBadge({ type }: { type: string }) {
@@ -157,7 +157,7 @@ function PricingValue({
   return (
     <span
       className={`text-right font-mono text-[11px] sm:text-xs ${green || eliteGold ? "font-bold" : ""}`}
-      style={{ color: eliteGold ? "#f0c040" : green ? "#00e5b0" : "#5a6580" }}
+      style={{ color: eliteGold ? "#f59e0b" : green ? "#00ff88" : "#8892a4" }}
     >
       {value}
     </span>
@@ -170,7 +170,7 @@ function PricingCard({
   plan: (typeof plans)[number];
 }) {
   const columnIndex = plan.id === "starter" ? 1 : plan.id === "pro" ? 2 : 3;
-  const badgeBg = plan.id === "pro" ? "#00e5b0" : "#f0c040";
+  const badgeBg = plan.id === "pro" ? "#00ff88" : "#f59e0b";
 
   return (
     <div
@@ -183,7 +183,7 @@ function PricingCard({
     >
       {plan.badge ? (
         <span
-          className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#06080d] sm:text-[10px]"
+          className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#080a0f] sm:text-[10px]"
           style={{ backgroundColor: badgeBg }}
         >
           {plan.badge}
@@ -196,11 +196,11 @@ function PricingCard({
         </div>
         <div className="mt-1 font-mono text-3xl font-bold text-[#e8edf5] sm:text-4xl">
           {plan.price}
-          <span className="text-sm font-normal text-[#5a6580]">/mo</span>
+          <span className="text-sm font-normal text-[#8892a4]">/mo</span>
         </div>
       </div>
 
-      <ul className="mt-6 flex flex-1 flex-col gap-3 border-t border-[#1a2030]/70 pt-5">
+      <ul className="mt-6 flex flex-1 flex-col gap-3 border-t border-[#1c2235]/70 pt-5">
         {pricingRows.map(([feature, starter, pro, elite]) => {
           const value = columnIndex === 1 ? starter : columnIndex === 2 ? pro : elite;
 
@@ -244,7 +244,7 @@ function SectionHeader({
 }) {
   return (
     <div className="mx-auto max-w-3xl text-center">
-      <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#00e5b0]">
+      <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#00ff88]">
         {eyebrow}
       </div>
       <h2 className="mt-4 font-heading text-[36px] leading-[0.95] tracking-[0.05em] text-[#e8edf5] sm:text-[44px] md:text-[70px]">
@@ -471,7 +471,7 @@ function FindingPropFirmVisual() {
         <div className="space-y-2">
           <div className="flex items-baseline justify-between gap-3">
             <span
-              className="font-mono uppercase text-[#5a6580]"
+              className="font-mono uppercase text-[#8892a4]"
               style={{ fontSize: "10px", letterSpacing: "0.24em" }}
             >
               Progress to Target
@@ -496,7 +496,7 @@ function FindingPropFirmVisual() {
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <span className="font-mono tabular text-[#8892a4]" style={{ fontSize: "12px" }}>
               $106,200
-              <span className="text-[#3a4560]"> / $110,000</span>
+              <span className="text-[#4a5568]"> / $110,000</span>
             </span>
           </div>
         </div>
@@ -543,7 +543,7 @@ function FindingRow({
   return (
     <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
       <div className={reverse ? "lg:order-2" : undefined}>
-        <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#00e5b0]">
+        <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#00ff88]">
           {label}
         </div>
         <h3 className="mt-4 font-display text-2xl font-bold leading-tight tracking-tight text-[#e8edf5] sm:text-3xl">
@@ -564,12 +564,12 @@ function LandingStyles() {
       dangerouslySetInnerHTML={{
         __html: `
           @keyframes heroBreath {
-            from { background: radial-gradient(760px 520px at 50% 0%, rgba(0,229,176,0.04), transparent 70%), #06080d; }
-            to { background: radial-gradient(920px 620px at 50% 4%, rgba(0,229,176,0.12), transparent 74%), #06080d; }
+            from { background: radial-gradient(760px 520px at 50% 0%, rgba(0,255,136,0.04), transparent 70%), #080a0f; }
+            to { background: radial-gradient(920px 620px at 50% 4%, rgba(0,255,136,0.12), transparent 74%), #080a0f; }
           }
           @keyframes dotPulse {
-            from { opacity: .65; transform: scale(.78); box-shadow: 0 0 0 rgba(0,229,176,0); }
-            to { opacity: 1; transform: scale(1.25); box-shadow: 0 0 22px rgba(0,229,176,.75); }
+            from { opacity: .65; transform: scale(.78); box-shadow: 0 0 0 rgba(0,255,136,0); }
+            to { opacity: 1; transform: scale(1.25); box-shadow: 0 0 22px rgba(0,255,136,.75); }
           }
           @keyframes fadeUp {
             from { opacity: 0; transform: translateY(22px); }
@@ -598,7 +598,7 @@ function LandingStyles() {
           .scroll-reveal { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s ease; }
           .scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
           .hero-dashboard-wrap { position: relative; transform: perspective(1400px) rotateX(3deg); transform-origin: 50% 0; }
-          .hero-dashboard-glow { position: absolute; left: 12%; right: 12%; bottom: -42px; height: 90px; background: radial-gradient(ellipse at center, rgba(0,229,176,.28), transparent 70%); filter: blur(22px); z-index: -1; }
+          .hero-dashboard-glow { position: absolute; left: 12%; right: 12%; bottom: -42px; height: 90px; background: radial-gradient(ellipse at center, rgba(0,255,136,.28), transparent 70%); filter: blur(22px); z-index: -1; }
           .dashboard-row { opacity: 0; animation: fadeUp .65s ease forwards; }
           .feature-card { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
           .feature-card:hover { transform: translateY(-4px); }
@@ -619,11 +619,11 @@ function LandingStyles() {
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#06080d] text-[#e8edf5]">
+    <main className="min-h-screen overflow-x-hidden bg-[#080a0f] text-[#e8edf5]">
       <LandingViewTracker />
       <LandingStyles />
 
-      <header className="nav-shell fixed left-0 right-0 top-0 z-50 border-b border-[#1c2235]/80 bg-[#06080d]/72">
+      <header className="nav-shell fixed left-0 right-0 top-0 z-50 border-b border-[#1c2235]/80 bg-[#080a0f]/72">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
           <Link href="/" aria-label="TradeEdge AI home">
             <Logo />
@@ -647,20 +647,20 @@ export default function LandingPage() {
             </Link>
           </div>
           <details className="mobile-menu relative md:hidden">
-            <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-xl border border-[#1a2030] text-[#e8edf5] [&::-webkit-details-marker]:hidden">
+            <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-xl border border-[#1c2235] text-[#e8edf5] [&::-webkit-details-marker]:hidden">
               <span className="sr-only">Open menu</span>
               <span className="h-0.5 w-5 bg-current shadow-[0_6px_0_current,0_-6px_0_current]" />
             </summary>
-            <div className="mobile-panel absolute right-0 top-12 w-56 rounded-2xl border border-[#1a2030] bg-[#080b11] p-3 shadow-2xl">
+            <div className="mobile-panel absolute right-0 top-12 w-56 rounded-2xl border border-[#1c2235] bg-[#080b11] p-3 shadow-2xl">
               {["Findings", "Congress", "Pricing", "FAQ"].map((item) => (
-                <a key={item} href={`#${item.toLowerCase()}`} className="block rounded-xl px-3 py-3 text-sm text-[#a0afc0] hover:bg-[#0c1018] hover:text-[#e8edf5]">
+                <a key={item} href={`#${item.toLowerCase()}`} className="block rounded-xl px-3 py-3 text-sm text-[#a0afc0] hover:bg-[#0c0f17] hover:text-[#e8edf5]">
                   {item}
                 </a>
               ))}
-              <a href="#about" className="block rounded-xl px-3 py-3 text-sm text-[#a0afc0] hover:bg-[#0c1018] hover:text-[#e8edf5]">
+              <a href="#about" className="block rounded-xl px-3 py-3 text-sm text-[#a0afc0] hover:bg-[#0c0f17] hover:text-[#e8edf5]">
                 About
               </a>
-              <Link href="/signup" className="mt-2 block rounded-xl bg-[#00e5b0] px-3 py-3 text-center text-sm font-bold text-[#06080d]">
+              <Link href="/signup" className="mt-2 block rounded-xl bg-[#00ff88] px-3 py-3 text-center text-sm font-bold text-[#080a0f]">
                 Start free
               </Link>
             </div>
@@ -740,24 +740,24 @@ export default function LandingPage() {
       <ScrollReveal id="congress" className="bg-[#080b11] px-5 py-24 md:px-8">
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#00e5b0]">Congress Trades Spotlight</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#00ff88]">Congress Trades Spotlight</div>
             <h2 className="mt-4 font-heading text-[36px] sm:text-[48px] leading-[0.94] tracking-[0.05em] text-[#e8edf5] md:text-[76px]">
               SEE WHAT CONGRESS IS BUYING.
             </h2>
             <p className="mt-6 max-w-xl text-[17px] leading-8 text-[#a0afc0]">
               Follow public disclosures from lawmakers and connect political positioning to the markets already on your watchlist.
             </p>
-            <div className="mt-7 inline-flex rounded-full border border-[#1a2030] bg-[#0c1018] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[#f0c040]">
+            <div className="mt-7 inline-flex rounded-full border border-[#1c2235] bg-[#0c0f17] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[#f59e0b]">
               Quiver Quantitative data layer
             </div>
           </div>
-          <div className="w-full max-w-full overflow-hidden rounded-xl border border-[#1a2030] bg-[#0c1018] shadow-[0_40px_120px_-70px_rgba(0,229,176,.35)]">
-            <div className="hidden border-b border-[#1a2030] bg-[#06080d] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.16em] text-[#5a6580] sm:grid sm:grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr]">
+          <div className="w-full max-w-full overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] shadow-[0_40px_120px_-70px_rgba(0,255,136,.35)]">
+            <div className="hidden border-b border-[#1c2235] bg-[#080a0f] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.16em] text-[#8892a4] sm:grid sm:grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr]">
               <span>Date</span><span>Member</span><span>Party</span><span>Ticker</span><span>Type</span><span>Amount</span>
             </div>
             {congressRows.map(([date, member, party, ticker, type, amount]) => (
               <div key={`${member}-${ticker}`}>
-                <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-b border-[#1a2030] px-4 py-4 last:border-b-0 sm:hidden">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-b border-[#1c2235] px-4 py-4 last:border-b-0 sm:hidden">
                   <span className="min-w-0 truncate font-body text-[13px] font-medium text-[#e8edf5]">
                     {member}
                   </span>
@@ -766,15 +766,15 @@ export default function LandingPage() {
                   </span>
                   <CongressTypeBadge type={type} />
                 </div>
-                <div className="hidden grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr] items-center border-b border-[#1a2030] px-4 py-4 text-sm last:border-b-0 sm:grid">
-                  <span className="font-mono text-[#5a6580]">{date}</span>
+                <div className="hidden grid-cols-[.65fr_1.25fr_.5fr_.7fr_.75fr_.95fr] items-center border-b border-[#1c2235] px-4 py-4 text-sm last:border-b-0 sm:grid">
+                  <span className="font-mono text-[#8892a4]">{date}</span>
                   <span className="text-[#e8edf5]">{member}</span>
                   <span className="inline-flex items-center gap-2 font-mono text-[#a0afc0]">
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: party === "D" ? "#0066ff" : "#ff4d6d" }} />
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: party === "D" ? "#0066ff" : "#ff3b5c" }} />
                     {party}
                   </span>
                   <span className="font-mono font-bold text-[#e8edf5]">{ticker}</span>
-                  <span className="font-mono" style={{ color: type === "Purchase" ? "#00e5b0" : "#ff4d6d" }}>{type}</span>
+                  <span className="font-mono" style={{ color: type === "Purchase" ? "#00ff88" : "#ff3b5c" }}>{type}</span>
                   <span className="font-mono text-[#a0afc0]">{amount}</span>
                 </div>
               </div>
@@ -794,12 +794,12 @@ export default function LandingPage() {
               ["03", "TRADE THE NEXT SESSION BETTER", "Use readiness, risk, and coaching reports before you place the next trade."],
             ].map(([num, title, body], index) => (
               <Fragment key={title}>
-                <div key={title} className="rounded-3xl border border-[#1a2030] bg-[#0c1018] p-6">
-                  <div className="font-heading text-5xl sm:text-7xl leading-none text-[#1a2030]">{num}</div>
+                <div key={title} className="rounded-3xl border border-[#1c2235] bg-[#0c0f17] p-6">
+                  <div className="font-heading text-5xl sm:text-7xl leading-none text-[#1c2235]">{num}</div>
                   <h3 className="mt-5 font-heading text-2xl sm:text-3xl tracking-[0.05em] text-[#e8edf5]">{title}</h3>
                   <p className="mt-3 text-[15px] leading-7 text-[#a0afc0]">{body}</p>
                 </div>
-                {index < 2 ? <div className="step-arrow hidden items-center font-heading text-5xl text-[#1a2030] md:flex">→</div> : null}
+                {index < 2 ? <div className="step-arrow hidden items-center font-heading text-5xl text-[#1c2235] md:flex">→</div> : null}
               </Fragment>
             ))}
           </div>
@@ -829,11 +829,11 @@ export default function LandingPage() {
               ["The AI reports feel like a coach reviewing tape. It does not flatter you. It tells you exactly where your discipline slipped.", "Sarah K.", "Prop firm trader"],
               ["Congress trades plus my watchlist changed how I prep each morning. It gives me context I was missing before.", "Derek M.", "Forex and equities"],
             ].map(([quote, name, meta], index) => (
-              <div key={name} className={`rounded-3xl border bg-[#0c1018] p-6 ${index === 1 ? "border-[#00e5b0] shadow-[0_0_50px_rgba(0,229,176,.12)] md:-translate-y-4" : "border-[#1a2030]"}`}>
-                <div className="font-mono text-[#f0c040]">★★★★★</div>
+              <div key={name} className={`rounded-3xl border bg-[#0c0f17] p-6 ${index === 1 ? "border-[#00ff88] shadow-[0_0_50px_rgba(0,255,136,.12)] md:-translate-y-4" : "border-[#1c2235]"}`}>
+                <div className="font-mono text-[#f59e0b]">★★★★★</div>
                 <p className="mt-5 text-[15px] leading-7 text-[#a0afc0]">&ldquo;{quote}&rdquo;</p>
                 <div className="mt-6 font-bold text-[#e8edf5]">{name}</div>
-                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[#5a6580]">{meta}</div>
+                <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[#8892a4]">{meta}</div>
               </div>
             ))}
           </div>
@@ -913,15 +913,15 @@ export default function LandingPage() {
         </div>
       </ScrollReveal>
 
-      <ScrollReveal className="final-gradient bg-[radial-gradient(circle_at_50%_0%,rgba(0,229,176,.18),transparent_42%),linear-gradient(120deg,#06080d,#080b11,#06120f)] px-5 py-28 text-center md:px-8">
+      <ScrollReveal className="final-gradient bg-[radial-gradient(circle_at_50%_0%,rgba(0,255,136,.18),transparent_42%),linear-gradient(120deg,#080a0f,#080b11,#06120f)] px-5 py-28 text-center md:px-8">
         <h2 className="font-heading text-[40px] sm:text-[56px] leading-[0.92] tracking-[0.05em] text-[#e8edf5] md:text-[92px]">
           <span className="block">STOP TRADING BLIND.</span>
-          <span className="block text-[#00e5b0]">BUILD YOUR EDGE.</span>
+          <span className="block text-[#00ff88]">BUILD YOUR EDGE.</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-[17px] leading-8 text-[#a0afc0]">
           Start with a clean 14-day trial and see what your trading data has been trying to tell you.
         </p>
-        <Link href="/signup" className="mt-9 inline-flex rounded-full bg-[#00e5b0] px-8 py-4 text-sm font-bold text-[#06080d] shadow-[0_0_42px_rgba(0,229,176,.4)]">
+        <Link href="/signup" className="mt-9 inline-flex rounded-full bg-[#00ff88] px-8 py-4 text-sm font-bold text-[#080a0f] shadow-[0_0_42px_rgba(0,255,136,.4)]">
           Start free trial
         </Link>
       </ScrollReveal>

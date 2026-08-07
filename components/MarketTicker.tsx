@@ -15,11 +15,11 @@ function TickerItems({ items }: { items: TickerQuote[] }) {
           style={{ letterSpacing: "0.18em" }}
         >
           <span className="text-[#e8edf5]">{it.symbol}</span>
-          <span className="text-[#5a6580]">{it.price}</span>
-          <span style={{ color: it.positive ? "#00e5b0" : "#ff4d6d" }}>
+          <span className="text-[#8892a4]">{it.price}</span>
+          <span style={{ color: it.positive ? "#00ff88" : "#ff3b5c" }}>
             {it.change}
           </span>
-          <span className="px-2 text-[#3a4560]">•</span>
+          <span className="px-2 text-[#4a5568]">•</span>
         </span>
       ))}
     </>

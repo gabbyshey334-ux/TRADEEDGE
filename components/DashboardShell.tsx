@@ -68,7 +68,7 @@ export function DashboardShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#06080d] text-[#e8edf5]">
+    <div className="min-h-screen bg-[#080a0f] text-[#e8edf5]">
       <header
         className={cn(
           "sticky top-0 z-20 flex h-14 items-center justify-between px-4 lg:hidden",

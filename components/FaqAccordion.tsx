@@ -41,7 +41,7 @@ export function FaqAccordion() {
           <div
             key={i}
             className="rounded-xl overflow-hidden transition-colors"
-            style={{ backgroundColor: "#0c1018", border: "1px solid #1a2030" }}
+            style={{ backgroundColor: "#0c0f17", border: "1px solid #1c2235" }}
           >
             <button
               type="button"
@@ -57,7 +57,7 @@ export function FaqAccordion() {
               </span>
               <span
                 aria-hidden="true"
-                className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full border border-[#1a2030] text-[#00e5b0] text-lg leading-none transition-transform"
+                className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full border border-[#1c2235] text-[#00ff88] text-lg leading-none transition-transform"
                 style={{
                   transform: open ? "rotate(45deg)" : "rotate(0deg)",
                 }}
