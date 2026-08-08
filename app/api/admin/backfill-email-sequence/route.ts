@@ -60,6 +60,31 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Whole UTC calendar days between signup date and today. */
+function utcCalendarDaysSince(iso: string): number {
+  const created = new Date(iso);
+  const now = new Date();
+  const createdDay = Date.UTC(
+    created.getUTCFullYear(),
+    created.getUTCMonth(),
+    created.getUTCDate()
+  );
+  const today = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  );
+  return Math.floor((today - createdDay) / (24 * 60 * 60 * 1000));
+}
+
+function isStageDue(days: number, createdAt: string): boolean {
+  // Day 1 welcome: 1 hour after signup (matches send-sequence cron).
+  if (days === 1) {
+    return Date.now() - new Date(createdAt).getTime() >= 60 * 60 * 1000;
+  }
+  return utcCalendarDaysSince(createdAt) >= days;
+}
+
 function isAuthorized(request: NextRequest): boolean {
   const secret = process.env.ADMIN_BACKFILL_SECRET?.trim();
   if (!secret) return false;
@@ -115,11 +140,8 @@ export async function POST(request: NextRequest) {
   for (const row of rows as SequenceRow[]) {
     processed += 1;
 
-    const daysSinceSignup =
-      (Date.now() - new Date(row.created_at).getTime()) / (1000 * 60 * 60 * 24);
-
     const eligible = STAGES.filter(
-      (stage) => daysSinceSignup >= stage.days && row[stage.col] == null
+      (stage) => isStageDue(stage.days, row.created_at) && row[stage.col] == null
     );
 
     if (eligible.length === 0) continue;

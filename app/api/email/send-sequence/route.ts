@@ -45,8 +45,26 @@ function hoursAgo(hours: number): Date {
   return new Date(Date.now() - hours * 60 * 60 * 1000);
 }
 
-function daysAgo(days: number): Date {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+/**
+ * Whole UTC calendar days between signup date and today.
+ * Signup Aug 5 → Aug 8 returns 3. Used for Day 3+ so "Day N" matches
+ * the trial calendar, not a full N×24h wait that can slip past the
+ * once-daily 09:00 UTC cron.
+ */
+function utcCalendarDaysSince(iso: string): number {
+  const created = new Date(iso);
+  const now = new Date();
+  const createdDay = Date.UTC(
+    created.getUTCFullYear(),
+    created.getUTCMonth(),
+    created.getUTCDate()
+  );
+  const today = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  );
+  return Math.floor((today - createdDay) / (24 * 60 * 60 * 1000));
 }
 
 function firstNameFrom(fullName: string | null | undefined): string {
@@ -56,7 +74,9 @@ function firstNameFrom(fullName: string | null | undefined): string {
 
 function collectDue(row: SequenceRow): DueEmail | null {
   const created = new Date(row.created_at).getTime();
+  const calendarDays = utcCalendarDaysSince(row.created_at);
 
+  // Day 1: welcome after the first hour (not calendar-gated).
   if (!row.day_1_sent_at && created <= hoursAgo(1).getTime()) {
     return {
       row,
@@ -64,35 +84,35 @@ function collectDue(row: SequenceRow): DueEmail | null {
       build: day1WelcomeEmail,
     };
   }
-  if (!row.day_3_sent_at && created <= daysAgo(3).getTime()) {
+  if (!row.day_3_sent_at && calendarDays >= 3) {
     return {
       row,
       column: "day_3_sent_at",
       build: day3NudgeEmail,
     };
   }
-  if (!row.day_7_sent_at && created <= daysAgo(7).getTime()) {
+  if (!row.day_7_sent_at && calendarDays >= 7) {
     return {
       row,
       column: "day_7_sent_at",
       build: day7HalfwayEmail,
     };
   }
-  if (!row.day_12_sent_at && created <= daysAgo(12).getTime()) {
+  if (!row.day_12_sent_at && calendarDays >= 12) {
     return {
       row,
       column: "day_12_sent_at",
       build: day12LastChanceEmail,
     };
   }
-  if (!row.day_14_sent_at && created <= daysAgo(14).getTime()) {
+  if (!row.day_14_sent_at && calendarDays >= 14) {
     return {
       row,
       column: "day_14_sent_at",
       build: day14LastDayEmail,
     };
   }
-  if (!row.day_15_sent_at && created <= daysAgo(15).getTime()) {
+  if (!row.day_15_sent_at && calendarDays >= 15) {
     return {
       row,
       column: "day_15_sent_at",
