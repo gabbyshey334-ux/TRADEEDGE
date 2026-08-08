@@ -211,7 +211,7 @@ export function AiCoachClient({
                 "active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none"
               )}
             >
-              {generating ? "Analyzing…" : "Generate Report"}
+              {generating ? "Analyzing… (~25–30s)" : "Generate Report"}
             </button>
 
             {isLocked && (
@@ -385,8 +385,8 @@ function LoadingState() {
       <span className="font-mono text-2xl text-[#00ff88] animate-blink">
         _
       </span>
-      <div className="mt-4 font-mono text-[10px] tracking-[0.2em] text-[#00ff88] uppercase animate-pulse">
-        ANALYZING TRADE DATA
+      <div className="mt-4 max-w-sm text-center font-mono text-[10px] tracking-[0.2em] text-[#00ff88] uppercase animate-pulse">
+        Analyzing your trades — usually takes about 25-30 seconds.
       </div>
     </div>
   );

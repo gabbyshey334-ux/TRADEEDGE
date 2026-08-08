@@ -380,8 +380,9 @@ export function ReadinessScoreModal({
                 <div className="absolute inset-0 rounded-full border-[10px] border-[#1c2235]" />
                 <div className="absolute inset-0 animate-pulse rounded-full border-[10px] border-[#f59e0b]/30 border-t-[#f59e0b]" />
               </div>
-              <span className="mt-6 animate-pulse font-mono text-[10px] uppercase tracking-[0.2em] text-[#f59e0b]">
-                Analyzing challenge readiness...
+              <span className="mt-6 max-w-xs text-center animate-pulse font-mono text-[10px] uppercase tracking-[0.2em] text-[#f59e0b]">
+                Analyzing challenge readiness — usually takes about 15-20
+                seconds.
               </span>
               <button
                 type="button"
