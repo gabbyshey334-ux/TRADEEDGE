@@ -1,6 +1,11 @@
 const APP_URL = "https://tradeedgeapp.net";
 const BILLING_URL = `${APP_URL}/dashboard/billing`;
 
+/** Day 1 welcome video — absolute URLs required for email clients. */
+const DAY1_VIDEO_URL =
+  "https://res.cloudinary.com/j3kkepoe/video/upload/v1786333150/TradeEdge-Video1-Onboarding.mp4";
+const DAY1_VIDEO_THUMBNAIL_URL = `${APP_URL}/videos/video1-onboarding-email.jpg`;
+
 export interface EmailContent {
   subject: string;
   html: string;
@@ -99,6 +104,27 @@ export function day1WelcomeEmail(
         <p style="margin:0 0 16px 0;">
           That's it. Three steps and you'll have more insight into your trading than most people get in a year.
         </p>
+        <p style="margin:24px 0 8px 0;color:#e8edf5;font-size:15px;line-height:1.7;">
+          New here? Watch the 2-minute walkthrough:
+        </p>
+        <p style="margin:0 0 10px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:#00ff88;">
+          ▶ Watch: Getting Started (2 min)
+        </p>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 8px 0;">
+          <tr>
+            <td align="left" style="padding:0;">
+              <a href="${DAY1_VIDEO_URL}" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;border:0;outline:none;">
+                <img
+                  src="${DAY1_VIDEO_THUMBNAIL_URL}"
+                  alt="Watch: Getting started with TradeEdge AI (2 min)"
+                  width="600"
+                  height="337"
+                  style="display:block;width:100%;max-width:600px;height:auto;border:1px solid #1c2235;border-radius:10px;"
+                />
+              </a>
+            </td>
+          </tr>
+        </table>
         <p style="margin:24px 0 0 0;color:#8892a4;">
           Anthony Brown<br />
           Founder, TradeEdge AI

@@ -6,8 +6,31 @@ import { FaqAccordion } from "@/components/LandingFaqAccordion";
 import { LandingViewTracker } from "@/components/LandingViewTracker";
 import { LiveTickerBar } from "@/components/LiveTickerBar";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { StatCard } from "@/components/StatCard";
 import { TrustLogos } from "@/components/TrustLogos";
+import { VideoThumbnail } from "@/components/VideoThumbnail";
+
+const LANDING_VIDEOS = {
+  onboarding: {
+    videoUrl:
+      "https://res.cloudinary.com/j3kkepoe/video/upload/v1786333150/TradeEdge-Video1-Onboarding.mp4",
+    thumbnailUrl: "/videos/video1-onboarding.jpg",
+  },
+  journal: {
+    videoUrl:
+      "https://res.cloudinary.com/j3kkepoe/video/upload/v1786333496/TradeEdge-Video2-Journal.mp4",
+    thumbnailUrl: "/videos/video2-journal.jpg",
+  },
+  coach: {
+    videoUrl:
+      "https://res.cloudinary.com/j3kkepoe/video/upload/v1786333601/TradeEdge-Video3-AI-Coach.mp4",
+    thumbnailUrl: "/videos/video3-ai-coach.jpg",
+  },
+  prep: {
+    videoUrl:
+      "https://res.cloudinary.com/j3kkepoe/video/upload/v1786333601/TradeEdge-Video4-Prep.mp4",
+    thumbnailUrl: "/videos/video4-prep.jpg",
+  },
+} as const;
 
 const pricingRows = [
   ["Free trial (14 days)", "check", "check", "check"],
@@ -255,278 +278,6 @@ function SectionHeader({
   );
 }
 
-/** Illustrative trade card — mirrors TradeTable mobile row chrome. Non-interactive. */
-function HeroTradeExample() {
-  return (
-    <div className="pointer-events-none mx-auto mt-14 w-full max-w-xl select-none">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[#4a5568]">
-          Illustrative example
-        </span>
-      </div>
-      <div className="overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
-        <div className="px-4 py-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate font-mono text-[17px] font-semibold text-[#e8edf5]">
-                EUR/USD
-              </div>
-              <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded border border-[#0ea5e9]/20 bg-[#0ea5e9]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#0ea5e9]">
-                  Forex
-                </span>
-                <span className="inline-flex items-center rounded border border-[#00ff88]/20 bg-[#00ff88]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#00ff88]">
-                  Long
-                </span>
-              </div>
-            </div>
-            <div className="shrink-0 text-right font-mono text-[18px] font-semibold tabular-nums text-[#00ff88]">
-              +$86.40
-            </div>
-          </div>
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            <span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-                Date
-              </span>
-              <span className="mt-0.5 block font-mono text-[12px] text-[#4a5568]">
-                Jul 24, 2026
-              </span>
-            </span>
-            <span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-                Entry
-              </span>
-              <span className="mt-0.5 block font-mono text-[12px] text-[#e8edf5]">
-                1.08420
-              </span>
-            </span>
-            <span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-                R:R
-              </span>
-              <span className="mt-0.5 block font-mono text-[12px] text-[#a78bfa]">
-                1.40
-              </span>
-            </span>
-          </div>
-        </div>
-        <div className="border-t border-[#1c2235] bg-[#080a0f] px-4 py-3">
-          <div className="mb-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-            Coach&apos;s insight
-          </div>
-          <p className="font-body text-[13px] leading-relaxed text-[#8892a4]">
-            You&apos;ve cut winners early 4 of your last 5 trades on this pair.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Finding 01 visual — TradeTable card chrome + StatCard strip. Non-interactive. */
-function FindingJournalVisual() {
-  return (
-    <div className="pointer-events-none select-none space-y-3">
-      <div className="overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
-        <div className="px-4 py-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate font-mono text-[17px] font-semibold text-[#e8edf5]">
-                NQ1!
-              </div>
-              <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded border border-[#a78bfa]/20 bg-[#a78bfa]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#a78bfa]">
-                  Futures
-                </span>
-                <span className="inline-flex items-center rounded border border-[#00ff88]/20 bg-[#00ff88]/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#00ff88]">
-                  Long
-                </span>
-              </div>
-            </div>
-            <div className="shrink-0 text-right font-mono text-[18px] font-semibold tabular-nums text-[#00ff88]">
-              +$420.00
-            </div>
-          </div>
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            <span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-                Date
-              </span>
-              <span className="mt-0.5 block font-mono text-[12px] text-[#4a5568]">
-                Jul 22, 2026
-              </span>
-            </span>
-            <span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-                Setup
-              </span>
-              <span className="mt-0.5 block font-mono text-[12px] text-[#8892a4]">
-                VWAP Reclaim
-              </span>
-            </span>
-            <span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-                Session
-              </span>
-              <span className="mt-0.5 block font-mono text-[12px] text-[#8892a4]">
-                NY Open
-              </span>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          label="Win Rate"
-          value="61%"
-          sub="By setup · last 30 days"
-          color="#00ff88"
-          trend="up"
-          spark={[0.4, 0.45, 0.5, 0.48, 0.55, 0.62, 0.58, 0.61]}
-        />
-        <StatCard
-          label="Avg R:R"
-          value="1.8"
-          sub="By session · London"
-          color="#0ea5e9"
-          trend="up"
-          spark={[0.35, 0.4, 0.42, 0.5, 0.55, 0.52, 0.6, 0.65]}
-        />
-      </div>
-    </div>
-  );
-}
-
-/**
- * Finding 02 visual — static crop of DailyCoachingReport chrome.
- * Labels match live component strings exactly.
- */
-function FindingCoachVisual() {
-  return (
-    <div className="pointer-events-none select-none overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17]">
-      <div className="flex items-center justify-between border-b border-[#1c2235] bg-[#080a0f] px-5 py-3">
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-          DAILY COACHING REPORT
-        </span>
-        <span className="font-mono text-[11px] text-[#4a5568]">Thu, Jul 24, 2026</span>
-      </div>
-      <div className="border-b border-[#1c2235] bg-[#f59e0b]/[0.06] px-5 py-3 font-mono text-[11px] tracking-[0.1em] text-[#f59e0b]">
-        SESSION RATING: C — Cut winners early on EUR/USD
-      </div>
-      <div className="border-b border-[#1c2235] px-5 py-4">
-        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-[#4a5568]">
-          COACH&apos;S INSIGHT
-        </div>
-        <p className="font-body text-[14px] leading-relaxed text-[#e8edf5]">
-          Four of your last five EUR/USD winners were closed before the planned
-          target. The pattern isn&apos;t random — it clusters in the first hour
-          after London open.
-        </p>
-      </div>
-      <div className="bg-[#00ff88]/[0.02] px-5 py-4">
-        <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-[#00ff88]">
-          TOMORROW&apos;S FOCUS
-        </div>
-        <p className="font-body text-[14px] font-medium text-[#e8edf5]">
-          Hold to the written target on the next A+ London setup — or don&apos;t take the trade.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/** Finding 03 visual — one PropFirm card chrome, no SAMPLE badge. Non-interactive. */
-function FindingPropFirmVisual() {
-  return (
-    <div className="pointer-events-none select-none">
-      <article className="relative flex flex-col gap-5 overflow-hidden rounded-xl border border-[#1c2235] bg-[#0c0f17] p-5 sm:p-6">
-        <div
-          aria-hidden
-          className="absolute left-0 right-0 top-0 h-[2px]"
-          style={{
-            background: "linear-gradient(90deg, #0ea5e9, transparent)",
-          }}
-        />
-        <header className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="truncate font-display text-lg font-bold leading-none text-[#e8edf5]">
-              FTMO
-            </h3>
-            <p className="mt-3 font-mono text-2xl font-bold tabular-nums text-[#e8edf5]">
-              $100,000
-            </p>
-          </div>
-          <span
-            className="inline-flex shrink-0 items-center rounded border px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest"
-            style={{
-              color: "#0ea5e9",
-              backgroundColor: "rgba(14,165,233,0.1)",
-              borderColor: "rgba(14,165,233,0.2)",
-            }}
-          >
-            Phase 1
-          </span>
-        </header>
-        <div className="space-y-2">
-          <div className="flex items-baseline justify-between gap-3">
-            <span
-              className="font-mono uppercase text-[#8892a4]"
-              style={{ fontSize: "10px", letterSpacing: "0.24em" }}
-            >
-              Progress to Target
-            </span>
-            <span
-              className="font-mono font-bold tabular"
-              style={{ fontSize: "12px", color: "#00ff88", letterSpacing: "0.04em" }}
-            >
-              62.0%
-            </span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-[#1c2235]">
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: "62%",
-                background: "#00ff88",
-                boxShadow: "0 0 8px rgba(0,255,136,0.3)",
-              }}
-            />
-          </div>
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <span className="font-mono tabular text-[#8892a4]" style={{ fontSize: "12px" }}>
-              $106,200
-              <span className="text-[#4a5568]"> / $110,000</span>
-            </span>
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: "Daily Loss", value: "5%" },
-            { label: "Max DD", value: "10%" },
-            { label: "Trading Days", value: "12 / 4 min" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-lg border border-[#1c2235] bg-[#111520] px-3 py-3"
-            >
-              <div
-                className="font-mono text-[9px] uppercase tracking-widest text-[#4a5568]"
-                style={{ fontSize: "9px", letterSpacing: "0.24em" }}
-              >
-                {item.label}
-              </div>
-              <div className="mt-1 truncate font-mono text-[13px] tabular-nums text-[#8892a4]">
-                {item.value}
-              </div>
-            </div>
-          ))}
-        </div>
-      </article>
-    </div>
-  );
-}
-
 function FindingRow({
   label,
   headline,
@@ -698,7 +449,14 @@ export default function LandingPage() {
               See how it works ↓
             </a>
           </div>
-          <HeroTradeExample />
+          <div className="mx-auto mt-14 w-full max-w-xl">
+            <VideoThumbnail
+              videoUrl={LANDING_VIDEOS.onboarding.videoUrl}
+              thumbnailUrl={LANDING_VIDEOS.onboarding.thumbnailUrl}
+              label="Watch: Signup & Onboarding"
+              priority
+            />
+          </div>
         </div>
       </section>
 
@@ -718,20 +476,38 @@ export default function LandingPage() {
               label="FINDING 01"
               headline="You Can See Your P&L. You Can't See Why."
               body="Your journal and analytics break edge down by setup, market, time of day, and behavior — so you stop guessing which trades to repeat and which habits to cut. See the month by P&L and mistake patterns without spreadsheet friction."
-              visual={<FindingJournalVisual />}
+              visual={
+                <VideoThumbnail
+                  videoUrl={LANDING_VIDEOS.journal.videoUrl}
+                  thumbnailUrl={LANDING_VIDEOS.journal.thumbnailUrl}
+                  label="Watch: Journal"
+                />
+              }
             />
             <FindingRow
               label="FINDING 02"
               headline="Discipline Breaks Down In Patterns, Not Random Moments."
               body="AI coaching turns your trade history into session debriefs, psychology diagnosis, and specific next-session corrections — the feedback loop that shows why the same leak keeps showing up."
-              visual={<FindingCoachVisual />}
+              visual={
+                <VideoThumbnail
+                  videoUrl={LANDING_VIDEOS.coach.videoUrl}
+                  thumbnailUrl={LANDING_VIDEOS.coach.thumbnailUrl}
+                  label="Watch: AI Coach"
+                />
+              }
               reverse
             />
             <FindingRow
               label="FINDING 03"
               headline="Prop Firm Accounts Fail On Rules, Not Markets."
               body="Track evaluations and funded accounts against profit targets, daily loss, and max drawdown in one place — so you catch a rule break before it fails the challenge."
-              visual={<FindingPropFirmVisual />}
+              visual={
+                <VideoThumbnail
+                  videoUrl={LANDING_VIDEOS.prep.videoUrl}
+                  thumbnailUrl={LANDING_VIDEOS.prep.thumbnailUrl}
+                  label="Watch: Prop Firm Tracker"
+                />
+              }
             />
           </div>
         </div>
