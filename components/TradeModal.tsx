@@ -441,7 +441,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                       id="rr"
                       className="flex-1 font-mono text-sm text-[#e8edf5]"
                     >
-                      {form.rr || "—"}
+                      {form.rr || "-"}
                     </span>
                   </div>
                   {!form.rr && (
@@ -479,7 +479,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   readOnly
                   required
                   prefix="$"
-                  hint="Required — net result for this trade"
+                  hint="Required: net result for this trade"
                 />
               </div>
             </section>
@@ -544,7 +544,7 @@ export function TradeModal({ trade, onClose, onSave }: TradeModalProps) {
                   placeholder="https://tradingview.com/x/…"
                   value={form.screenshot_url}
                   onChange={(e) => update("screenshot_url", e.target.value)}
-                  hint="Optional — link to your chart screenshot"
+                  hint="Optional: link to your chart screenshot"
                 />
               </div>
             </section>

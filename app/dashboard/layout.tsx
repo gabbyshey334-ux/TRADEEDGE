@@ -4,7 +4,7 @@ import { ensureAdminAccess } from "@/lib/actions/admin";
 import { getSidebarUser, requireAuthUser } from "@/lib/auth/server";
 import { syncSubscriptionIfNeeded } from "@/lib/auth/sync-subscription";
 
-/** Auth + Supabase — must not run at build time without env vars. */
+/** Auth + Supabase, must not run at build time without env vars. */
 export const dynamic = "force-dynamic";
 
 export default async function DashboardLayout({

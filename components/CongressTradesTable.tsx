@@ -129,7 +129,7 @@ export function CongressTradesTable() {
           message={
             rows.length === 0
               ? meta?.source === "empty"
-                ? "No congressional trade disclosures are available right now. Check back later — the feed refreshes hourly."
+                ? "No congressional trade disclosures are available right now. Check back later. The feed refreshes hourly."
                 : "No congressional trades in this snapshot. The feed refreshes every hour."
               : "No trades match your filters."
           }
@@ -191,7 +191,7 @@ export function CongressTradesTable() {
       <BlurredFeaturePreview
         targetPlan="pro"
         featureName="Congressional Trades Feed"
-        featureDescription="See how members of Congress are trading — live STOCK Act disclosures, unlocked on Pro."
+        featureDescription="See how members of Congress are trading: live STOCK Act disclosures, unlocked on Pro."
         minHeight={480}
       >
         {tableOutput}
@@ -305,7 +305,7 @@ function PartyBadge({ party }: { party: string | null }) {
   }
   return (
     <span className="inline-flex items-center font-mono text-[9px] tracking-widest px-2 py-0.5 rounded border bg-[#1c2235] text-[#4a5568] border-[#1c2235] uppercase">
-      {p || "—"}
+      {p || "-"}
     </span>
   );
 }
@@ -342,7 +342,7 @@ function DesktopRow({
         "hover:bg-[#111520]"
       )}
     >
-      <Td className="text-[#4a5568]">{date ? formatDate(date) : "—"}</Td>
+      <Td className="text-[#4a5568]">{date ? formatDate(date) : "-"}</Td>
       <Td className="text-[#e8edf5] font-body text-[13px] font-medium">{row.member_name}</Td>
       <Td>
         <PartyBadge party={row.party} />
@@ -353,8 +353,8 @@ function DesktopRow({
       <Td>
         <TypePill type={normalizeTradeType(row.trade_type)} />
       </Td>
-      <Td className="text-[#f59e0b]">{row.amount_range || "—"}</Td>
-      <Td className="text-[#4a5568] text-[11px]">{row.state || "—"}</Td>
+      <Td className="text-[#f59e0b]">{row.amount_range || "-"}</Td>
+      <Td className="text-[#4a5568] text-[11px]">{row.state || "-"}</Td>
     </tr>
   );
 }
@@ -374,16 +374,16 @@ function MobileRow({ row }: { row: CongressionalTrade }) {
           {row.ticker}
         </span>
         <span className="font-mono text-[12px] text-[#f59e0b] shrink-0">
-          {row.amount_range || "—"}
+          {row.amount_range || "-"}
         </span>
       </div>
       <div className="flex items-center gap-2">
         <PartyBadge party={row.party} />
         <span className="font-mono text-[10px] text-[#4a5568]">
-          {row.state || "—"}
+          {row.state || "-"}
         </span>
         <span className="ml-auto font-mono text-[10px] text-[#4a5568]">
-          {date ? formatDate(date) : "—"}
+          {date ? formatDate(date) : "-"}
         </span>
       </div>
     </div>
@@ -409,7 +409,7 @@ function Pagination({
       className="font-mono uppercase text-[#4a5568]"
         style={{ fontSize: "10px", letterSpacing: "0.24em" }}
       >
-        Showing {start}–{end} of {totalRows}
+        Showing {start}-{end} of {totalRows}
       </div>
       <div className="inline-flex items-center gap-2">
         <PageButton

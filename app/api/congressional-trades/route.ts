@@ -139,7 +139,7 @@ export interface CongressionalTradesResponse {
   source: "live" | "cache" | "empty";
   error: string | null;
   fetched_at: string;
-  /** Present when the caller's plan lacks access — data is a capped teaser. */
+  /** Present when the caller's plan lacks access, data is a capped teaser. */
   locked?: boolean;
 }
 
@@ -285,7 +285,7 @@ export async function GET() {
         source: cached.length ? "cache" : "empty",
         error:
           cached.length
-            ? "Live feed unavailable — showing the last cached snapshot."
+            ? "Live feed unavailable. Showing the last cached snapshot."
             : `Live feed unavailable and no cached data on file. (${err instanceof Error ? err.message : "Unknown error"})`,
         fetched_at: new Date().toISOString(),
       })

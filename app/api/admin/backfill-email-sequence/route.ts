@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       batchSize = Math.max(1, Math.floor(body.batchSize));
     }
   } catch {
-    // No/invalid body — use default batch size
+    // No/invalid body, use default batch size
   }
 
   const service = getServiceClient();

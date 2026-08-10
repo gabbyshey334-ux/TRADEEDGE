@@ -6,7 +6,7 @@ interface StatCardProps {
   sub?: string;
   color?: string;
   /**
-   * Kept for backwards compatibility with existing call sites — direction is
+   * Kept for backwards compatibility with existing call sites, direction is
    * folded into the sparkline shape rather than rendered as a separate arrow.
    */
   trend?: "up" | "down" | "neutral";

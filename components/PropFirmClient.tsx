@@ -508,7 +508,7 @@ function ProgressBar({ progress }: { progress: Progress }) {
         >
           {progress.hasData
             ? formatCurrency(progress.currentBalance, 0)
-            : "—"}
+            : "-"}
           <span className="text-[#4a5568]">
             {" "}/ {formatCurrency(progress.targetBalance, 0)}
           </span>
@@ -533,16 +533,16 @@ function DrawdownGrid({ account }: { account: PropFirmAccount }) {
     {
       label: "Profit Target",
       value:
-        account.profit_target != null ? `${Number(account.profit_target)}%` : "—",
+        account.profit_target != null ? `${Number(account.profit_target)}%` : "-",
     },
     {
       label: "Max DD",
-      value: account.max_drawdown != null ? `${Number(account.max_drawdown)}%` : "—",
+      value: account.max_drawdown != null ? `${Number(account.max_drawdown)}%` : "-",
     },
     {
       label: "Daily DD",
       value:
-        account.daily_drawdown != null ? `${Number(account.daily_drawdown)}%` : "—",
+        account.daily_drawdown != null ? `${Number(account.daily_drawdown)}%` : "-",
     },
   ];
 

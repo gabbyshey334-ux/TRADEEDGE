@@ -129,7 +129,7 @@ function determineRisk(input: {
   if (dailyLimitUsed >= 70 && revengeTradingRate > 0.25) {
     return {
       riskLevel: "high",
-      warning: `At ${dailyUsed}% of your ${dailyDrawdown}% daily loss limit with a ${revengePct}% revenge-trading rate — this pattern historically leads to rule breaks on ${firmName} challenges.`,
+      warning: `At ${dailyUsed}% of your ${dailyDrawdown}% daily loss limit with a ${revengePct}% revenge-trading rate. This pattern historically leads to rule breaks on ${firmName} challenges.`,
     };
   }
 
@@ -169,7 +169,7 @@ function determineRisk(input: {
   ) {
     return {
       riskLevel: "medium",
-      warning: `${firmName} ${challengeType} requires ${minTradingDays} minimum trading days — you have logged trades on ${tradingDaysLogged} day${tradingDaysLogged === 1 ? "" : "s"} so far.`,
+      warning: `${firmName} ${challengeType} requires ${minTradingDays} minimum trading days. You have logged trades on ${tradingDaysLogged} day${tradingDaysLogged === 1 ? "" : "s"} so far.`,
     };
   }
 

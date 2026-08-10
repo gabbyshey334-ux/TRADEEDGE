@@ -25,7 +25,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "TradeEdge AI — Trading Journal & Edge Analytics",
+  title: "TradeEdge AI: Trading Journal & Edge Analytics",
   description:
     "Forex and Futures trading journal with AI-powered psychology and edge analytics.",
 };

@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "About — TradeEdge AI",
+  title: "About: TradeEdge AI",
   description:
-    "Built by a 20-year Army veteran and trader to help serious traders see the patterns costing them money — before it costs them their account.",
+    "Built by a 20-year Army veteran and trader to help serious traders see the patterns costing them money, before it costs them their account.",
 };
 
 export default function AboutPage() {
@@ -37,7 +37,7 @@ export default function AboutPage() {
           <p>
             I spent 20 years in the Army as an Airborne Ranger and 82nd Airborne
             paratrooper before I ever sat down seriously to trade. Military life
-            teaches you something that took me a long time to fully understand —
+            teaches you something that took me a long time to fully understand:
             failure is rarely about ability. It&apos;s almost always about
             process, preparation, and the small decisions you make under pressure
             that nobody else ever sees.
@@ -49,8 +49,8 @@ export default function AboutPage() {
 
           <p>
             I&apos;m tired of hearing the same statistic thrown around
-            everywhere — that only a small percentage of traders are ever
-            profitable — like it&apos;s some unchangeable law of nature. I
+            everywhere: that only a small percentage of traders are ever
+            profitable, like it&apos;s some unchangeable law of nature. I
             don&apos;t believe that. I&apos;ve seen too many disciplined people
             fail not because they lacked skill, but because they had no real
             feedback loop on their own behavior. They could see their P&amp;L,
@@ -60,8 +60,8 @@ export default function AboutPage() {
           <p>
             I built TradeEdge AI to change that. This isn&apos;t a money grab,
             and it&apos;s not another app promising easy profits. It&apos;s a
-            real tool, built by a trader, for traders, designed to do one thing
-            — help you see the patterns that are quietly costing you money
+            real tool, built by a trader, for traders, designed to do one
+            thing: help you see the patterns that are quietly costing you money
             before they cost you your account.
           </p>
 

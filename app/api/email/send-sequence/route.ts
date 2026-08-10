@@ -209,13 +209,13 @@ export async function GET(request: NextRequest) {
 
         if (!updateError) sent += 1;
       } catch {
-        // Fail silently per email — continue the batch
+        // Fail silently per email, continue the batch
       }
     }
 
     return NextResponse.json({ ok: true, sent, queued: toSend.length });
   } catch {
-    // Fail silently — never crash the cron
+    // Fail silently, never crash the cron
     return NextResponse.json({ ok: false, sent: 0 }, { status: 200 });
   }
 }

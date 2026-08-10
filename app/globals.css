@@ -52,7 +52,7 @@ body::before {
   background-size: 128px 128px;
 }
 
-/* Number display class — use for all P&L, prices, percentages */
+/* Number display class: use for all P&L, prices, percentages */
 .num {
   font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
@@ -159,7 +159,7 @@ body::before {
   border-radius: 4px;
 }
 
-/* Terminal scanline effect — subtle */
+/* Terminal scanline effect: subtle */
 .scanlines::after {
   content: '';
   position: absolute;
@@ -215,7 +215,7 @@ a {
   text-decoration: none;
 }
 
-/* Shared dashboard page content padding — tighter, more intentional spacing */
+/* Shared dashboard page content padding: tighter, more intentional spacing */
 .dashboard-page {
   padding: 0 0 40px;
 }
@@ -226,7 +226,7 @@ a {
   }
 }
 
-/* Surface tones — used to layer panels without ever placing two same-tone
+/* Surface tones: used to layer panels without ever placing two same-tone
    surfaces next to each other. */
 .surface-1 { background-color: #080a0f; }
 .surface-2 { background-color: #080b11; }
@@ -305,7 +305,7 @@ a {
   border-radius: 4px;
 }
 
-/* Landing page — reliable fallbacks using design-system variables */
+/* Landing page: reliable fallbacks using design-system variables */
 @keyframes ticker {
   0% {
     transform: translateX(0);

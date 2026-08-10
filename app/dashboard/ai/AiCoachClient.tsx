@@ -49,7 +49,7 @@ interface AiCoachClientProps {
   tradeCount: number;
   /** Effective access tier (includes active-trial elevation). */
   plan: Plan;
-  /** Real billing tier from profiles.plan — used for display labels only. */
+  /** Real billing tier from profiles.plan, used for display labels only. */
   billingPlan: Plan;
   reportsThisMonth: number;
   monthlyLimit: number | null;
@@ -211,7 +211,7 @@ export function AiCoachClient({
                 "active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none"
               )}
             >
-              {generating ? "Analyzing… (~25–30s)" : "Generate Report"}
+              {generating ? "Analyzing… (~25-30s)" : "Generate Report"}
             </button>
 
             {isLocked && (
@@ -386,7 +386,7 @@ function LoadingState() {
         _
       </span>
       <div className="mt-4 max-w-sm text-center font-mono text-[10px] tracking-[0.2em] text-[#00ff88] uppercase animate-pulse">
-        Analyzing your trades — usually takes about 25-30 seconds.
+        Analyzing your trades. This usually takes about 25-30 seconds.
       </div>
     </div>
   );

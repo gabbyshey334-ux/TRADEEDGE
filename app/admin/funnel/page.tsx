@@ -115,7 +115,7 @@ export default async function AdminFunnelPage() {
                   index === 0 ? "text-[#8892a4]" : "text-[#8892a4]"
                 }`}
               >
-                {index === 0 ? "—" : row.conversion}
+                {index === 0 ? "-" : row.conversion}
               </div>
             </div>
           ))}

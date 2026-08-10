@@ -42,9 +42,9 @@ export function WelcomeGreeting({ name }: WelcomeGreetingProps) {
         second: "2-digit",
         hour12: false,
       })
-    : "—:—:—";
+    : "-:-:-";
 
-  const dayLine = now ? formatDayLine(now) : "—";
+  const dayLine = now ? formatDayLine(now) : "-";
   const firstName = name.split(" ")[0] || name;
 
   return (

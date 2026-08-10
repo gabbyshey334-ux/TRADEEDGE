@@ -425,7 +425,7 @@ export function PropFirmModal({ account, onClose, onSave }: PropFirmModalProps) 
                 prefix="$"
                 value={form.current_balance}
                 onChange={(e) => update("current_balance", e.target.value)}
-                hint="Optional — used to compute progress vs target"
+                hint="Optional: used to compute progress vs target"
               />
             </section>
 

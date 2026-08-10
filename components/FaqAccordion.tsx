@@ -18,7 +18,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: "Is my trading data secure and private?",
-    a: "Yes. Every user's data is completely isolated using Row Level Security at the database level. Nobody else can ever see your trades — not even us.",
+    a: "Yes. Every user's data is completely isolated using Row Level Security at the database level. Nobody else can ever see your trades, not even us.",
   },
   {
     q: "Can I cancel my subscription anytime?",

@@ -45,7 +45,7 @@ export default async function PropFirmTrackerPage() {
           <BlurredFeaturePreview
             targetPlan="pro"
             featureName="Prop Firm Tracker"
-            featureDescription="Track challenges, drawdowns, and readiness across firms — unlock the full tracker on Pro."
+            featureDescription="Track challenges, drawdowns, and readiness across firms. Unlock the full tracker on Pro."
             minHeight={420}
             badge="SAMPLE"
           >

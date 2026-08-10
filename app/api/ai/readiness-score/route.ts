@@ -14,7 +14,7 @@ Return ONLY valid JSON:
 {
   "score": 78,
   "grade": "C+",
-  "summary": "2-3 sentences on readiness for this specific firm/challenge — balanced and direct",
+  "summary": "2-3 sentences on readiness for this specific firm/challenge, balanced and direct",
   "strengths": [
     "Excellent 70% win rate shows disciplined trade selection",
     "Profit factor of 1.89 indicates positive expectancy",

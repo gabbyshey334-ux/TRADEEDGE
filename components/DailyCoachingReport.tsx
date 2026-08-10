@@ -191,7 +191,7 @@ export function DailyCoachingReport({ plan }: DailyCoachingReportProps) {
               ratingBannerClass(data.sessionRating)
             )}
           >
-            SESSION RATING: {data.sessionRating} — {data.headline}
+            SESSION RATING: {data.sessionRating} - {data.headline}
           </div>
 
           <div className="grid grid-cols-5 divide-x divide-[#1c2235] border-b border-[#1c2235] bg-[#080a0f]">

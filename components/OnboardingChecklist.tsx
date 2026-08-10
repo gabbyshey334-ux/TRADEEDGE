@@ -101,7 +101,7 @@ export function OnboardingChecklist({
 
       {completedCount === 2 && (
         <div className="bg-[#00ff88]/[0.04] border-t border-[#00ff88]/10 px-5 py-3 font-mono text-[10px] text-[#00ff88] tracking-[0.1em]">
-          ONE MORE STEP — you are almost set up
+          ONE MORE STEP: you are almost set up
         </div>
       )}
     </div>

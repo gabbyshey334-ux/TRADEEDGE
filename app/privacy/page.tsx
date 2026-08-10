@@ -50,23 +50,23 @@ export default function PrivacyPolicyPage() {
               <LegalList
                 items={[
                   <>
-                    <strong>Account information</strong> — your name, email
+                    <strong>Account information</strong>: your name, email
                     address, and password (stored as a one-way hash by our
                     authentication provider).
                   </>,
                   <>
-                    <strong>Trade data you enter</strong> — symbols, prices,
+                    <strong>Trade data you enter</strong>: symbols, prices,
                     sizes, P&amp;L, notes, screenshots, and any other content
                     you log in your journal.
                   </>,
                   <>
-                    <strong>Payment information</strong> — handled directly by
+                    <strong>Payment information</strong>: handled directly by
                     Stripe. We never see or store credit card numbers. We only
                     receive your customer ID and subscription status from
                     Stripe.
                   </>,
                   <>
-                    <strong>Usage data and analytics</strong> — basic logs such
+                    <strong>Usage data and analytics</strong>: basic logs such
                     as the pages you visit, errors, and feature usage so we can
                     improve the product. We do not sell this data.
                   </>,
@@ -124,18 +124,18 @@ export default function PrivacyPolicyPage() {
               <LegalList
                 items={[
                   <>
-                    <strong>Supabase</strong> — database, authentication, and
+                    <strong>Supabase</strong>: database, authentication, and
                     file storage.
                   </>,
                   <>
-                    <strong>Stripe</strong> — subscription payments and billing.
+                    <strong>Stripe</strong>: subscription payments and billing.
                   </>,
                   <>
-                    <strong>Anthropic</strong> — large-language model used to
+                    <strong>Anthropic</strong>: large-language model used to
                     generate AI coaching reports.
                   </>,
                   <>
-                    <strong>Vercel</strong> — application hosting and edge
+                    <strong>Vercel</strong>: application hosting and edge
                     delivery.
                   </>,
                 ]}
@@ -187,7 +187,7 @@ export default function PrivacyPolicyPage() {
           title: "Cookies",
           body: (
             <p>
-              TradeEdge AI uses essential cookies only — they keep you signed in
+              TradeEdge AI uses essential cookies only. They keep you signed in
               and keep your session secure. We do not run advertising cookies,
               cross-site trackers, or third-party analytics that profile you.
             </p>

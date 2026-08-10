@@ -122,7 +122,7 @@ export function SubscriptionWelcomeModal() {
             {headline}
           </h2>
           <p className="mt-2 font-body text-[13px] leading-relaxed text-[#8892a4]">
-            Your account&apos;s been upgraded — here&apos;s what&apos;s unlocked:
+            Your account&apos;s been upgraded. Here&apos;s what&apos;s unlocked:
           </p>
         </div>
 

@@ -26,7 +26,7 @@ const MANUAL_BILLING_NOTICE =
 export interface SidebarUser {
   name: string;
   email: string;
-  /** Raw billing plan — used for plan pill / upgrade CTAs only. */
+  /** Raw billing plan, used for plan pill / upgrade CTAs only. */
   plan: Plan;
   hasStripeBilling: boolean;
   trialEndsAt: string | null;

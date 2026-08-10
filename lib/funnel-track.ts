@@ -39,6 +39,6 @@ export async function trackFunnelEvent(
       }),
     });
   } catch {
-    // Silent fail — never block the user experience for tracking
+    // Silent fail, never block the user experience for tracking
   }
 }

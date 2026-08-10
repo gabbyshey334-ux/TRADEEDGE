@@ -1,5 +1,5 @@
 // =============================================================================
-// AI Coach rate limiting — VERIFIED 2026-05-24 (Milestone 3 QA)
+// AI Coach rate limiting, VERIFIED 2026-05-24 (Milestone 3 QA)
 // -----------------------------------------------------------------------------
 // Starter : PLAN_LIMITS.starter.maxMonthlyAiReports = 0
 //           canRunAiReport returns false on the first attempt -> 403 with the
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     const service = getServiceClient();
     await maybeCompleteOnboarding(service, user.id);
   } catch {
-    // Non-blocking — onboarding flag must not fail the AI response
+    // Non-blocking, onboarding flag must not fail the AI response
   }
 
   return NextResponse.json({ content });

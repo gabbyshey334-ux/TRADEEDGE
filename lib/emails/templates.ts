@@ -1,7 +1,7 @@
 const APP_URL = "https://tradeedgeapp.net";
 const BILLING_URL = `${APP_URL}/dashboard/billing`;
 
-/** Day 1 welcome video — absolute URLs required for email clients. */
+/** Day 1 welcome video, absolute URLs required for email clients. */
 const DAY1_VIDEO_URL =
   "https://res.cloudinary.com/j3kkepoe/video/upload/v1786333150/TradeEdge-Video1-Onboarding.mp4";
 const DAY1_VIDEO_THUMBNAIL_URL = `${APP_URL}/videos/video1-onboarding-email.jpg`;

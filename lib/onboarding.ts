@@ -55,6 +55,6 @@ export async function stopEmailSequenceForUpgradedUser(
       .eq("user_id", userId)
       .eq("unsubscribed", false);
   } catch {
-    // Fail soft — upgrade path must not fail because of email sequence
+    // Fail soft, upgrade path must not fail because of email sequence
   }
 }

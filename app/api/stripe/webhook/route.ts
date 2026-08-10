@@ -15,9 +15,9 @@ import { getServiceClient } from "@/lib/supabase/service";
 /**
  * Stripe webhook handler.
  *
- * IMPORTANT — raw body handling:
+ * IMPORTANT: raw body handling:
  *   `stripe.webhooks.constructEvent` requires the exact bytes Stripe sent,
- *   verbatim. In the Next.js App Router, the body is NEVER auto-parsed —
+ *   verbatim. In the Next.js App Router, the body is NEVER auto-parsed -
  *   it's only parsed if you explicitly call `request.json()` /
  *   `request.formData()`. We call `request.text()` below, which yields the
  *   raw payload untouched.

@@ -49,7 +49,7 @@ export default function TermsOfServicePage() {
               TradeEdge AI is a trading journal and analytics platform that
               helps traders log trades, analyze performance, and receive
               AI-generated coaching reports. TradeEdge AI is{" "}
-              <strong>not financial advice</strong>. We are a software tool —
+              <strong>not financial advice</strong>. We are a software tool,
               not a registered investment adviser, broker-dealer, or financial
               planner.
             </p>
@@ -133,8 +133,8 @@ export default function TermsOfServicePage() {
               </p>
               <p>
                 <strong>You own your trade data.</strong> You retain all rights
-                to the content you upload — including trades, notes, and
-                screenshots — and you can export or delete it at any time.
+                to the content you upload, including trades, notes, and
+                screenshots, and you can export or delete it at any time.
               </p>
             </>
           ),

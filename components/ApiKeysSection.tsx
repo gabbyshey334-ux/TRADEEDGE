@@ -120,7 +120,7 @@ export function ApiKeysSection({ plan }: ApiKeysSectionProps) {
             {revealedKey ? (
               <div className="mb-4 rounded-lg border border-[#00ff88]/20 bg-[#00ff88]/[0.04] px-4 py-4">
                 <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.15em] text-[#00ff88]">
-                  ⚠ COPY YOUR KEY NOW — IT WILL NOT BE SHOWN AGAIN
+                  ⚠ COPY YOUR KEY NOW: IT WILL NOT BE SHOWN AGAIN
                 </p>
                 <div className="break-all rounded border border-[#1c2235] bg-[#080a0f] px-3 py-2 font-mono text-[12px] text-[#e8edf5]">
                   {revealedKey}

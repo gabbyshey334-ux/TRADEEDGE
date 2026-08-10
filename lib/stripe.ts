@@ -20,7 +20,7 @@ export function getStripe(): Stripe {
   return stripeClient;
 }
 
-/** @deprecated Use getStripe() — kept for webhook route compatibility */
+/** @deprecated Use getStripe(), kept for webhook route compatibility */
 export const stripe = new Proxy({} as Stripe, {
   get(_target, prop) {
     return Reflect.get(getStripe(), prop);

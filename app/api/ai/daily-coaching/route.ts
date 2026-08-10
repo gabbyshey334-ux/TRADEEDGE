@@ -314,7 +314,7 @@ ACTIVE PROP FIRM CHALLENGES:
 ${challenges
   .map(
     (c) =>
-      `${c.firm_name} — Phase: ${c.challenge_phase}
+      `${c.firm_name} - Phase: ${c.challenge_phase}
  Profit Target: ${c.profit_target}%
  Daily Loss Limit: ${c.daily_drawdown}%
  Max Drawdown: ${c.max_drawdown}%

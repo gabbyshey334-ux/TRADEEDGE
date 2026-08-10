@@ -1,5 +1,5 @@
 /**
- * Thin Resend HTTP client — no npm package required.
+ * Thin Resend HTTP client, no npm package required.
  * Fails silently (returns false) when Resend is down or misconfigured.
  */
 export async function sendResendEmail(params: {

@@ -433,7 +433,7 @@ export default function LandingPage() {
           </h1>
           <p className="hero-line hero-line-2 mx-auto mt-7 max-w-[560px] font-body text-base leading-7 text-[#8892a4] sm:text-lg sm:leading-8">
             TradeEdge AI shows you the pattern in your own trading that&apos;s
-            quietly costing you money — before it costs you your account.
+            quietly costing you money, before it costs you your account.
           </p>
           <div className="hero-line hero-line-3 mt-9 flex flex-col items-center gap-4">
             <Link
@@ -475,7 +475,7 @@ export default function LandingPage() {
             <FindingRow
               label="FINDING 01"
               headline="You Can See Your P&L. You Can't See Why."
-              body="Your journal and analytics break edge down by setup, market, time of day, and behavior — so you stop guessing which trades to repeat and which habits to cut. See the month by P&L and mistake patterns without spreadsheet friction."
+              body="Your journal and analytics break edge down by setup, market, time of day, and behavior, so you stop guessing which trades to repeat and which habits to cut. See the month by P&L and mistake patterns without spreadsheet friction."
               visual={
                 <VideoThumbnail
                   videoUrl={LANDING_VIDEOS.journal.videoUrl}
@@ -487,7 +487,7 @@ export default function LandingPage() {
             <FindingRow
               label="FINDING 02"
               headline="Discipline Breaks Down In Patterns, Not Random Moments."
-              body="AI coaching turns your trade history into session debriefs, psychology diagnosis, and specific next-session corrections — the feedback loop that shows why the same leak keeps showing up."
+              body="AI coaching turns your trade history into session debriefs, psychology diagnosis, and specific next-session corrections: the feedback loop that shows why the same leak keeps showing up."
               visual={
                 <VideoThumbnail
                   videoUrl={LANDING_VIDEOS.coach.videoUrl}
@@ -500,7 +500,7 @@ export default function LandingPage() {
             <FindingRow
               label="FINDING 03"
               headline="Prop Firm Accounts Fail On Rules, Not Markets."
-              body="Track evaluations and funded accounts against profit targets, daily loss, and max drawdown in one place — so you catch a rule break before it fails the challenge."
+              body="Track evaluations and funded accounts against profit targets, daily loss, and max drawdown in one place, so you catch a rule break before it fails the challenge."
               visual={
                 <VideoThumbnail
                   videoUrl={LANDING_VIDEOS.prep.videoUrl}
@@ -584,7 +584,7 @@ export default function LandingPage() {
 
       <ScrollReveal id="pricing" className="px-5 py-24 md:px-8">
         <div className="mx-auto max-w-7xl">
-          <SectionHeader eyebrow="Pricing" title="COMPARE EVERY FEATURE" body="Each plan is its own card — scan features at a glance and pick the edge that fits your trading." />
+          <SectionHeader eyebrow="Pricing" title="COMPARE EVERY FEATURE" body="Each plan is its own card. Scan features at a glance and pick the edge that fits your trading." />
           <div className="mt-12 grid grid-cols-1 items-stretch gap-4 md:grid-cols-3 lg:mt-16">
             {plans.map((plan) => (
               <PricingCard key={plan.id} plan={plan} />
@@ -649,7 +649,7 @@ export default function LandingPage() {
               I spent 20 years in the Army as an Airborne Ranger and 82nd
               Airborne paratrooper before I ever sat down seriously to trade.
               Military life teaches you something that took me a long time to
-              fully understand — failure is rarely about ability. It&apos;s
+              fully understand: failure is rarely about ability. It&apos;s
               almost always about process, preparation, and the small decisions
               you make under pressure that nobody else ever sees.
             </p>
@@ -660,8 +660,8 @@ export default function LandingPage() {
 
             <p>
               I&apos;m tired of hearing the same statistic thrown around
-              everywhere — that only a small percentage of traders are ever
-              profitable — like it&apos;s some unchangeable law of nature. I
+              everywhere: that only a small percentage of traders are ever
+              profitable, like it&apos;s some unchangeable law of nature. I
               don&apos;t believe that. I&apos;ve seen too many disciplined people
               fail not because they lacked skill, but because they had no real
               feedback loop on their own behavior. They could see their P&amp;L,
@@ -672,7 +672,7 @@ export default function LandingPage() {
               I built TradeEdge AI to change that. This isn&apos;t a money grab,
               and it&apos;s not another app promising easy profits. It&apos;s a
               real tool, built by a trader, for traders, designed to do one
-              thing — help you see the patterns that are quietly costing you
+              thing: help you see the patterns that are quietly costing you
               money before they cost you your account.
             </p>
 

@@ -76,7 +76,7 @@ export default function SignupPage() {
         bullets: [
           "AI coaching on every trade you log",
           "Prop-firm challenge tracking, rule by rule",
-          "See the pattern costing you money — not just the number",
+          "See the pattern costing you money, not just the number",
         ],
       }}
       footer={

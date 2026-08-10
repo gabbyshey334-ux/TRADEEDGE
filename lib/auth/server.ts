@@ -5,7 +5,7 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 import type { Plan } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
 
-/** Deduped per request — layout + pages share one auth round-trip. */
+/** Deduped per request, layout + pages share one auth round-trip. */
 export const getAuthUser = cache(async () => {
   if (!getSupabaseEnv()) {
     return { user: null, error: null };

@@ -6,4 +6,4 @@ export const PAYMENT_COMING_SOON_MESSAGE =
 
 /** Shown when plan is Pro/Elite in Supabase but there is no Stripe customer (manual grant). */
 export const MANUAL_PLAN_BILLING_MESSAGE =
-  "Your plan is active. Billing is managed directly — no Stripe subscription is linked to this account.";
+  "Your plan is active. Billing is managed directly. No Stripe subscription is linked to this account.";

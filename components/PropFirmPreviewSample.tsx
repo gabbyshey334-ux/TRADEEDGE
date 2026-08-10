@@ -1,6 +1,6 @@
 /**
  * Static sample challenge cards for locked Prop Firm Tracker preview.
- * Numbers are invented — not a real account.
+ * Numbers are invented, not a real account.
  */
 export function PropFirmPreviewSample() {
   return (

@@ -32,7 +32,7 @@ interface ChallengeRiskData {
 function lowRiskMessage(data: ChallengeRiskData, firmName: string): string {
   const dailyUsed = Math.round(data.dailyLimitUsed);
   const maxUsed = Math.round(data.maxDrawdownUsed);
-  return `Patterns look healthy for ${firmName}. Daily limit ${dailyUsed}% used · Max drawdown ${maxUsed}% used — no rule-break triggers detected.`;
+  return `Patterns look healthy for ${firmName}. Daily limit ${dailyUsed}% used · Max drawdown ${maxUsed}% used. No rule-break triggers detected.`;
 }
 
 export function ChallengeRiskBanner({
@@ -159,7 +159,7 @@ export function ChallengeRiskBanner({
             Rule Break Prediction
           </div>
           <p className="font-body text-[12px] text-[#4a5568]">
-            Monitoring active — log trades to update your rule-break risk.
+            Monitoring active. Log trades to update your rule-break risk.
           </p>
         </div>
       </div>
@@ -193,7 +193,7 @@ export function ChallengeRiskBanner({
           </div>
           <p className="font-body text-[12px] leading-relaxed text-[#8892a4]">
             <span className="font-medium text-[#00ff88]">Low risk</span>
-            {" — "}
+            {", "}
             {lowRiskMessage(data, firmName)}
           </p>
         </div>
@@ -235,7 +235,7 @@ export function ChallengeRiskBanner({
       <span className="shrink-0 font-mono text-lg text-[#ff3b5c]">⚠</span>
       <div className="min-w-0 flex-1 pr-6">
         <div className="mb-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-[#ff3b5c]">
-          Rule Break Prediction — High Risk
+          Rule Break Prediction, High Risk
         </div>
         <p className="font-body text-[12px] leading-relaxed text-[#ff3b5c]/80">
           {data.warning}

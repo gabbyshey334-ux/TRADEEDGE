@@ -33,7 +33,7 @@ export async function syncUserPlanFromStripe(
 
   const currentPlan = (profile.plan as Plan) ?? "starter";
 
-  // Manual or admin Elite grant — keep unless Stripe has an active Elite subscription.
+  // Manual or admin Elite grant, keep unless Stripe has an active Elite subscription.
   if (currentPlan === "elite") {
     const listed = await stripe.subscriptions.list({
       customer: profile.stripe_customer_id as string,

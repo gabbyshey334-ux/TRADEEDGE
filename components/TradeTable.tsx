@@ -97,7 +97,7 @@ export function TradeTable({
                     R:R
                   </span>
                   <span className="mt-0.5 block font-mono text-[12px] text-[#a78bfa]">
-                    {t.rr != null ? Number(t.rr).toFixed(2) : "—"}
+                    {t.rr != null ? Number(t.rr).toFixed(2) : "-"}
                   </span>
                 </span>
                 {!compact && t.setup && (
@@ -185,24 +185,24 @@ export function TradeTable({
                     <DirectionBadge direction={t.direction} />
                   </Td>
                   {!compact && (
-                    <Td className="text-[#8892a4]">{t.setup ?? "—"}</Td>
+                    <Td className="text-[#8892a4]">{t.setup ?? "-"}</Td>
                   )}
                   {!compact && (
-                    <Td className="text-[#8892a4]">{t.session ?? "—"}</Td>
+                    <Td className="text-[#8892a4]">{t.session ?? "-"}</Td>
                   )}
                   <Td align="right" className="text-[#e8edf5] tabular-nums">
                     {Number(t.entry).toFixed(5)}
                   </Td>
                   <Td align="right" className="text-[#e8edf5] tabular-nums">
-                    {t.exit_price != null ? Number(t.exit_price).toFixed(5) : "—"}
+                    {t.exit_price != null ? Number(t.exit_price).toFixed(5) : "-"}
                   </Td>
                   {!compact && (
                     <Td align="right" className="text-[#8892a4] tabular-nums">
-                      {t.size != null ? Number(t.size).toFixed(2) : "—"}
+                      {t.size != null ? Number(t.size).toFixed(2) : "-"}
                     </Td>
                   )}
                   <Td align="right" className="text-[#a78bfa] tabular-nums">
-                    {t.rr != null ? Number(t.rr).toFixed(2) : "—"}
+                    {t.rr != null ? Number(t.rr).toFixed(2) : "-"}
                   </Td>
                   <Td
                     align="right"
@@ -215,7 +215,7 @@ export function TradeTable({
                   </Td>
                   {!compact && (
                     <Td className="font-body text-[11px] text-[#4a5568] italic">
-                      {t.emotion ?? "—"}
+                      {t.emotion ?? "-"}
                     </Td>
                   )}
                   {(onEdit || onDelete) && (

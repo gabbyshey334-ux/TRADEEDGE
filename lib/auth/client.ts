@@ -18,7 +18,7 @@ function mapAuthError(message: string): string {
     lower.includes("email rate limit exceeded") ||
     lower.includes("over_email_send_rate_limit")
   ) {
-    return "Too many auth emails were sent recently. Please wait about an hour and try again — or ask support if you need access sooner.";
+    return "Too many auth emails were sent recently. Please wait about an hour and try again, or ask support if you need access sooner.";
   }
   return message;
 }
